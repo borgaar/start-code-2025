@@ -49,6 +49,27 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   }
 
   @override
+  Future<ShoppingList> getShoppingListWithAisles({
+    required String id,
+    required String storeSlug,
+  }) async {
+    try {
+      final response = await _apiClient.get(
+        '/api/shopping-lists/$id/aisles/$storeSlug',
+      );
+      return ShoppingList.fromJson(response as Map<String, dynamic>);
+    } catch (e, stackTrace) {
+      developer.log(
+        'Failed to fetch shopping list with aisles: $id for store: $storeSlug',
+        name: 'ShoppingListRepository',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      throw ApiException('Failed to fetch shopping list with aisles: $e');
+    }
+  }
+
+  @override
   Future<ShoppingList> createShoppingList(String name) async {
     try {
       final response = await _apiClient.post(

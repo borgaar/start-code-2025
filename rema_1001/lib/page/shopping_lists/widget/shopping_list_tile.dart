@@ -17,8 +17,10 @@ class ShoppingListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemCount = list.items.length;
-    final checkedCount = list.items.where((item) => item.checked).length;
+    // Prefer API-provided counts, fallback to calculating from items
+    final itemCount = list.totalItems ?? list.items.length;
+    final checkedCount =
+        list.checkedItems ?? list.items.where((item) => item.checked).length;
 
     return Dismissible(
       key: Key(list.id),
@@ -80,25 +82,7 @@ class ShoppingListTile extends StatelessWidget {
               ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
-          children: [
-            if (itemCount > 0)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '$itemCount',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSecondaryContainer,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_right),
-          ],
+          children: [const SizedBox(width: 8), const Icon(Icons.chevron_right)],
         ),
         onTap: () {
           // context.push('/lists/${list.id}');

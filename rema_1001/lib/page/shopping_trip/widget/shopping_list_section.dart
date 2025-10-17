@@ -64,10 +64,11 @@ class ShoppingListSection extends StatelessWidget {
             )
           else
             ...shoppingLists.map((list) {
-              final totalItems = list.items.length;
-              final checkedItems = list.items
-                  .where((item) => item.checked)
-                  .length;
+              // Prefer API-provided counts, fallback to calculating from items
+              final totalItems = list.totalItems ?? list.items.length;
+              final checkedItems =
+                  list.checkedItems ??
+                  list.items.where((item) => item.checked).length;
 
               return ListTile(
                 leading: CircleAvatar(

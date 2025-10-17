@@ -8,6 +8,12 @@ abstract class ShoppingListRepository {
   /// Get a shopping list by ID
   Future<ShoppingList> getShoppingListById(String id);
 
+  /// Get a shopping list with aisle locations for a specific store
+  Future<ShoppingList> getShoppingListWithAisles({
+    required String id,
+    required String storeSlug,
+  });
+
   /// Create a new shopping list
   Future<ShoppingList> createShoppingList(String name);
 

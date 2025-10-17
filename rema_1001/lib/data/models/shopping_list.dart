@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'product_aisle_location.dart';
 import 'shopping_list_item.dart';
 
 class ShoppingList extends Equatable {
@@ -7,6 +8,9 @@ class ShoppingList extends Equatable {
   final String createdAt;
   final String updatedAt;
   final List<ShoppingListItem> items;
+  final int? totalItems;
+  final int? checkedItems;
+  final List<ProductAisleLocation>? aisles;
 
   const ShoppingList({
     required this.id,
@@ -14,6 +18,9 @@ class ShoppingList extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.items = const [],
+    this.totalItems,
+    this.checkedItems,
+    this.aisles,
   });
 
   factory ShoppingList.mock({id = 0}) {
@@ -41,6 +48,17 @@ class ShoppingList extends Equatable {
                 )
                 .toList()
           : [],
+      totalItems: json['totalItems'] as int?,
+      checkedItems: json['checkedItems'] as int?,
+      aisles: json['aisles'] != null
+          ? (json['aisles'] as List)
+                .map(
+                  (aisle) => ProductAisleLocation.fromJson(
+                    aisle as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
+          : null,
     );
   }
 
@@ -60,6 +78,9 @@ class ShoppingList extends Equatable {
     String? createdAt,
     String? updatedAt,
     List<ShoppingListItem>? items,
+    int? totalItems,
+    int? checkedItems,
+    List<ProductAisleLocation>? aisles,
   }) {
     return ShoppingList(
       id: id ?? this.id,
@@ -67,9 +88,21 @@ class ShoppingList extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       items: items ?? this.items,
+      totalItems: totalItems ?? this.totalItems,
+      checkedItems: checkedItems ?? this.checkedItems,
+      aisles: aisles ?? this.aisles,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, createdAt, updatedAt, items];
+  List<Object?> get props => [
+    id,
+    name,
+    createdAt,
+    updatedAt,
+    items,
+    totalItems,
+    checkedItems,
+    aisles,
+  ];
 }
