@@ -1,0 +1,7 @@
+.env.example
+.env
+.gitignore
+node_modules
+dist
+deploy.sh
+README.md
