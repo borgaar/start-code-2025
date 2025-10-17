@@ -1,4 +1,5 @@
-import 'package:rema_1001/map/map.dart';
+import 'package:flutter/widgets.dart';
+import 'package:rema_1001/map/model.dart';
 
 bool _aislesOverlap(Aisle a1, Aisle a2) {
   // Calculate bounds
@@ -50,4 +51,100 @@ List<List<int>> groupOverlappingAisles(List<Aisle> aisles) {
   }
 
   return groups;
+}
+
+/// Check if aisle1 is completely inside aisle2
+bool isAisleInside(Aisle inner, Aisle outer) {
+  final innerLeft = inner.topLeft.dx;
+  final innerTop = inner.topLeft.dy;
+  final innerRight = innerLeft + inner.width;
+  final innerBottom = innerTop + inner.height;
+
+  final outerLeft = outer.topLeft.dx;
+  final outerTop = outer.topLeft.dy;
+  final outerRight = outerLeft + outer.width;
+  final outerBottom = outerTop + outer.height;
+
+  return innerLeft >= outerLeft &&
+      innerTop >= outerTop &&
+      innerRight <= outerRight &&
+      innerBottom <= outerBottom &&
+      // Make sure it's actually inside, not the same
+      !(innerLeft == outerLeft &&
+          innerTop == outerTop &&
+          innerRight == outerRight &&
+          innerBottom == outerBottom);
+}
+
+/// Result of getAisleRRect containing the RRect and the alignment axis
+typedef AisleRRectResult = ({RRect rrect, Axis? alignmentAxis});
+
+/// Get custom border radius RRect for an aisle based on which edges are exposed
+/// If the aisle is inside a parent, corners that touch internal edges will have no radius
+/// Returns a record with the RRect and the alignment axis (horizontal if top/bottom aligned, vertical if left/right aligned)
+AisleRRectResult getAisleRRect(
+  Aisle aisle,
+  double scaleX,
+  double scaleY,
+  double borderRadius,
+  Aisle? parent,
+) {
+  final rect = Rect.fromLTWH(
+    aisle.topLeft.dx * scaleX,
+    aisle.topLeft.dy * scaleY,
+    aisle.width * scaleX,
+    aisle.height * scaleY,
+  );
+
+  if (parent == null) {
+    // No parent, use uniform border radius
+    return (
+      rrect: RRect.fromRectAndRadius(rect, Radius.circular(borderRadius)),
+      alignmentAxis: null,
+    );
+  }
+
+  // Calculate edges
+  final aisleLeft = aisle.topLeft.dx;
+  final aisleTop = aisle.topLeft.dy;
+  final aisleRight = aisleLeft + aisle.width;
+  final aisleBottom = aisleTop + aisle.height;
+
+  final parentLeft = parent.topLeft.dx;
+  final parentTop = parent.topLeft.dy;
+  final parentRight = parentLeft + parent.width;
+  final parentBottom = parentTop + parent.height;
+
+  // Tolerance for edge detection (consider edges within this distance as "touching")
+  final tolerance = 0.1;
+
+  // Check which edges align with parent edges (are flush/overlapping)
+  final topAligned = (aisleTop - parentTop).abs() < tolerance;
+  final bottomAligned = (aisleBottom - parentBottom).abs() < tolerance;
+  final leftAligned = (aisleLeft - parentLeft).abs() < tolerance;
+  final rightAligned = (aisleRight - parentRight).abs() < tolerance;
+
+  // Determine alignment axis
+  Axis? alignmentAxis;
+  if (topAligned || bottomAligned) {
+    alignmentAxis = Axis.horizontal;
+  } else if (leftAligned || rightAligned) {
+    alignmentAxis = Axis.vertical;
+  }
+
+  // Corners should have NO radius if either adjacent edge is aligned (flush)
+  // Corners should have radius if both adjacent edges are inside (not aligned)
+  final radius = Radius.circular(borderRadius);
+  final noRadius = Radius.zero;
+
+  return (
+    rrect: RRect.fromRectAndCorners(
+      rect,
+      topLeft: (topAligned || leftAligned) ? noRadius : radius,
+      topRight: (topAligned || rightAligned) ? noRadius : radius,
+      bottomLeft: (bottomAligned || leftAligned) ? noRadius : radius,
+      bottomRight: (bottomAligned || rightAligned) ? noRadius : radius,
+    ),
+    alignmentAxis: alignmentAxis,
+  );
 }
