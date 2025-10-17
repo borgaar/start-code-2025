@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -28,6 +22,7 @@ model Product {
   createdAt           DateTime           @default(now())
   updatedAt           DateTime           @updatedAt
   shoppingListItems   ShoppingListItem[]
+  ProductInAisle      ProductInAisle[]
 
   @@index([productId])
   @@index([gtin])
@@ -59,4 +54,65 @@ model ShoppingListItem {
   @@unique([shoppingListId, productId])
   @@index([shoppingListId])
   @@index([productId])
+}
+
+model Store {
+  id        String   @id
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  aisles Aisle[]
+
+  @@index([name])
+}
+
+enum AisleType {
+  FRIDGE
+  FREEZER
+  FRUIT
+  VEGETABLES
+  DAIRY
+  CHEESE
+  MEAT
+  FROZEN
+  PANTRY
+  OTHER
+
+  OBSTACLE
+}
+
+model Aisle {
+  id   String @id
+  name String
+
+  type   AisleType @default(OTHER)
+  gridX  Int
+  gridY  Int
+  width  Int
+  height Int
+
+  storeId        String
+  store          Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  ProductInAisle ProductInAisle[]
+
+  @@index([gridX])
+  @@index([gridY])
+  @@index([width])
+  @@index([height])
+  @@index([storeId])
+  @@index([type])
+}
+
+model ProductInAisle {
+  id        String @id
+  productId String
+  aisleId   String
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  aisle   Aisle   @relation(fields: [aisleId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, aisleId])
+  @@index([productId])
+  @@index([aisleId])
 }
