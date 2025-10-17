@@ -7,6 +7,8 @@ FROM base AS builder
 WORKDIR /app
 
 COPY pnpm-lock.yaml ./
+COPY pnpm-workspace.yaml ./
+COPY admin-panel ./admin-panel
 COPY package.json ./
 COPY prisma ./prisma
 
@@ -15,8 +17,6 @@ RUN pnpm i --frozen-lockfile
 COPY . .
 
 RUN pnpm build
-
-RUN pnpm prune --prod
 
 FROM base AS runner
 
