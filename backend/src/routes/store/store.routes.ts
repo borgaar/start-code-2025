@@ -2,12 +2,21 @@ import { describeRoute, resolver } from "hono-openapi";
 import { route } from "~/lib/route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import {
-  storeSchema,
-  storeWithAislesSchema,
-  createStoreBodySchema,
-  updateStoreBodySchema,
-} from "./schemas";
+import { StoreSchema, AisleSchema } from "~/generated/zod/schemas/models";
+
+const storeSchema = StoreSchema;
+const storeWithAislesSchema = StoreSchema.extend({
+  aisles: z.array(AisleSchema),
+});
+const createStoreBodySchema = StoreSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+});
+const updateStoreBodySchema = StoreSchema.omit({
+  slug: true,
+  createdAt: true,
+  updatedAt: true,
+}).partial();
 
 // Get all stores
 export const getAllStoresRoute = route().get(
@@ -62,7 +71,7 @@ export const createStoreRoute = route().post(
     try {
       const store = await c.get("db").store.create({
         data: {
-          id: body.id,
+          slug: body.slug,
           name: body.name,
         },
       });
@@ -71,7 +80,7 @@ export const createStoreRoute = route().post(
     } catch (error) {
       const errorMessage = String(error);
       if (errorMessage.includes("Unique constraint")) {
-        return c.json({ error: "Store with this ID already exists" }, 409);
+        return c.json({ error: "Store with this slug already exists" }, 409);
       }
       return c.json({ error: "Failed to create store" }, 400);
     }
@@ -99,10 +108,10 @@ export const getStoreBySlugRoute = route().get(
   async (c) => {
     const { slug } = c.req.param();
     const store = await c.get("db").store.findUnique({
-      where: { id: slug },
+      where: { slug },
       include: {
         aisles: {
-          orderBy: { name: "asc" },
+          orderBy: [{ gridX: "asc" }, { gridY: "asc" }],
         },
       },
     });
@@ -143,7 +152,7 @@ export const updateStoreRoute = route().put(
 
     try {
       const store = await c.get("db").store.update({
-        where: { id: slug },
+        where: { slug },
         data: { name: body.name },
       });
 
@@ -174,7 +183,7 @@ export const deleteStoreRoute = route().delete(
 
     try {
       await c.get("db").store.delete({
-        where: { id: slug },
+        where: { slug },
       });
 
       return c.body(null, 204);

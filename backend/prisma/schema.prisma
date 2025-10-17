@@ -2,21 +2,26 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator zod {
+  provider = "prisma-zod-generator"
+  output   = "../src/generated/zod"
+  config   = "./zod-config.json"
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model Product {
-  id                  String             @id @default(cuid())
-  productId           String             @unique
+  productId           String             @id
   gtin                String             @unique
   name                String
   description         String
   price               Float
   pricePerUnit        Float
   unit                String
-  allergens           String?
+  allergens           String[]
   carbonFootprintGram Float
   organic             Boolean            @default(false)
   createdAt           DateTime           @default(now())
@@ -46,10 +51,8 @@ model ShoppingListItem {
   productId      String
   quantity       Int          @default(1)
   checked        Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
   shoppingList   ShoppingList @relation(fields: [shoppingListId], references: [id], onDelete: Cascade)
-  product        Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product        Product      @relation(fields: [productId], references: [productId], onDelete: Cascade)
 
   @@unique([shoppingListId, productId])
   @@index([shoppingListId])
@@ -57,7 +60,7 @@ model ShoppingListItem {
 }
 
 model Store {
-  id        String   @id
+  slug      String   @id
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -68,39 +71,40 @@ model Store {
 }
 
 enum AisleType {
-  FRIDGE
+  OBSTACLE
   FREEZER
-  FRUIT
-  VEGETABLES
-  DAIRY
+  DRINKS
+  PANTRY
+  SWEETS
   CHEESE
   MEAT
-  FROZEN
-  PANTRY
-  OTHER
+  DAIRY
+  FRIDGE
+  FRUIT
+  VEGETABLES
+  BAKERY
 
-  OBSTACLE
+  OTHER
 }
 
 model Aisle {
-  id   String @id
-  name String
+  id String @id @default(cuid())
 
-  type   AisleType @default(OTHER)
-  gridX  Int
-  gridY  Int
-  width  Int
-  height Int
+  storeSlug String
+  type      AisleType
+  gridX     Int
+  gridY     Int
+  width     Int
+  height    Int
 
-  storeId        String
-  store          Store            @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  store          Store            @relation(fields: [storeSlug], references: [slug], onDelete: Cascade)
   ProductInAisle ProductInAisle[]
 
   @@index([gridX])
   @@index([gridY])
   @@index([width])
   @@index([height])
-  @@index([storeId])
+  @@index([storeSlug])
   @@index([type])
 }
 
@@ -109,7 +113,7 @@ model ProductInAisle {
   productId String
   aisleId   String
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
   aisle   Aisle   @relation(fields: [aisleId], references: [id], onDelete: Cascade)
 
   @@unique([productId, aisleId])

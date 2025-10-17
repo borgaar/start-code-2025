@@ -1,16 +1,7 @@
 import { describeRoute, resolver } from "hono-openapi";
 import { route } from "~/lib/route";
 import { z } from "zod";
-
-const productSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  description: z.string(),
-  price: z.number(),
-  stock: z.number(),
-  sku: z.string(),
-  category: z.string(),
-});
+import { ProductSchema } from "~/generated/zod/schemas/models";
 
 const getAllRoute = route().get(
   "/",
@@ -18,10 +9,10 @@ const getAllRoute = route().get(
     tags: ["product"],
     summary: "Get all products",
     responses: {
-      201: {
-        description: "Created",
+      200: {
+        description: "Success",
         content: {
-          "application/json": { schema: resolver(productSchema) },
+          "application/json": { schema: resolver(z.array(ProductSchema)) },
         },
       },
     },
@@ -41,14 +32,22 @@ const getByIdRoute = route().get(
       200: {
         description: "Product found",
         content: {
-          "application/json": { schema: resolver(productSchema) },
+          "application/json": { schema: resolver(ProductSchema) },
         },
+      },
+      404: {
+        description: "Product not found",
       },
     },
   }),
   async (c) => {
     const { id } = c.req.param();
-    const product = await c.get("db").product.findUnique({ where: { id } });
+    const product = await c
+      .get("db")
+      .product.findUnique({ where: { productId: id } });
+    if (!product) {
+      return c.json({ error: "Product not found" }, 404);
+    }
     return c.json(product);
   }
 );
