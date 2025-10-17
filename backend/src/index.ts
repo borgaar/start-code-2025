@@ -7,6 +7,10 @@ import { AppVariables, route } from "./lib/route";
 import productRoute from "./routes/products";
 import shoppingListRoute from "./routes/shopping-lists";
 import storeRoute from "./routes/store";
+import { serveStatic } from "@hono/node-server/serve-static";
+import path from "node:path";
+
+const adminPanelPath = path.resolve(import.meta.dirname, "../dist/admin-panel");
 
 export const createApp = async (variables?: AppVariables) => {
   const api = route()
@@ -53,6 +57,13 @@ export const createApp = async (variables?: AppVariables) => {
         theme: "saturn",
         url: "/openapi",
         sources: [{ url: "/openapi", title: "API" }],
+      })
+    )
+    .use(
+      "/admin/*",
+      serveStatic({
+        root: adminPanelPath,
+        rewriteRequestPath: (path) => path.replace(/^\/admin/, ""),
       })
     );
 
