@@ -109,14 +109,13 @@ model Aisle {
 }
 
 model ProductInAisle {
-  id        String @id
   productId String
   aisleId   String
 
   product Product @relation(fields: [productId], references: [productId], onDelete: Cascade)
   aisle   Aisle   @relation(fields: [aisleId], references: [id], onDelete: Cascade)
 
-  @@unique([productId, aisleId])
+  @@id([productId, aisleId])
   @@index([productId])
   @@index([aisleId])
 }

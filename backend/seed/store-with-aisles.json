@@ -23,7 +23,7 @@
       { "type": "DAIRY", "x": 47, "y": 15, "width": 5, "height": 5 },
       { "type": "FRIDGE", "x": 47, "y": 25, "width": 5, "height": 20 },
 
-      { "type": "FRUIT", "x": 20, "y": 45, "width": 5, "height": 5 },
+      { "type": "BAKERY", "x": 20, "y": 45, "width": 5, "height": 5 },
       { "type": "FRUIT", "x": 29, "y": 45, "width": 5, "height": 5 },
       { "type": "FRUIT", "x": 38, "y": 45, "width": 5, "height": 5 },
 

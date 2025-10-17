@@ -283,7 +283,7 @@
     "allergens": "hvete, gluten",
     "carbonFootprintGram": 280,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4002",
@@ -296,7 +296,7 @@
     "allergens": null,
     "carbonFootprintGram": 420,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4003",
@@ -309,7 +309,7 @@
     "allergens": "havre, gluten",
     "carbonFootprintGram": 190,
     "organic": true,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4004",
@@ -322,7 +322,7 @@
     "allergens": null,
     "carbonFootprintGram": 220,
     "organic": false,
-    "aisle": "CANNED_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4005",
@@ -335,7 +335,7 @@
     "allergens": null,
     "carbonFootprintGram": 180,
     "organic": false,
-    "aisle": "CANNED_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4006",
@@ -348,7 +348,7 @@
     "allergens": null,
     "carbonFootprintGram": 340,
     "organic": true,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4007",
@@ -361,7 +361,7 @@
     "allergens": "hvete, gluten",
     "carbonFootprintGram": 250,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4008",
@@ -374,7 +374,7 @@
     "allergens": null,
     "carbonFootprintGram": 380,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4009",
@@ -387,7 +387,7 @@
     "allergens": null,
     "carbonFootprintGram": 120,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4010",
@@ -400,7 +400,7 @@
     "allergens": "hvete, gluten, melk",
     "carbonFootprintGram": 420,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4011",
@@ -413,7 +413,7 @@
     "allergens": "hvete, gluten",
     "carbonFootprintGram": 290,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4012",
@@ -426,7 +426,7 @@
     "allergens": null,
     "carbonFootprintGram": 160,
     "organic": true,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4013",
@@ -439,7 +439,7 @@
     "allergens": null,
     "carbonFootprintGram": 140,
     "organic": false,
-    "aisle": "CANNED_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4014",
@@ -452,7 +452,7 @@
     "allergens": null,
     "carbonFootprintGram": 280,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4015",
@@ -465,7 +465,7 @@
     "allergens": "peanøtter",
     "carbonFootprintGram": 320,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4016",
@@ -478,7 +478,7 @@
     "allergens": null,
     "carbonFootprintGram": 85,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4017",
@@ -491,7 +491,7 @@
     "allergens": null,
     "carbonFootprintGram": 240,
     "organic": false,
-    "aisle": "CANNED_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4018",
@@ -504,7 +504,7 @@
     "allergens": "egg, sennep",
     "carbonFootprintGram": 380,
     "organic": false,
-    "aisle": "CANNED_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4019",
@@ -517,7 +517,7 @@
     "allergens": "soya, hvete, gluten",
     "carbonFootprintGram": 190,
     "organic": false,
-    "aisle": "CANNED_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "4020",
@@ -530,7 +530,7 @@
     "allergens": "hvete, gluten",
     "carbonFootprintGram": 270,
     "organic": false,
-    "aisle": "DRY_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "5001",
@@ -543,7 +543,7 @@
     "allergens": "melk, soya",
     "carbonFootprintGram": 580,
     "organic": false,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5002",
@@ -556,7 +556,7 @@
     "allergens": "soya",
     "carbonFootprintGram": 520,
     "organic": true,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5003",
@@ -569,7 +569,7 @@
     "allergens": null,
     "carbonFootprintGram": 340,
     "organic": false,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5004",
@@ -582,7 +582,7 @@
     "allergens": null,
     "carbonFootprintGram": 480,
     "organic": false,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5005",
@@ -595,7 +595,7 @@
     "allergens": "hvete, gluten, melk, egg",
     "carbonFootprintGram": 520,
     "organic": false,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5006",
@@ -608,7 +608,7 @@
     "allergens": "hvete, gluten",
     "carbonFootprintGram": 290,
     "organic": false,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5007",
@@ -621,7 +621,7 @@
     "allergens": "nøtter",
     "carbonFootprintGram": 420,
     "organic": false,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5008",
@@ -634,7 +634,7 @@
     "allergens": "nøtter",
     "carbonFootprintGram": 380,
     "organic": true,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5009",
@@ -647,7 +647,7 @@
     "allergens": null,
     "carbonFootprintGram": 240,
     "organic": false,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "5010",
@@ -660,7 +660,7 @@
     "allergens": null,
     "carbonFootprintGram": 180,
     "organic": false,
-    "aisle": "SNACKS"
+    "aisle": "SWEETS"
   },
   {
     "productId": "6001",
@@ -1063,7 +1063,7 @@
     "allergens": "fisk",
     "carbonFootprintGram": 1240,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "9002",
@@ -1076,7 +1076,7 @@
     "allergens": "fisk",
     "carbonFootprintGram": 980,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "9003",
@@ -1089,7 +1089,7 @@
     "allergens": "skalldyr",
     "carbonFootprintGram": 1180,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "9004",
@@ -1102,7 +1102,7 @@
     "allergens": "fisk",
     "carbonFootprintGram": 820,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "9005",
@@ -1115,7 +1115,7 @@
     "allergens": "fisk",
     "carbonFootprintGram": 680,
     "organic": false,
-    "aisle": "CANNED_GOODS"
+    "aisle": "PANTRY"
   },
   {
     "productId": "9006",
@@ -1128,7 +1128,7 @@
     "allergens": "fisk",
     "carbonFootprintGram": 520,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "9007",
@@ -1141,7 +1141,7 @@
     "allergens": "fisk",
     "carbonFootprintGram": 1150,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "9008",
@@ -1154,7 +1154,7 @@
     "allergens": "fisk",
     "carbonFootprintGram": 920,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "9009",
@@ -1167,7 +1167,7 @@
     "allergens": "fisk",
     "carbonFootprintGram": 1380,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "9010",
@@ -1180,7 +1180,7 @@
     "allergens": "skalldyr",
     "carbonFootprintGram": 1420,
     "organic": false,
-    "aisle": "FISH"
+    "aisle": "FREEZER"
   },
   {
     "productId": "10001",
@@ -1193,7 +1193,7 @@
     "allergens": null,
     "carbonFootprintGram": 180,
     "organic": false,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10002",
@@ -1206,7 +1206,7 @@
     "allergens": null,
     "carbonFootprintGram": 220,
     "organic": false,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10003",
@@ -1219,7 +1219,7 @@
     "allergens": null,
     "carbonFootprintGram": 240,
     "organic": false,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10004",
@@ -1232,7 +1232,7 @@
     "allergens": null,
     "carbonFootprintGram": 280,
     "organic": false,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10005",
@@ -1245,7 +1245,7 @@
     "allergens": null,
     "carbonFootprintGram": 160,
     "organic": true,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10006",
@@ -1258,7 +1258,7 @@
     "allergens": null,
     "carbonFootprintGram": 190,
     "organic": false,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10007",
@@ -1271,7 +1271,7 @@
     "allergens": null,
     "carbonFootprintGram": 210,
     "organic": false,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10008",
@@ -1284,7 +1284,7 @@
     "allergens": null,
     "carbonFootprintGram": 320,
     "organic": false,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10009",
@@ -1297,7 +1297,7 @@
     "allergens": null,
     "carbonFootprintGram": 380,
     "organic": false,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "10010",
@@ -1310,7 +1310,7 @@
     "allergens": null,
     "carbonFootprintGram": 140,
     "organic": true,
-    "aisle": "FRUITS"
+    "aisle": "FRUIT"
   },
   {
     "productId": "11001",

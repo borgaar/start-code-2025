@@ -56,6 +56,14 @@ export const getAislesRoute = route().get(
   }
 );
 
+const createAisleRequestBodyOpenAPI = await resolver(
+  createAisleBodySchema
+).toOpenAPISchema();
+
+const updateAisleRequestBodyOpenAPI = await resolver(
+  updateAisleBodySchema
+).toOpenAPISchema();
+
 // Create a new aisle for a store
 export const createAisleRoute = route().post(
   "/:slug/aisle",
@@ -63,6 +71,13 @@ export const createAisleRoute = route().post(
   describeRoute({
     tags: ["aisle"],
     summary: "Create a new aisle for a store",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: createAisleRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       201: {
         description: "Created",
@@ -156,6 +171,13 @@ export const updateAisleRoute = route().put(
   describeRoute({
     tags: ["aisle"],
     summary: "Update an aisle",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: updateAisleRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       200: {
         description: "Updated",

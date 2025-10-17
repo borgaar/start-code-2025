@@ -17,13 +17,16 @@ abstract class ShoppingListDetailInProgress extends ShoppingListDetailState {
 
 class ShoppingListDetailLoading extends ShoppingListDetailInProgress {
   @override
-  ShoppingList get shoppingList => ShoppingList(
-    id: "",
-    name: "Shopping List",
-    createdAt: DateTime.now(),
-    updatedAt: DateTime.now(),
-    items: List.generate(5, (index) => ShoppingListItem.mock(id: index)),
-  );
+  ShoppingList get shoppingList {
+    final now = DateTime.now().toIso8601String();
+    return ShoppingList(
+      id: "",
+      name: "Shopping List",
+      createdAt: now,
+      updatedAt: now,
+      items: List.generate(5, (index) => ShoppingListItem.mock(id: index)),
+    );
+  }
 }
 
 class ShoppingListDetailLoaded extends ShoppingListDetailInProgress {

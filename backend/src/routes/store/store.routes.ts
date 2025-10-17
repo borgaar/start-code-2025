@@ -26,6 +26,14 @@ const StoreTransferSchema = StoreSchema.omit({
   createdAt: z.string(),
 });
 
+const createStoreRequestBodyOpenAPI = await resolver(
+  createStoreBodySchema
+).toOpenAPISchema();
+
+const updateStoreRequestBodyOpenAPI = await resolver(
+  updateStoreBodySchema
+).toOpenAPISchema();
+
 // Get all stores
 export const getAllStoresRoute = route().get(
   "/",
@@ -58,6 +66,13 @@ export const createStoreRoute = route().post(
   describeRoute({
     tags: ["store"],
     summary: "Create a new store",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: createStoreRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       201: {
         description: "Created",
@@ -139,6 +154,13 @@ export const updateStoreRoute = route().put(
   describeRoute({
     tags: ["store"],
     summary: "Update a store",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: updateStoreRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       200: {
         description: "Updated",

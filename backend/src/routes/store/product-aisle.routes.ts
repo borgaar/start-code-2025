@@ -18,9 +18,11 @@ const productInAisleWithProductSchema = ProductInAisleSchema.extend({
   }),
 });
 
-const addProductToAisleBodySchema = ProductInAisleSchema.omit({
-  id: true,
-});
+const addProductToAisleBodySchema = ProductInAisleSchema;
+
+const addProductToAisleRequestBodyOpenAPI = await resolver(
+  addProductToAisleBodySchema
+).toOpenAPISchema();
 
 // Add product to aisle
 export const addProductToAisleRoute = route().post(
@@ -29,6 +31,13 @@ export const addProductToAisleRoute = route().post(
   describeRoute({
     tags: ["aisle"],
     summary: "Add a product to an aisle",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: addProductToAisleRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       201: {
         description: "Product added to aisle",
@@ -73,7 +82,6 @@ export const addProductToAisleRoute = route().post(
     try {
       const productInAisle = await c.get("db").productInAisle.create({
         data: {
-          id: `${body.productId}_${body.aisleId}`,
           productId: body.productId,
           aisleId: body.aisleId,
         },

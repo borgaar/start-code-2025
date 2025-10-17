@@ -65,4 +65,4 @@ const getByIdRoute = route().get(
 export default route()
   //
   .route("/", getAllRoute)
-  .route("/:id", getByIdRoute);
+  .route("/", getByIdRoute);

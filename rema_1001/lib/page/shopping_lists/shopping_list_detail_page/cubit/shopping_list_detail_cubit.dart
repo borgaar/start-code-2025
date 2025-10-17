@@ -19,9 +19,6 @@ class ShoppingListDetailCubit extends Cubit<ShoppingListDetailState> {
     if (emitLoading) emit(ShoppingListDetailLoading());
     try {
       final list = await _repository.getShoppingListById(listId);
-      await Future.delayed(
-        const Duration(milliseconds: 1000),
-      ); // For demo purposes
       emit(ShoppingListDetailLoaded(list));
     } catch (e) {
       emit(ShoppingListDetailError('Failed to load shopping list: $e'));

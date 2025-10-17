@@ -1,6 +1,8 @@
 final class RouteNames {
   static const String home = 'home';
   static const String trips = 'trips';
+  static const String storeSelection = 'storeSelection';
+  static const String shoppingListSelection = 'shoppingListSelection';
   static const String lists = 'lists';
   static const String shoppingListDetail = 'shoppingListDetail';
   static const String addItem = 'addItem';

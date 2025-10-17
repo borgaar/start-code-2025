@@ -2,26 +2,44 @@ import 'package:equatable/equatable.dart';
 import 'aisle.dart';
 
 class Store extends Equatable {
-  final String id;
+  final String slug;
   final String name;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String? createdAt;
+  final String? updatedAt;
   final List<Aisle> aisles;
 
   const Store({
-    required this.id,
+    required this.slug,
     required this.name,
-    required this.createdAt,
-    required this.updatedAt,
+    this.createdAt,
+    this.updatedAt,
     this.aisles = const [],
   });
 
+  factory Store.mock({int id = 0}) {
+    final storeNames = [
+      'Rema 1000 Elgeseter',
+      'Rema 1000 City Syd',
+      'Rema 1000 Trondheim Torg',
+      'Rema 1000 Lade',
+      'Rema 1000 Moholt',
+    ];
+
+    return Store(
+      slug: 'store-${id + 1}',
+      name: storeNames[id % storeNames.length],
+      createdAt: DateTime.now().toIso8601String(),
+      updatedAt: DateTime.now().toIso8601String(),
+      aisles: [],
+    );
+  }
+
   factory Store.fromJson(Map<String, dynamic> json) {
     return Store(
-      id: json['id'] as String,
+      slug: json['slug'] as String,
       name: json['name'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] as String?,
+      updatedAt: json['updatedAt'] as String?,
       aisles: json['aisles'] != null
           ? (json['aisles'] as List)
                 .map((aisle) => Aisle.fromJson(aisle as Map<String, dynamic>))
@@ -32,23 +50,23 @@ class Store extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
+      'slug': slug,
       'name': name,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      if (createdAt != null) 'createdAt': createdAt,
+      if (updatedAt != null) 'updatedAt': updatedAt,
       'aisles': aisles.map((aisle) => aisle.toJson()).toList(),
     };
   }
 
   Store copyWith({
-    String? id,
+    String? slug,
     String? name,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    String? createdAt,
+    String? updatedAt,
     List<Aisle>? aisles,
   }) {
     return Store(
-      id: id ?? this.id,
+      slug: slug ?? this.slug,
       name: name ?? this.name,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -57,5 +75,5 @@ class Store extends Equatable {
   }
 
   @override
-  List<Object?> get props => [id, name, createdAt, updatedAt, aisles];
+  List<Object?> get props => [slug, name, createdAt, updatedAt, aisles];
 }

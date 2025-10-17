@@ -9,6 +9,7 @@ import shoppingListRoute from "./routes/shopping-lists";
 import storeRoute from "./routes/store";
 import { serveStatic } from "@hono/node-server/serve-static";
 import path from "node:path";
+import { cors } from "hono/cors";
 
 const adminPanelPath = path.resolve(import.meta.dirname, "../dist/admin-panel");
 
@@ -23,6 +24,7 @@ export const createApp = async (variables?: AppVariables) => {
     .route("/store", storeRoute);
 
   const app = route()
+    .use(cors())
     .use(logger())
     .use("*", async (c, next) => {
       c.set("db", prisma);

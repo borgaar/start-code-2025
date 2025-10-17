@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rema_1001/settings/allergies/bloc/allergies_cubit.dart';
-import 'package:rema_1001/settings/allergies/bloc/allergies_state.dart';
+import 'package:rema_1001/page/profile/settings/allergies/bloc/allergies_cubit.dart';
+import 'package:rema_1001/page/profile/settings/allergies/bloc/allergies_state.dart';
 
 class AllergiesPage extends StatelessWidget {
   const AllergiesPage({super.key});
@@ -82,7 +82,17 @@ class AllergiesPage extends StatelessWidget {
                         runSpacing: 8,
                         children: state.selectedAllergies.map((allergy) {
                           return Chip(
-                            label: Text(allergy),
+                            color: WidgetStatePropertyAll(
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                            ),
+                            label: Text(
+                              allergy,
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primaryContainer,
+                              ),
+                            ),
                             onDeleted: () => context
                                 .read<AllergiesCubit>()
                                 .toggleAllergy(allergy),

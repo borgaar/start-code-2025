@@ -1,12 +1,16 @@
 import 'package:equatable/equatable.dart';
+import 'product_aisle_location.dart';
 import 'shopping_list_item.dart';
 
 class ShoppingList extends Equatable {
   final String id;
   final String name;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String createdAt;
+  final String updatedAt;
   final List<ShoppingListItem> items;
+  final int? totalItems;
+  final int? checkedItems;
+  final List<ProductAisleLocation>? aisles;
 
   const ShoppingList({
     required this.id,
@@ -14,14 +18,18 @@ class ShoppingList extends Equatable {
     required this.createdAt,
     required this.updatedAt,
     this.items = const [],
+    this.totalItems,
+    this.checkedItems,
+    this.aisles,
   });
 
   factory ShoppingList.mock({id = 0}) {
+    final now = DateTime.now().toIso8601String();
     return ShoppingList(
       id: 'list_$id',
       name: 'Shopping List $id',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: now,
+      updatedAt: now,
       items: List.generate(5, (index) => ShoppingListItem.mock(id: index)),
     );
   }
@@ -30,8 +38,8 @@ class ShoppingList extends Equatable {
     return ShoppingList(
       id: json['id'] as String,
       name: json['name'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] as String,
+      updatedAt: json['updatedAt'] as String,
       items: json['items'] != null
           ? (json['items'] as List)
                 .map(
@@ -40,6 +48,17 @@ class ShoppingList extends Equatable {
                 )
                 .toList()
           : [],
+      totalItems: json['totalItems'] as int?,
+      checkedItems: json['checkedItems'] as int?,
+      aisles: json['aisles'] != null
+          ? (json['aisles'] as List)
+                .map(
+                  (aisle) => ProductAisleLocation.fromJson(
+                    aisle as Map<String, dynamic>,
+                  ),
+                )
+                .toList()
+          : null,
     );
   }
 
@@ -47,8 +66,8 @@ class ShoppingList extends Equatable {
     return {
       'id': id,
       'name': name,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
       'items': items.map((item) => item.toJson()).toList(),
     };
   }
@@ -56,9 +75,12 @@ class ShoppingList extends Equatable {
   ShoppingList copyWith({
     String? id,
     String? name,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    String? createdAt,
+    String? updatedAt,
     List<ShoppingListItem>? items,
+    int? totalItems,
+    int? checkedItems,
+    List<ProductAisleLocation>? aisles,
   }) {
     return ShoppingList(
       id: id ?? this.id,
@@ -66,9 +88,21 @@ class ShoppingList extends Equatable {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       items: items ?? this.items,
+      totalItems: totalItems ?? this.totalItems,
+      checkedItems: checkedItems ?? this.checkedItems,
+      aisles: aisles ?? this.aisles,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, createdAt, updatedAt, items];
+  List<Object?> get props => [
+    id,
+    name,
+    createdAt,
+    updatedAt,
+    items,
+    totalItems,
+    checkedItems,
+    aisles,
+  ];
 }

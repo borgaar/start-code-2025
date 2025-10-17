@@ -41,6 +41,12 @@ const ShoppingListWithItemsSchema = ShoppingListTransferSchema.extend({
       }),
     })
   ),
+  aisles: z.array(
+    z.object({
+      productId: z.string(),
+      aisleId: z.string(),
+    })
+  ),
 });
 
 const shoppingListItemWithProductSchema = ShoppingListItemSchema.extend({
@@ -53,6 +59,22 @@ const shoppingListItemWithProductSchema = ShoppingListItemSchema.extend({
   }),
 });
 
+const insertShoppingListRequestBodyOpenAPI = await resolver(
+  InsertShoppingListSchema
+).toOpenAPISchema();
+
+const updateShoppingListRequestBodyOpenAPI = await resolver(
+  UpdateShoppingListSchema
+).toOpenAPISchema();
+
+const insertShoppingListItemRequestBodyOpenAPI = await resolver(
+  InsertShoppingListItemSchema.omit({ shoppingListId: true })
+).toOpenAPISchema();
+
+const updateShoppingListItemRequestBodyOpenAPI = await resolver(
+  UpdateShoppingListItemSchema
+).toOpenAPISchema();
+
 // Get all shopping lists
 const getAllRoute = route().get(
   "/",
@@ -64,7 +86,14 @@ const getAllRoute = route().get(
         description: "Success",
         content: {
           "application/json": {
-            schema: resolver(z.array(ShoppingListTransferSchema)),
+            schema: resolver(
+              z.array(
+                ShoppingListTransferSchema.extend({
+                  totalItems: z.number(),
+                  checkedItems: z.number(),
+                })
+              )
+            ),
           },
         },
       },
@@ -73,8 +102,15 @@ const getAllRoute = route().get(
   async (c) => {
     const shoppingLists = await c.get("db").shoppingList.findMany({
       orderBy: { createdAt: "desc" },
+      include: { items: true },
     });
-    return c.json(shoppingLists);
+
+    const shoppingListsWithCounts = shoppingLists.map(({ items, ...rest }) => ({
+      ...rest,
+      totalItems: items.length,
+      checkedItems: items.filter((item) => item.checked).length,
+    }));
+    return c.json(shoppingListsWithCounts);
   }
 );
 
@@ -85,6 +121,13 @@ const createRoute = route().post(
   describeRoute({
     tags: ["shopping-list"],
     summary: "Create a new shopping list",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: insertShoppingListRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       201: {
         description: "Created",
@@ -153,6 +196,13 @@ const updateRoute = route().patch(
   describeRoute({
     tags: ["shopping-list"],
     summary: "Update a shopping list",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: updateShoppingListRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       200: {
         description: "Updated",
@@ -226,6 +276,13 @@ const addItemRoute = route().post(
   describeRoute({
     tags: ["shopping-list"],
     summary: "Add an item to a shopping list",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: insertShoppingListItemRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       201: {
         description: "Item added",
@@ -278,6 +335,13 @@ const updateItemRoute = route().patch(
   describeRoute({
     tags: ["shopping-list"],
     summary: "Update an item in a shopping list",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: updateShoppingListItemRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       200: {
         description: "Item updated",
@@ -343,10 +407,54 @@ const removeItemRoute = route().delete(
   }
 );
 
+export const getShoppingListWithAsilesLocation = route().get(
+  "/:id/aisles/:storeSlug",
+  describeRoute({
+    tags: ["shopping-list"],
+    summary: "Get a shopping list with aisles location",
+    responses: {
+      200: {
+        description: "Shopping list with aisles location",
+        content: {
+          "application/json": { schema: resolver(ShoppingListWithItemsSchema) },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const { id, storeSlug } = c.req.param();
+    const shoppingList = await c.get("db").shoppingList.findUnique({
+      where: { id },
+      include: { items: { include: { product: true } } },
+    });
+
+    if (!shoppingList) {
+      return c.json({ error: "Shopping list not found" }, 404);
+    }
+
+    const productIds = shoppingList?.items.map((item) => item.productId) ?? [];
+
+    const aisles = await c.get("db").productInAisle.findMany({
+      where: {
+        productId: { in: productIds },
+        aisle: {
+          storeSlug,
+        },
+      },
+    });
+
+    return c.json({
+      ...shoppingList,
+      aisles,
+    });
+  }
+);
+
 export default route()
   .route("/", getAllRoute)
   .route("/", createRoute)
   .route("/", getByIdRoute)
+  .route("/", getShoppingListWithAsilesLocation)
   .route("/", updateRoute)
   .route("/", deleteRoute)
   .route("/", addItemRoute)
