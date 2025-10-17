@@ -28,11 +28,12 @@ class ShoppingListsCubit extends Cubit<ShoppingListsState> {
 
     // Optimistic update: add temporary list
     final tempId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
+    final now = DateTime.now().toIso8601String();
     final tempList = ShoppingList(
       id: tempId,
       name: name,
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: now,
+      updatedAt: now,
       items: const [],
     );
 
@@ -63,7 +64,10 @@ class ShoppingListsCubit extends Cubit<ShoppingListsState> {
     // Optimistic update
     final optimisticLists = currentState.shoppingLists.map((list) {
       if (list.id == id) {
-        return list.copyWith(name: newName, updatedAt: DateTime.now());
+        return list.copyWith(
+          name: newName,
+          updatedAt: DateTime.now().toIso8601String(),
+        );
       }
       return list;
     }).toList();

@@ -4,8 +4,8 @@ import 'shopping_list_item.dart';
 class ShoppingList extends Equatable {
   final String id;
   final String name;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+  final String createdAt;
+  final String updatedAt;
   final List<ShoppingListItem> items;
 
   const ShoppingList({
@@ -17,11 +17,12 @@ class ShoppingList extends Equatable {
   });
 
   factory ShoppingList.mock({id = 0}) {
+    final now = DateTime.now().toIso8601String();
     return ShoppingList(
       id: 'list_$id',
       name: 'Shopping List $id',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
+      createdAt: now,
+      updatedAt: now,
       items: List.generate(5, (index) => ShoppingListItem.mock(id: index)),
     );
   }
@@ -30,8 +31,8 @@ class ShoppingList extends Equatable {
     return ShoppingList(
       id: json['id'] as String,
       name: json['name'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      createdAt: json['createdAt'] as String,
+      updatedAt: json['updatedAt'] as String,
       items: json['items'] != null
           ? (json['items'] as List)
                 .map(
@@ -47,8 +48,8 @@ class ShoppingList extends Equatable {
     return {
       'id': id,
       'name': name,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
       'items': items.map((item) => item.toJson()).toList(),
     };
   }
@@ -56,8 +57,8 @@ class ShoppingList extends Equatable {
   ShoppingList copyWith({
     String? id,
     String? name,
-    DateTime? createdAt,
-    DateTime? updatedAt,
+    String? createdAt,
+    String? updatedAt,
     List<ShoppingListItem>? items,
   }) {
     return ShoppingList(
