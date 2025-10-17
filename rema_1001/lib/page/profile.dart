@@ -22,12 +22,12 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             const Text(
-              'John Doe',
+              'Odd Reitan',
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             const Text(
-              'john.doe@example.com',
+              'odd.reitan@reitan.com',
               style: TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 32),
@@ -56,6 +56,7 @@ class ProfileScreen extends StatelessWidget {
                     Icons.settings,
                     'Settings',
                     'App preferences and settings',
+                    () => context.pushNamed(RouteNames.settings),
                   ),
                   const Divider(),
                   _buildProfileOption(
@@ -79,15 +80,18 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProfileOption(IconData icon, String title, String subtitle) {
+  Widget _buildProfileOption(
+    IconData icon,
+    String title,
+    String subtitle, [
+    VoidCallback? onTap,
+  ]) {
     return ListTile(
       leading: Icon(icon, size: 30),
       title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.arrow_forward_ios),
-      onTap: () {
-        // Navigate to specific settings
-      },
+      onTap: onTap,
     );
   }
 }

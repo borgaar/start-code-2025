@@ -8,6 +8,8 @@ import 'package:rema_1001/page/profile.dart';
 import 'package:rema_1001/router/fade_transition_page.dart';
 import 'package:rema_1001/router/nav_bar.dart';
 import 'package:rema_1001/router/route_names.dart';
+import 'package:rema_1001/settings/settings.dart';
+import 'package:rema_1001/settings/allergies_page.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: "/home",
@@ -49,6 +51,26 @@ final GoRouter router = GoRouter(
             state: state,
             child: const ProfileScreen(),
           ),
+          routes: [
+            GoRoute(
+              path: "settings",
+              name: RouteNames.settings,
+              pageBuilder: (context, state) => FadeTransitionPage<void>(
+                state: state,
+                child: const Settings(),
+              ),
+              routes: [
+                GoRoute(
+                  path: "allergies",
+                  name: RouteNames.allergies,
+                  pageBuilder: (context, state) => FadeTransitionPage<void>(
+                    state: state,
+                    child: const AllergiesPage(),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ],
     ),

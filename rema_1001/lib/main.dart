@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rema_1001/router/router.dart';
+import 'package:rema_1001/settings/cubit/allergies_cubit.dart';
+import 'package:rema_1001/settings/cubit/settings_cubit.dart';
 
 void main() {
   runApp(const MyApp());
@@ -10,13 +13,23 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      debugShowCheckedModeBanner: false,
-      title: 'Rema 1001',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => SettingsCubit(),
+        ),
+        BlocProvider(
+          create: (context) => AllergiesCubit(),
+        ),
+      ],
+      child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
+        title: 'Rema 1001',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        ),
+        routerConfig: router,
       ),
-      routerConfig: router,
     );
   }
 }
