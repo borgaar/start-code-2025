@@ -2,11 +2,18 @@ import { describeRoute, resolver } from "hono-openapi";
 import { route } from "~/lib/route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import {
-  aisleSchema,
-  createAisleBodySchema,
-  updateAisleBodySchema,
-} from "./schemas";
+import { AisleSchema } from "~/generated/zod/schemas/models";
+import { AisleTypeSchema } from "~/generated/zod/schemas/enums/AisleType.schema";
+
+const aisleSchema = AisleSchema;
+const createAisleBodySchema = AisleSchema.omit({
+  id: true,
+  storeSlug: true,
+});
+const updateAisleBodySchema = AisleSchema.omit({
+  id: true,
+  storeSlug: true,
+}).partial();
 
 // Get all aisles for a store
 export const getAislesRoute = route().get(
@@ -33,7 +40,7 @@ export const getAislesRoute = route().get(
 
     // Verify store exists
     const store = await c.get("db").store.findUnique({
-      where: { id: slug },
+      where: { slug },
     });
 
     if (!store) {
@@ -41,8 +48,8 @@ export const getAislesRoute = route().get(
     }
 
     const aisles = await c.get("db").aisle.findMany({
-      where: { storeId: slug },
-      orderBy: { name: "asc" },
+      where: { storeSlug: slug },
+      orderBy: [{ gridX: "asc" }, { gridY: "asc" }],
     });
 
     return c.json(aisles);
@@ -80,7 +87,7 @@ export const createAisleRoute = route().post(
 
     // Verify store exists
     const store = await c.get("db").store.findUnique({
-      where: { id: slug },
+      where: { slug },
     });
 
     if (!store) {
@@ -90,23 +97,17 @@ export const createAisleRoute = route().post(
     try {
       const aisle = await c.get("db").aisle.create({
         data: {
-          id: body.id,
-          name: body.name,
           type: body.type,
           gridX: body.gridX,
           gridY: body.gridY,
           width: body.width,
           height: body.height,
-          storeId: slug,
+          storeSlug: slug,
         },
       });
 
       return c.json(aisle, 201);
     } catch (error) {
-      const errorMessage = String(error);
-      if (errorMessage.includes("Unique constraint")) {
-        return c.json({ error: "Aisle with this ID already exists" }, 409);
-      }
       return c.json({ error: "Failed to create aisle" }, 400);
     }
   }
@@ -136,7 +137,7 @@ export const getAisleRoute = route().get(
     const aisle = await c.get("db").aisle.findFirst({
       where: {
         id: aisleId,
-        storeId: slug,
+        storeSlug: slug,
       },
     });
 
@@ -178,7 +179,7 @@ export const updateAisleRoute = route().put(
       const aisle = await c.get("db").aisle.updateMany({
         where: {
           id: aisleId,
-          storeId: slug,
+          storeSlug: slug,
         },
         data: body,
       });
@@ -221,7 +222,7 @@ export const deleteAisleRoute = route().delete(
       const result = await c.get("db").aisle.deleteMany({
         where: {
           id: aisleId,
-          storeId: slug,
+          storeSlug: slug,
         },
       });
 
@@ -254,19 +255,7 @@ export const getAisleTypesRoute = route().get(
     },
   }),
   async (c) => {
-    const aisleTypes = [
-      "FRIDGE",
-      "FREEZER",
-      "FRUIT",
-      "VEGETABLES",
-      "DAIRY",
-      "CHEESE",
-      "MEAT",
-      "FROZEN",
-      "PANTRY",
-      "OTHER",
-      "OBSTACLE",
-    ];
-    return c.json(aisleTypes);
+    const entries = Object.values(AisleTypeSchema.def.entries);
+    return c.json(entries);
   }
 );

@@ -3,10 +3,17 @@ import { route } from "~/lib/route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
 import {
-  productInAisleSchema,
-  productInAisleWithProductSchema,
-  addProductToAisleBodySchema,
-} from "./schemas";
+  ProductInAisleSchema,
+  ProductSchema,
+} from "~/generated/zod/schemas/models";
+
+const productInAisleSchema = ProductInAisleSchema;
+const productInAisleWithProductSchema = ProductInAisleSchema.extend({
+  product: ProductSchema,
+});
+const addProductToAisleBodySchema = ProductInAisleSchema.omit({
+  id: true,
+});
 
 // Add product to aisle
 export const addProductToAisleRoute = route().post(
@@ -40,7 +47,7 @@ export const addProductToAisleRoute = route().post(
 
     // Verify product exists
     const product = await c.get("db").product.findUnique({
-      where: { id: body.productId },
+      where: { productId: body.productId },
     });
 
     if (!product) {
@@ -140,7 +147,7 @@ export const getProductsInAisleRoute = route().get(
     const aisle = await c.get("db").aisle.findFirst({
       where: {
         id: aisleId,
-        storeId: slug,
+        storeSlug: slug,
       },
     });
 

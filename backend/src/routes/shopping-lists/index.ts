@@ -1,58 +1,28 @@
 import { describeRoute, resolver } from "hono-openapi";
 import { route } from "~/lib/route";
-import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
+import {
+  ShoppingListItemSchema,
+  ShoppingListSchema,
+  ProductSchema,
+} from "~/generated/zod/schemas/models";
+import z from "zod";
 
-const shoppingListItemSchema = z.object({
-  id: z.string(),
-  shoppingListId: z.string(),
-  productId: z.string(),
-  quantity: z.number(),
-  checked: z.boolean(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  product: z.object({
-    id: z.string(),
-    productId: z.string(),
-    gtin: z.string(),
-    name: z.string(),
-    description: z.string(),
-    price: z.number(),
-    pricePerUnit: z.number(),
-    unit: z.string(),
-    allergens: z.string().nullable(),
-    carbonFootprintGram: z.number(),
-    organic: z.boolean(),
-  }),
+const InsertShoppingListSchema = ShoppingListSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
 });
+const UpdateShoppingListSchema = InsertShoppingListSchema.partial();
 
-const shoppingListSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-  items: z.array(shoppingListItemSchema),
-});
+const InsertShoppingListItemSchema = ShoppingListItemSchema.omit({ id: true });
+const UpdateShoppingListItemSchema = ShoppingListItemSchema.omit({
+  id: true,
+  shoppingListId: true,
+}).partial();
 
-const shoppingListWithoutItemsSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  createdAt: z.string(),
-  updatedAt: z.string(),
-});
-
-const createShoppingListBodySchema = z.object({
-  name: z.string().min(1, "Name is required"),
-});
-
-const addItemBodySchema = z.object({
-  productId: z.string().min(1, "Product ID is required"),
-  quantity: z.number().int().positive().default(1),
-});
-
-const updateItemBodySchema = z.object({
-  quantity: z.number().int().positive().optional(),
-  checked: z.boolean().optional(),
+const shoppingListItemWithProductSchema = ShoppingListItemSchema.extend({
+  product: ProductSchema,
 });
 
 // Get all shopping lists
@@ -66,7 +36,7 @@ const getAllRoute = route().get(
         description: "Success",
         content: {
           "application/json": {
-            schema: resolver(z.array(shoppingListWithoutItemsSchema)),
+            schema: resolver(z.array(ShoppingListSchema)),
           },
         },
       },
@@ -83,7 +53,7 @@ const getAllRoute = route().get(
 // Create a new shopping list
 const createRoute = route().post(
   "/",
-  zValidator("json", createShoppingListBodySchema),
+  zValidator("json", InsertShoppingListSchema),
   describeRoute({
     tags: ["shopping-list"],
     summary: "Create a new shopping list",
@@ -91,7 +61,7 @@ const createRoute = route().post(
       201: {
         description: "Created",
         content: {
-          "application/json": { schema: resolver(shoppingListSchema) },
+          "application/json": { schema: resolver(ShoppingListSchema) },
         },
       },
       400: {
@@ -121,7 +91,7 @@ const getByIdRoute = route().get(
       200: {
         description: "Shopping list found",
         content: {
-          "application/json": { schema: resolver(shoppingListSchema) },
+          "application/json": { schema: resolver(ShoppingListSchema) },
         },
       },
       404: {
@@ -137,7 +107,6 @@ const getByIdRoute = route().get(
       include: {
         items: {
           include: { product: true },
-          orderBy: { createdAt: "asc" },
         },
       },
     });
@@ -155,7 +124,7 @@ const getByIdRoute = route().get(
 // Update a shopping list
 const updateRoute = route().patch(
   "/:id",
-  zValidator("json", createShoppingListBodySchema),
+  zValidator("json", UpdateShoppingListSchema),
   describeRoute({
     tags: ["shopping-list"],
     summary: "Update a shopping list",
@@ -163,7 +132,7 @@ const updateRoute = route().patch(
       200: {
         description: "Updated",
         content: {
-          "application/json": { schema: resolver(shoppingListSchema) },
+          "application/json": { schema: resolver(ShoppingListSchema) },
         },
       },
       404: {
@@ -225,7 +194,10 @@ const deleteRoute = route().delete(
 // Add item to shopping list
 const addItemRoute = route().post(
   "/:id/items",
-  zValidator("json", addItemBodySchema),
+  zValidator(
+    "json",
+    InsertShoppingListItemSchema.omit({ shoppingListId: true })
+  ),
   describeRoute({
     tags: ["shopping-list"],
     summary: "Add an item to a shopping list",
@@ -233,7 +205,9 @@ const addItemRoute = route().post(
       201: {
         description: "Item added",
         content: {
-          "application/json": { schema: resolver(shoppingListItemSchema) },
+          "application/json": {
+            schema: resolver(shoppingListItemWithProductSchema),
+          },
         },
       },
       404: {
@@ -275,7 +249,7 @@ const addItemRoute = route().post(
 // Update an item in shopping list
 const updateItemRoute = route().patch(
   "/:id/items/:itemId",
-  zValidator("json", updateItemBodySchema),
+  zValidator("json", UpdateShoppingListItemSchema),
   describeRoute({
     tags: ["shopping-list"],
     summary: "Update an item in a shopping list",
@@ -283,7 +257,9 @@ const updateItemRoute = route().patch(
       200: {
         description: "Item updated",
         content: {
-          "application/json": { schema: resolver(shoppingListItemSchema) },
+          "application/json": {
+            schema: resolver(shoppingListItemWithProductSchema),
+          },
         },
       },
       404: {

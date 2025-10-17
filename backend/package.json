@@ -9,7 +9,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.5",
@@ -26,6 +27,7 @@
   "devDependencies": {
     "@types/node": "^20.11.17",
     "prisma": "^6.17.1",
+    "prisma-zod-generator": "^1.28.3",
     "tsup": "^8.5.0",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
