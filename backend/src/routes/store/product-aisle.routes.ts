@@ -18,9 +18,7 @@ const productInAisleWithProductSchema = ProductInAisleSchema.extend({
   }),
 });
 
-const addProductToAisleBodySchema = ProductInAisleSchema.omit({
-  id: true,
-});
+const addProductToAisleBodySchema = ProductInAisleSchema;
 
 const addProductToAisleRequestBodyOpenAPI = await resolver(
   addProductToAisleBodySchema
@@ -84,7 +82,6 @@ export const addProductToAisleRoute = route().post(
     try {
       const productInAisle = await c.get("db").productInAisle.create({
         data: {
-          id: `${body.productId}_${body.aisleId}`,
           productId: body.productId,
           aisleId: body.aisleId,
         },

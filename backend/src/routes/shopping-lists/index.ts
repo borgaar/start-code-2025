@@ -387,10 +387,54 @@ const removeItemRoute = route().delete(
   }
 );
 
+export const getShoppingListWithAsilesLocation = route().get(
+  "/:id/aisles/:storeSlug",
+  describeRoute({
+    tags: ["shopping-list"],
+    summary: "Get a shopping list with aisles location",
+    responses: {
+      200: {
+        description: "Shopping list with aisles location",
+        content: {
+          "application/json": { schema: resolver(ShoppingListWithItemsSchema) },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const { id, storeSlug } = c.req.param();
+    const shoppingList = await c.get("db").shoppingList.findUnique({
+      where: { id },
+      include: { items: { include: { product: true } } },
+    });
+
+    if (!shoppingList) {
+      return c.json({ error: "Shopping list not found" }, 404);
+    }
+
+    const productIds = shoppingList?.items.map((item) => item.productId) ?? [];
+
+    const aisles = await c.get("db").productInAisle.findMany({
+      where: {
+        productId: { in: productIds },
+        aisle: {
+          storeSlug,
+        },
+      },
+    });
+
+    return c.json({
+      ...shoppingList,
+      aisles,
+    });
+  }
+);
+
 export default route()
   .route("/", getAllRoute)
   .route("/", createRoute)
   .route("/", getByIdRoute)
+  .route("/", getShoppingListWithAsilesLocation)
   .route("/", updateRoute)
   .route("/", deleteRoute)
   .route("/", addItemRoute)

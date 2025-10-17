@@ -167,6 +167,25 @@ async function main() {
 
       aisleToAppend.products.push(product);
     }
+
+    const entriesToCreate: Prisma.ProductInAisleCreateManyInput[] = [];
+
+    for (const [aisleType, aisles] of Object.entries(aislesByType)) {
+      aisles.forEach((aisle) => {
+        aisle.products.forEach((product) => {
+          entriesToCreate.push({
+            aisleId: aisle.id,
+            productId: product.productId,
+          });
+        });
+      });
+    }
+
+    await prisma.productInAisle.createMany({
+      data: entriesToCreate,
+    });
+
+    console.log(`Created ${entriesToCreate.length} product in aisle entries`);
   }
 
   if (mockProducts.length > 0) {
