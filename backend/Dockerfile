@@ -34,4 +34,4 @@ ENV NODE_ENV=production
 COPY --from=builder --chown=hono:hono /app/dist ./dist
 COPY --from=builder --chown=hono:hono /app/node_modules ./node_modules
 
-ENTRYPOINT ["node", "dist/src/index.js"]
+ENTRYPOINT ["pnpm", "start"]
