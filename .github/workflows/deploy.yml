@@ -31,7 +31,7 @@ jobs:
           PROXY_HOST: drift.tihlde.org
           HOST: adelie
           USER: debian
-          WORKING_DIRECTORY: /root/rema_1001
+          WORKING_DIRECTORY: /root/rema_1001/backend
         run: |
           # Start ssh-agent and add the SSH key
           eval $(ssh-agent -s)
