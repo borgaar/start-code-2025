@@ -10,14 +10,52 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as StoresIndexRouteImport } from './routes/stores/index'
+import { Route as ShoppingListsIndexRouteImport } from './routes/shopping-lists/index'
+import { Route as ProductsIndexRouteImport } from './routes/products/index'
+import { Route as ShoppingListsIdRouteImport } from './routes/shopping-lists/$id'
+import { Route as ProductsNewRouteImport } from './routes/products/new'
+import { Route as ProductsIdRouteImport } from './routes/products/$id'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
 import { Route as DemoStoreRouteImport } from './routes/demo/store'
+import { Route as StoresSlugIndexRouteImport } from './routes/stores/$slug/index'
+import { Route as StoresSlugAislesRouteImport } from './routes/stores/$slug/aisles'
 import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
 import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoresIndexRoute = StoresIndexRouteImport.update({
+  id: '/stores/',
+  path: '/stores/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShoppingListsIndexRoute = ShoppingListsIndexRouteImport.update({
+  id: '/shopping-lists/',
+  path: '/shopping-lists/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsIndexRoute = ProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShoppingListsIdRoute = ShoppingListsIdRouteImport.update({
+  id: '/shopping-lists/$id',
+  path: '/shopping-lists/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsNewRoute = ProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProductsIdRoute = ProductsIdRouteImport.update({
+  id: '/products/$id',
+  path: '/products/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
@@ -28,6 +66,16 @@ const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
 const DemoStoreRoute = DemoStoreRouteImport.update({
   id: '/demo/store',
   path: '/demo/store',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoresSlugIndexRoute = StoresSlugIndexRouteImport.update({
+  id: '/stores/$slug/',
+  path: '/stores/$slug/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoresSlugAislesRoute = StoresSlugAislesRouteImport.update({
+  id: '/stores/$slug/aisles',
+  path: '/stores/$slug/aisles',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
@@ -45,23 +93,47 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/products/$id': typeof ProductsIdRoute
+  '/products/new': typeof ProductsNewRoute
+  '/shopping-lists/$id': typeof ShoppingListsIdRoute
+  '/products': typeof ProductsIndexRoute
+  '/shopping-lists': typeof ShoppingListsIndexRoute
+  '/stores': typeof StoresIndexRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/stores/$slug/aisles': typeof StoresSlugAislesRoute
+  '/stores/$slug': typeof StoresSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/products/$id': typeof ProductsIdRoute
+  '/products/new': typeof ProductsNewRoute
+  '/shopping-lists/$id': typeof ShoppingListsIdRoute
+  '/products': typeof ProductsIndexRoute
+  '/shopping-lists': typeof ShoppingListsIndexRoute
+  '/stores': typeof StoresIndexRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/stores/$slug/aisles': typeof StoresSlugAislesRoute
+  '/stores/$slug': typeof StoresSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/demo/store': typeof DemoStoreRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
+  '/products/$id': typeof ProductsIdRoute
+  '/products/new': typeof ProductsNewRoute
+  '/shopping-lists/$id': typeof ShoppingListsIdRoute
+  '/products/': typeof ProductsIndexRoute
+  '/shopping-lists/': typeof ShoppingListsIndexRoute
+  '/stores/': typeof StoresIndexRoute
   '/demo/form/address': typeof DemoFormAddressRoute
   '/demo/form/simple': typeof DemoFormSimpleRoute
+  '/stores/$slug/aisles': typeof StoresSlugAislesRoute
+  '/stores/$slug/': typeof StoresSlugIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -69,30 +141,62 @@ export interface FileRouteTypes {
     | '/'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/products/$id'
+    | '/products/new'
+    | '/shopping-lists/$id'
+    | '/products'
+    | '/shopping-lists'
+    | '/stores'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/stores/$slug/aisles'
+    | '/stores/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/products/$id'
+    | '/products/new'
+    | '/shopping-lists/$id'
+    | '/products'
+    | '/shopping-lists'
+    | '/stores'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/stores/$slug/aisles'
+    | '/stores/$slug'
   id:
     | '__root__'
     | '/'
     | '/demo/store'
     | '/demo/tanstack-query'
+    | '/products/$id'
+    | '/products/new'
+    | '/shopping-lists/$id'
+    | '/products/'
+    | '/shopping-lists/'
+    | '/stores/'
     | '/demo/form/address'
     | '/demo/form/simple'
+    | '/stores/$slug/aisles'
+    | '/stores/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DemoStoreRoute: typeof DemoStoreRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
+  ProductsIdRoute: typeof ProductsIdRoute
+  ProductsNewRoute: typeof ProductsNewRoute
+  ShoppingListsIdRoute: typeof ShoppingListsIdRoute
+  ProductsIndexRoute: typeof ProductsIndexRoute
+  ShoppingListsIndexRoute: typeof ShoppingListsIndexRoute
+  StoresIndexRoute: typeof StoresIndexRoute
   DemoFormAddressRoute: typeof DemoFormAddressRoute
   DemoFormSimpleRoute: typeof DemoFormSimpleRoute
+  StoresSlugAislesRoute: typeof StoresSlugAislesRoute
+  StoresSlugIndexRoute: typeof StoresSlugIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -102,6 +206,48 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stores/': {
+      id: '/stores/'
+      path: '/stores'
+      fullPath: '/stores'
+      preLoaderRoute: typeof StoresIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shopping-lists/': {
+      id: '/shopping-lists/'
+      path: '/shopping-lists'
+      fullPath: '/shopping-lists'
+      preLoaderRoute: typeof ShoppingListsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/': {
+      id: '/products/'
+      path: '/products'
+      fullPath: '/products'
+      preLoaderRoute: typeof ProductsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shopping-lists/$id': {
+      id: '/shopping-lists/$id'
+      path: '/shopping-lists/$id'
+      fullPath: '/shopping-lists/$id'
+      preLoaderRoute: typeof ShoppingListsIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/new': {
+      id: '/products/new'
+      path: '/products/new'
+      fullPath: '/products/new'
+      preLoaderRoute: typeof ProductsNewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/products/$id': {
+      id: '/products/$id'
+      path: '/products/$id'
+      fullPath: '/products/$id'
+      preLoaderRoute: typeof ProductsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/tanstack-query': {
@@ -116,6 +262,20 @@ declare module '@tanstack/react-router' {
       path: '/demo/store'
       fullPath: '/demo/store'
       preLoaderRoute: typeof DemoStoreRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stores/$slug/': {
+      id: '/stores/$slug/'
+      path: '/stores/$slug'
+      fullPath: '/stores/$slug'
+      preLoaderRoute: typeof StoresSlugIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stores/$slug/aisles': {
+      id: '/stores/$slug/aisles'
+      path: '/stores/$slug/aisles'
+      fullPath: '/stores/$slug/aisles'
+      preLoaderRoute: typeof StoresSlugAislesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo/form/simple': {
@@ -139,8 +299,16 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DemoStoreRoute: DemoStoreRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,
+  ProductsIdRoute: ProductsIdRoute,
+  ProductsNewRoute: ProductsNewRoute,
+  ShoppingListsIdRoute: ShoppingListsIdRoute,
+  ProductsIndexRoute: ProductsIndexRoute,
+  ShoppingListsIndexRoute: ShoppingListsIndexRoute,
+  StoresIndexRoute: StoresIndexRoute,
   DemoFormAddressRoute: DemoFormAddressRoute,
   DemoFormSimpleRoute: DemoFormSimpleRoute,
+  StoresSlugAislesRoute: StoresSlugAislesRoute,
+  StoresSlugIndexRoute: StoresSlugIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

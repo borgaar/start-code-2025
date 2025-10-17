@@ -16,7 +16,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/products/{id}/{id}": {
+    "/api/products/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -24,7 +24,7 @@ export interface paths {
             cookie?: never;
         };
         /** Get a product by ID */
-        get: operations["getApiProducts:id:id"];
+        get: operations["getApiProducts:id"];
         put?: never;
         post?: never;
         delete?: never;
@@ -68,6 +68,23 @@ export interface paths {
         head?: never;
         /** Update a shopping list */
         patch: operations["patchApiShopping-lists:id"];
+        trace?: never;
+    };
+    "/api/shopping-lists/{id}/aisles/{storeSlug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get a shopping list with aisles location */
+        get: operations["getApiShopping-lists:idAisles:storeSlug"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/shopping-lists/{id}/items": {
@@ -292,7 +309,7 @@ export interface operations {
             };
         };
     };
-    "getApiProducts:id:id": {
+    "getApiProducts:id": {
         parameters: {
             query?: never;
             header?: never;
@@ -354,6 +371,8 @@ export interface operations {
                         name: string;
                         updatedAt: string;
                         createdAt: string;
+                        totalItems: number;
+                        checkedItems: number;
                     }[];
                 };
             };
@@ -366,7 +385,13 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    name: string;
+                };
+            };
+        };
         responses: {
             /** @description Created */
             201: {
@@ -413,6 +438,32 @@ export interface operations {
                         name: string;
                         updatedAt: string;
                         createdAt: string;
+                        items: {
+                            id: string;
+                            shoppingListId: string;
+                            productId: string;
+                            /** @default 1 */
+                            quantity: number;
+                            checked: boolean;
+                            product: {
+                                productId: string;
+                                gtin: string;
+                                name: string;
+                                description: string;
+                                price: number;
+                                pricePerUnit: number;
+                                unit: string;
+                                allergens: string[];
+                                carbonFootprintGram: number;
+                                organic: boolean;
+                                updatedAt: string;
+                                createdAt: string;
+                            };
+                        }[];
+                        aisles: {
+                            productId: string;
+                            aisleId: string;
+                        }[];
                     };
                 };
             };
@@ -461,7 +512,13 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    name?: string;
+                };
+            };
+        };
         responses: {
             /** @description Updated */
             200: {
@@ -493,6 +550,60 @@ export interface operations {
             };
         };
     };
+    "getApiShopping-lists:idAisles:storeSlug": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+                storeSlug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Shopping list with aisles location */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        name: string;
+                        updatedAt: string;
+                        createdAt: string;
+                        items: {
+                            id: string;
+                            shoppingListId: string;
+                            productId: string;
+                            /** @default 1 */
+                            quantity: number;
+                            checked: boolean;
+                            product: {
+                                productId: string;
+                                gtin: string;
+                                name: string;
+                                description: string;
+                                price: number;
+                                pricePerUnit: number;
+                                unit: string;
+                                allergens: string[];
+                                carbonFootprintGram: number;
+                                organic: boolean;
+                                updatedAt: string;
+                                createdAt: string;
+                            };
+                        }[];
+                        aisles: {
+                            productId: string;
+                            aisleId: string;
+                        }[];
+                    };
+                };
+            };
+        };
+    };
     "postApiShopping-lists:idItems": {
         parameters: {
             query?: never;
@@ -502,7 +613,16 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    productId: string;
+                    /** @default 1 */
+                    quantity?: number;
+                    checked: boolean;
+                };
+            };
+        };
         responses: {
             /** @description Item added */
             201: {
@@ -517,7 +637,7 @@ export interface operations {
                         /** @default 1 */
                         quantity: number;
                         checked: boolean;
-                        product: {
+                        products: {
                             productId: string;
                             gtin: string;
                             name: string;
@@ -595,7 +715,16 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    productId?: string;
+                    /** @default 1 */
+                    quantity?: number;
+                    checked?: boolean;
+                };
+            };
+        };
         responses: {
             /** @description Item updated */
             200: {
@@ -610,7 +739,7 @@ export interface operations {
                         /** @default 1 */
                         quantity: number;
                         checked: boolean;
-                        product: {
+                        products: {
                             productId: string;
                             gtin: string;
                             name: string;
@@ -675,7 +804,14 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    slug: string;
+                    name: string;
+                };
+            };
+        };
         responses: {
             /** @description Created */
             201: {
@@ -750,7 +886,13 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    name?: string;
+                };
+            };
+        };
         responses: {
             /** @description Updated */
             200: {
@@ -856,7 +998,18 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    type: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
+                    gridX: number;
+                    gridY: number;
+                    width: number;
+                    height: number;
+                };
+            };
+        };
         responses: {
             /** @description Created */
             201: {
@@ -948,7 +1101,18 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    /** @enum {string} */
+                    type?: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
+                    gridX?: number;
+                    gridY?: number;
+                    width?: number;
+                    height?: number;
+                };
+            };
+        };
         responses: {
             /** @description Updated */
             200: {
@@ -1039,7 +1203,14 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    productId: string;
+                    aisleId: string;
+                };
+            };
+        };
         responses: {
             /** @description Product added to aisle */
             201: {
@@ -1048,7 +1219,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        id: string;
                         productId: string;
                         aisleId: string;
                     };
@@ -1124,7 +1294,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": {
-                        id: string;
                         productId: string;
                         aisleId: string;
                         product: {
