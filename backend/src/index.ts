@@ -39,6 +39,10 @@ export const createApp = async (variables?: AppVariables) => {
               url: "http://localhost:3000",
               description: "Local Server",
             },
+            {
+              url: "https://rema.tihlde.org",
+              description: "Prod Server",
+            },
           ],
         },
       })
