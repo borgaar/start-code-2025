@@ -17,6 +17,8 @@ RUN pnpm dlx prisma generate
 
 RUN pnpm build
 
+RUN pnpm prune --prod
+
 FROM base AS runner
 
 WORKDIR /app
@@ -27,7 +29,9 @@ RUN adduser --system --uid 1001 hono
 
 USER hono
 
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
+ENV NODE_ENV=production
+
+COPY --from=builder --chown=hono:hono /app/dist ./dist
+COPY --from=builder --chown=hono:hono /app/node_modules ./node_modules
 
 ENTRYPOINT ["node", "dist/src/index.js"]
