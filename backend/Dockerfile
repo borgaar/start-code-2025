@@ -14,8 +14,6 @@ RUN pnpm i --frozen-lockfile
 
 COPY . .
 
-RUN pnpm dlx prisma generate
-
 RUN pnpm build
 
 RUN pnpm prune --prod
