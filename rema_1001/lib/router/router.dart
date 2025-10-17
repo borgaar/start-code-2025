@@ -1,7 +1,9 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rema_1001/page/about.dart';
+import 'package:rema_1001/page/shopping_trip/shopping_trip.dart';
+import 'package:rema_1001/page/shopping_trip/store_selection/store_selection_page.dart';
+import 'package:rema_1001/page/shopping_trip/shopping_list_selection/shopping_list_selection_page.dart';
 import 'package:rema_1001/page/home.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_lists.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/shopping_list_detail_page.dart';
@@ -37,6 +39,27 @@ final GoRouter router = GoRouter(
             state: state,
             child: const TripsScreen(),
           ),
+          routes: [
+            GoRoute(
+              path: "store-selection",
+              name: RouteNames.storeSelection,
+              pageBuilder: (context, state) => FadeTransitionPage<void>(
+                state: state,
+                child: const StoreSelectionPage(),
+              ),
+            ),
+            GoRoute(
+              path: "shopping-list-selection/:storeSlug",
+              name: RouteNames.shoppingListSelection,
+              pageBuilder: (context, state) {
+                final storeSlug = state.pathParameters['storeSlug']!;
+                return FadeTransitionPage<void>(
+                  state: state,
+                  child: ShoppingListSelectionPage(storeSlug: storeSlug),
+                );
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: "/lists",
