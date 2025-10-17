@@ -1,0 +1,61 @@
+name: Deploy to Drift
+
+on:
+  push:
+    branches:
+      - PRODUCTION
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    concurrency:
+      group: deployment_lock
+      cancel-in-progress: false
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH key
+        env:
+          PROXY_HOST: drift.tihlde.org
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/key
+          chmod 600 ~/.ssh/key
+          ssh-keyscan -H $PROXY_HOST >> ~/.ssh/known_hosts
+
+      - name: Deploy to OpenStack server
+        env:
+          PROXY_HOST: drift.tihlde.org
+          HOST: adelie
+          USER: debian
+          WORKING_DIRECTORY: /root/rema_1001
+        run: |
+          # Start ssh-agent and add the SSH key
+          eval $(ssh-agent -s)
+          ssh-add ~/.ssh/key
+
+          # SSH into the server via the proxy and run deployment commands
+          ssh -o StrictHostKeyChecking=no -J $USER@$PROXY_HOST $USER@$HOST << ENDSSH
+
+          # WE ARE NOW ON THE REMOTE SERVER
+
+          # If any command fails, the script will exit immediately with a non-zero status
+          set -euo pipefail
+
+          # Run the deployment commands as root
+          sudo bash -c '
+
+            # Exit immediately if a command exits with a non-zero status
+            set -euo pipefail
+
+            # Navigate to the working directory, pull the latest code, and run the deployment script
+            cd "$WORKING_DIRECTORY"
+            git fetch
+            git reset --hard origin/PRODUCTION
+            ./deploy.sh
+          '
+
+          ENDSSH
