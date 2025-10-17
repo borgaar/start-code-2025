@@ -1,7 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rema_1001/data/models/product.dart';
-import 'package:rema_1001/data/models/shopping_list_item.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
 import 'shopping_list_detail_state.dart';
 
