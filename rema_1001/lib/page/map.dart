@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rema_1001/map/map.dart';
+import 'package:rema_1001/map/map_painter.dart';
 import 'package:rema_1001/router/route_names.dart';
 
 class ListsScreen extends StatelessWidget {
@@ -29,30 +31,51 @@ class ListsScreen extends StatelessWidget {
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildListCard(
-                    'Weekly Groceries',
-                    '12 items',
-                    Icons.shopping_cart,
-                    Colors.blue,
+            AspectRatio(
+              aspectRatio: 1,
+              child: CustomPaint(
+                painter: MapPainter(
+                  map: Map(
+                    walkPoints: const [],
+                    aisles: const [
+                      // Top-left counter/checkout area
+                      Aisle(topLeft: Offset(10, 4), width: 15, height: 6),
+
+                      // Top-right three small blocks
+                      Aisle(topLeft: Offset(31, 4), width: 5, height: 5),
+                      Aisle(topLeft: Offset(38, 4), width: 5, height: 5),
+                      Aisle(topLeft: Offset(45, 4), width: 5, height: 5),
+
+                      // Upper-middle left rectangle
+                      Aisle(topLeft: Offset(10, 17), width: 18, height: 7),
+
+                      // Upper-middle center rectangle
+                      Aisle(topLeft: Offset(31, 17), width: 12, height: 7),
+
+                      // Right tall vertical rectangle
+                      Aisle(topLeft: Offset(46, 17), width: 4, height: 18),
+
+                      // Lower-middle left rectangle
+                      Aisle(topLeft: Offset(10, 27), width: 18, height: 7),
+
+                      // Lower-middle center rectangle
+                      Aisle(topLeft: Offset(31, 27), width: 12, height: 7),
+
+                      // Bottom three circles
+                      Aisle(topLeft: Offset(23, 42), width: 5, height: 5),
+                      Aisle(topLeft: Offset(31, 42), width: 3, height: 3),
+                      Aisle(topLeft: Offset(38, 42), width: 5, height: 5),
+
+                      // Bottom large rectangle
+                      Aisle(topLeft: Offset(17, 50), width: 30, height: 9),
+
+                      // Borders
+                      Aisle(topLeft: Offset(0, 0), width: 8, height: 64),
+                      Aisle(topLeft: Offset(0, 0), width: 64, height: 8),
+                      Aisle(topLeft: Offset(56, 0), width: 8, height: 64),
+                    ],
                   ),
-                  const SizedBox(height: 12),
-                  _buildListCard(
-                    'Party Supplies',
-                    '8 items',
-                    Icons.celebration,
-                    Colors.orange,
-                  ),
-                  const SizedBox(height: 12),
-                  _buildListCard(
-                    'Breakfast Items',
-                    '5 items',
-                    Icons.free_breakfast,
-                    Colors.green,
-                  ),
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -64,20 +87,6 @@ class ListsScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildListCard(String title, String itemCount, IconData icon, Color color) {
-    return Card(
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: color.withValues(alpha: 0.2),
-          child: Icon(icon, color: color),
-        ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(itemCount),
-        trailing: const Icon(Icons.arrow_forward_ios),
       ),
     );
   }
