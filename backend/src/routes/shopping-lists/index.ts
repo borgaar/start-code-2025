@@ -41,6 +41,12 @@ const ShoppingListWithItemsSchema = ShoppingListTransferSchema.extend({
       }),
     })
   ),
+  aisles: z.array(
+    z.object({
+      productId: z.string(),
+      aisleId: z.string(),
+    })
+  ),
 });
 
 const shoppingListItemWithProductSchema = ShoppingListItemSchema.extend({
@@ -80,7 +86,14 @@ const getAllRoute = route().get(
         description: "Success",
         content: {
           "application/json": {
-            schema: resolver(z.array(ShoppingListTransferSchema)),
+            schema: resolver(
+              z.array(
+                ShoppingListTransferSchema.extend({
+                  totalItems: z.number(),
+                  checkedItems: z.number(),
+                })
+              )
+            ),
           },
         },
       },
@@ -89,8 +102,15 @@ const getAllRoute = route().get(
   async (c) => {
     const shoppingLists = await c.get("db").shoppingList.findMany({
       orderBy: { createdAt: "desc" },
+      include: { items: true },
     });
-    return c.json(shoppingLists);
+
+    const shoppingListsWithCounts = shoppingLists.map(({ items, ...rest }) => ({
+      ...rest,
+      totalItems: items.length,
+      checkedItems: items.filter((item) => item.checked).length,
+    }));
+    return c.json(shoppingListsWithCounts);
   }
 );
 
