@@ -16,6 +16,9 @@ export default defineConfig({
   build: {
     outDir: '../dist/admin-panel',
   },
+  server: {
+    port: 3030,
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
