@@ -11,7 +11,7 @@ final class Map extends Equatable {
   List<Object?> get props => [walkPoints, aisles];
 }
 
-enum AisleStatus { obstruction, active, highlighted }
+enum AisleStatus { black, grey, white }
 
 final class Aisle extends Equatable {
   final Offset topLeft;
@@ -23,7 +23,7 @@ final class Aisle extends Equatable {
     required this.topLeft,
     required this.width,
     required this.height,
-    this.status = AisleStatus.obstruction,
+    this.status = AisleStatus.black,
   });
 
   @override

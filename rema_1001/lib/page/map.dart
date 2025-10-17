@@ -39,7 +39,12 @@ class ListsScreen extends StatelessWidget {
                     walkPoints: const [],
                     aisles: const [
                       // Top-left counter/checkout area
-                      Aisle(topLeft: Offset(10, 4), width: 15, height: 6),
+                      Aisle(
+                        topLeft: Offset(10, 2),
+                        width: 15,
+                        height: 6,
+                        status: AisleStatus.grey,
+                      ),
 
                       // Top-right three small blocks
                       Aisle(topLeft: Offset(31, 4), width: 5, height: 5),
@@ -50,7 +55,12 @@ class ListsScreen extends StatelessWidget {
                       Aisle(topLeft: Offset(10, 17), width: 18, height: 7),
 
                       // Upper-middle center rectangle
-                      Aisle(topLeft: Offset(31, 17), width: 12, height: 7),
+                      Aisle(
+                        topLeft: Offset(31, 17),
+                        width: 12,
+                        height: 7,
+                        status: AisleStatus.grey,
+                      ),
 
                       // Right tall vertical rectangle
                       Aisle(topLeft: Offset(46, 17), width: 4, height: 18),
@@ -64,7 +74,12 @@ class ListsScreen extends StatelessWidget {
                       // Bottom three circles
                       Aisle(topLeft: Offset(23, 42), width: 5, height: 5),
                       Aisle(topLeft: Offset(31, 42), width: 3, height: 3),
-                      Aisle(topLeft: Offset(38, 42), width: 5, height: 5),
+                      Aisle(
+                        topLeft: Offset(38, 42),
+                        width: 5,
+                        height: 5,
+                        status: AisleStatus.white,
+                      ),
 
                       // Bottom large rectangle
                       Aisle(topLeft: Offset(17, 50), width: 30, height: 9),
