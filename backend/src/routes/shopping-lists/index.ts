@@ -21,8 +21,22 @@ const UpdateShoppingListItemSchema = ShoppingListItemSchema.omit({
   shoppingListId: true,
 }).partial();
 
+const ShoppingListTransferSchema = ShoppingListSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  updatedAt: z.string(),
+  createdAt: z.string(),
+});
+
 const shoppingListItemWithProductSchema = ShoppingListItemSchema.extend({
-  product: ProductSchema,
+  product: ProductSchema.omit({
+    createdAt: true,
+    updatedAt: true,
+  }).extend({
+    updatedAt: z.string(),
+    createdAt: z.string(),
+  }),
 });
 
 // Get all shopping lists
@@ -36,7 +50,7 @@ const getAllRoute = route().get(
         description: "Success",
         content: {
           "application/json": {
-            schema: resolver(z.array(ShoppingListSchema)),
+            schema: resolver(z.array(ShoppingListTransferSchema)),
           },
         },
       },
@@ -61,7 +75,7 @@ const createRoute = route().post(
       201: {
         description: "Created",
         content: {
-          "application/json": { schema: resolver(ShoppingListSchema) },
+          "application/json": { schema: resolver(ShoppingListTransferSchema) },
         },
       },
       400: {
@@ -91,7 +105,7 @@ const getByIdRoute = route().get(
       200: {
         description: "Shopping list found",
         content: {
-          "application/json": { schema: resolver(ShoppingListSchema) },
+          "application/json": { schema: resolver(ShoppingListTransferSchema) },
         },
       },
       404: {
@@ -132,7 +146,7 @@ const updateRoute = route().patch(
       200: {
         description: "Updated",
         content: {
-          "application/json": { schema: resolver(ShoppingListSchema) },
+          "application/json": { schema: resolver(ShoppingListTransferSchema) },
         },
       },
       404: {

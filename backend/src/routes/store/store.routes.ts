@@ -18,6 +18,14 @@ const updateStoreBodySchema = StoreSchema.omit({
   updatedAt: true,
 }).partial();
 
+const StoreTransferSchema = StoreSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  updatedAt: z.string(),
+  createdAt: z.string(),
+});
+
 // Get all stores
 export const getAllStoresRoute = route().get(
   "/",
@@ -29,7 +37,7 @@ export const getAllStoresRoute = route().get(
         description: "Success",
         content: {
           "application/json": {
-            schema: resolver(z.array(storeSchema)),
+            schema: resolver(z.array(StoreTransferSchema)),
           },
         },
       },
@@ -54,7 +62,7 @@ export const createStoreRoute = route().post(
       201: {
         description: "Created",
         content: {
-          "application/json": { schema: resolver(storeSchema) },
+          "application/json": { schema: resolver(StoreTransferSchema) },
         },
       },
       400: {
@@ -97,7 +105,7 @@ export const getStoreBySlugRoute = route().get(
       200: {
         description: "Store found",
         content: {
-          "application/json": { schema: resolver(storeWithAislesSchema) },
+          "application/json": { schema: resolver(StoreTransferSchema) },
         },
       },
       404: {
@@ -135,7 +143,7 @@ export const updateStoreRoute = route().put(
       200: {
         description: "Updated",
         content: {
-          "application/json": { schema: resolver(storeSchema) },
+          "application/json": { schema: resolver(StoreTransferSchema) },
         },
       },
       404: {
