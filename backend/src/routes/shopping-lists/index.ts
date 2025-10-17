@@ -53,6 +53,22 @@ const shoppingListItemWithProductSchema = ShoppingListItemSchema.extend({
   }),
 });
 
+const insertShoppingListRequestBodyOpenAPI = await resolver(
+  InsertShoppingListSchema
+).toOpenAPISchema();
+
+const updateShoppingListRequestBodyOpenAPI = await resolver(
+  UpdateShoppingListSchema
+).toOpenAPISchema();
+
+const insertShoppingListItemRequestBodyOpenAPI = await resolver(
+  InsertShoppingListItemSchema.omit({ shoppingListId: true })
+).toOpenAPISchema();
+
+const updateShoppingListItemRequestBodyOpenAPI = await resolver(
+  UpdateShoppingListItemSchema
+).toOpenAPISchema();
+
 // Get all shopping lists
 const getAllRoute = route().get(
   "/",
@@ -85,6 +101,13 @@ const createRoute = route().post(
   describeRoute({
     tags: ["shopping-list"],
     summary: "Create a new shopping list",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: insertShoppingListRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       201: {
         description: "Created",
@@ -153,6 +176,13 @@ const updateRoute = route().patch(
   describeRoute({
     tags: ["shopping-list"],
     summary: "Update a shopping list",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: updateShoppingListRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       200: {
         description: "Updated",
@@ -226,6 +256,13 @@ const addItemRoute = route().post(
   describeRoute({
     tags: ["shopping-list"],
     summary: "Add an item to a shopping list",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: insertShoppingListItemRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       201: {
         description: "Item added",
@@ -278,6 +315,13 @@ const updateItemRoute = route().patch(
   describeRoute({
     tags: ["shopping-list"],
     summary: "Update an item in a shopping list",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: updateShoppingListItemRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
       200: {
         description: "Item updated",
