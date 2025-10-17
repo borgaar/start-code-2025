@@ -12,8 +12,8 @@ import 'package:rema_1001/data/repositories/store_repository.dart';
 import 'package:rema_1001/data/repositories/store_repository_impl.dart';
 import 'package:rema_1001/page/shopping_lists/cubit/shopping_lists_cubit.dart';
 import 'package:rema_1001/router/router.dart';
-import 'package:rema_1001/settings/allergies/bloc/allergies_cubit.dart';
-import 'package:rema_1001/settings/cubit/settings_cubit.dart';
+import 'package:rema_1001/page/profile/settings/allergies/bloc/allergies_cubit.dart';
+import 'package:rema_1001/page/profile/settings/cubit/settings_cubit.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 void main() {

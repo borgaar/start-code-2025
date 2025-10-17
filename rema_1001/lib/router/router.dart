@@ -6,12 +6,12 @@ import 'package:rema_1001/page/home.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_lists.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/shopping_list_detail_page.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/add_item/add_item_page.dart';
-import 'package:rema_1001/page/profile.dart';
+import 'package:rema_1001/page/profile/profile.dart';
 import 'package:rema_1001/router/fade_transition_page.dart';
 import 'package:rema_1001/router/nav_bar.dart';
 import 'package:rema_1001/router/route_names.dart';
-import 'package:rema_1001/settings/settings.dart';
-import 'package:rema_1001/settings/allergies/allergies_page.dart';
+import 'package:rema_1001/page/profile/settings/settings.dart';
+import 'package:rema_1001/page/profile/settings/allergies/allergies_page.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: "/home",
