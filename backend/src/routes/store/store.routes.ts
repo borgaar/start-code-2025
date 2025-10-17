@@ -18,6 +18,14 @@ const updateStoreBodySchema = StoreSchema.omit({
   updatedAt: true,
 }).partial();
 
+const StoreTransferSchema = StoreSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  updatedAt: z.string(),
+  createdAt: z.string(),
+});
+
 // Get all stores
 export const getAllStoresRoute = route().get(
   "/",
@@ -29,7 +37,7 @@ export const getAllStoresRoute = route().get(
         description: "Success",
         content: {
           "application/json": {
-            schema: resolver(z.array(storeSchema)),
+            schema: resolver(z.array(StoreTransferSchema)),
           },
         },
       },
@@ -54,7 +62,7 @@ export const createStoreRoute = route().post(
       201: {
         description: "Created",
         content: {
-          "application/json": { schema: resolver(storeSchema) },
+          "application/json": { schema: resolver(StoreTransferSchema) },
         },
       },
       400: {
@@ -97,7 +105,7 @@ export const getStoreBySlugRoute = route().get(
       200: {
         description: "Store found",
         content: {
-          "application/json": { schema: resolver(storeWithAislesSchema) },
+          "application/json": { schema: resolver(StoreTransferSchema) },
         },
       },
       404: {
@@ -135,7 +143,7 @@ export const updateStoreRoute = route().put(
       200: {
         description: "Updated",
         content: {
-          "application/json": { schema: resolver(storeSchema) },
+          "application/json": { schema: resolver(StoreTransferSchema) },
         },
       },
       404: {
@@ -190,5 +198,68 @@ export const deleteStoreRoute = route().delete(
     } catch (error) {
       return c.json({ error: "Store not found" }, 404);
     }
+  }
+);
+
+export const getStoreItemAisleLocation = route().get(
+  "/:slug/item/:itemId/aisle",
+  describeRoute({
+    tags: ["store"],
+    summary: "Get the aisle location of an item",
+    responses: {
+      200: {
+        description: "Aisle location found for item",
+        content: {
+          "application/json": {
+            schema: resolver(z.object({ aisle: AisleSchema })),
+          },
+        },
+      },
+      404: {
+        description: "Item or store not found",
+        content: {
+          "application/json": {
+            schema: resolver(
+              z.object({
+                error: z
+                  .literal("Store not found")
+                  .or(z.literal("Item not found in any store aisle")),
+              })
+            ),
+          },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const { slug, itemId } = c.req.param();
+    const item = await c.get("db").product.findUnique({
+      where: { productId: itemId },
+    });
+
+    if (!item) {
+      return c.json({ error: "Item not found" }, 404);
+    }
+
+    const store = await c.get("db").store.findUnique({
+      where: { slug },
+    });
+
+    if (!store) {
+      return c.json({ error: "Store not found" }, 404);
+    }
+    const aisle = await c.get("db").aisle.findFirst({
+      where: {
+        storeSlug: slug,
+        ProductInAisle: {
+          some: { productId: itemId },
+        },
+      },
+    });
+    if (!aisle) {
+      return c.json({ error: "Item not found in any store aisle" }, 404);
+    }
+
+    return c.json({ aisle });
   }
 );

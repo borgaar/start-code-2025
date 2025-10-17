@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rema_1001/settings/cubit/allergies_cubit.dart';
-import 'package:rema_1001/settings/cubit/allergies_state.dart';
+import 'package:rema_1001/router/route_names.dart';
+import 'package:rema_1001/settings/allergies/bloc/allergies_cubit.dart';
+import 'package:rema_1001/settings/allergies/bloc/allergies_state.dart';
 import 'package:rema_1001/settings/cubit/settings_cubit.dart';
 import 'package:rema_1001/settings/cubit/settings_state.dart';
 
@@ -54,6 +55,19 @@ class Settings extends StatelessWidget {
               );
             },
           ),
+          BlocBuilder<SettingsCubit, SettingsState>(
+            builder: (context, state) {
+              return ListTile(
+                title: const Text('Household Size'),
+                subtitle: Text(
+                  '${state.householdSize} ${state.householdSize == 1 ? 'person' : 'people'}',
+                ),
+                leading: const Icon(Icons.people),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => _showHouseholdSizeDialog(context),
+              );
+            },
+          ),
 
           const Divider(),
 
@@ -71,7 +85,7 @@ class Settings extends StatelessWidget {
                     : const Text('Manage your allergies'),
                 leading: const Icon(Icons.medical_information),
                 trailing: const Icon(Icons.chevron_right),
-                onTap: () => context.push('/profile/settings/allergies'),
+                onTap: () => context.pushNamed(RouteNames.allergies),
               );
             },
           ),
@@ -182,6 +196,76 @@ class Settings extends StatelessWidget {
             );
           }).toList(),
         ),
+      ),
+    );
+  }
+
+  void _showHouseholdSizeDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
+          return AlertDialog(
+            title: const Text('Household Size'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text('How many people live in your household?'),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove_circle_outline),
+                      onPressed: state.householdSize > 1
+                          ? () => context
+                                .read<SettingsCubit>()
+                                .setHouseholdSize(state.householdSize - 1)
+                          : null,
+                      iconSize: 32,
+                    ),
+                    const SizedBox(width: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        '${state.householdSize}',
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                            ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    IconButton(
+                      icon: const Icon(Icons.add_circle_outline),
+                      onPressed: state.householdSize < 20
+                          ? () => context
+                                .read<SettingsCubit>()
+                                .setHouseholdSize(state.householdSize + 1)
+                          : null,
+                      iconSize: 32,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text('Done'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rema_1001/map/colors.dart';
+import 'package:rema_1001/map/cubit/map_cubit.dart';
 import 'package:rema_1001/map/map_painter.dart';
 import 'package:rema_1001/map/model.dart';
+import 'package:collection/collection.dart';
 
 class MapWidget extends StatefulWidget {
   const MapWidget({super.key});
@@ -11,90 +15,99 @@ class MapWidget extends StatefulWidget {
 
 class _MapWidgetState extends State<MapWidget>
     with SingleTickerProviderStateMixin {
+  late AnimationController _transitionController;
+  late Animation<double> _transitionAnimation;
+
+  @override
+  void initState() {
+    _transitionController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
+    _transitionController.addListener(
+      () => setState(() {
+        print(_transitionController.value);
+      }),
+    );
+
+    _transitionAnimation = CurvedAnimation(
+      parent: _transitionController,
+      curve: Curves.easeInOutCubic,
+    );
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1,
-      child: CustomPaint(
-        painter: MapPainter(
-          map: MapModel(
-            walkPoints: const [],
-            aisles: [
-              // Top-left counter/checkout area
-              Aisle(
-                topLeft: Offset(8, 6),
-                width: 5,
-                height: 2,
-                status: AisleStatus.grey,
+    return BlocConsumer<MapCubit, MapState>(
+      listener: (BuildContext context, MapState state) {
+        _transitionController.forward(from: 0);
+      },
+      builder: (context, state) {
+        if (state is! MapLoaded) {
+          return AspectRatio(
+            aspectRatio: 1,
+            child: Container(color: backgroundColor),
+          );
+        }
+
+        return AspectRatio(
+          aspectRatio: 1,
+          child: CustomPaint(
+            painter: MapPainter(
+              map: MapModel(
+                walkPoints: const [],
+                aisles: state.map.aisles.mapIndexed((idx, aisle) {
+                  final lastState = context.read<MapCubit>().last;
+                  if (lastState == null || lastState is MapInitial) {
+                    return aisle;
+                  }
+
+                  final previousAisle =
+                      (lastState as MapLoaded).map.aisles[idx];
+
+                  if (aisle.status == previousAisle.status) {
+                    return aisle;
+                  }
+
+                  final beginColors = getColorSetForAisleStatus(
+                    previousAisle.status,
+                  );
+                  final endColors = getColorSetForAisleStatus(aisle.status);
+                  // Transition from previous to next
+                  return aisle.copyWith(
+                    glowPaint: aisleGlowPaint(
+                      ColorTween(
+                        begin: beginColors.glowPaint.color,
+                        end: endColors.glowPaint.color,
+                      ).animate(_transitionAnimation).value!,
+                    ),
+                    hardShadowPaint: aisleShadowPaint(
+                      ColorTween(
+                        begin: beginColors.hardShadowPaint.color,
+                        end: endColors.hardShadowPaint.color,
+                      ).animate(_transitionAnimation).value!,
+                    ),
+                    paint: aislePaint(
+                      ColorTween(
+                        begin: beginColors.aislePaint.color,
+                        end: endColors.aislePaint.color,
+                      ).animate(_transitionAnimation).value!,
+                    ),
+                    softShadowPaint: aisleSoftShadowPaint(
+                      ColorTween(
+                        begin: beginColors.softShadowPaint.color,
+                        end: endColors.softShadowPaint.color,
+                      ).animate(_transitionAnimation).value!,
+                    ),
+                  );
+                }).toList(),
               ),
-              Aisle(
-                topLeft: Offset(6, 8),
-                width: 2,
-                height: 4,
-                status: AisleStatus.grey,
-              ),
-
-              // Top-right three small blocks
-              Aisle(
-                topLeft: Offset(31, 4),
-                width: 5,
-                height: 4,
-                status: AisleStatus.grey,
-              ),
-              Aisle(
-                topLeft: Offset(38, 4),
-                width: 5,
-                height: 4,
-                status: AisleStatus.grey,
-              ),
-              Aisle(
-                topLeft: Offset(45, 4),
-                width: 6,
-                height: 4,
-                status: AisleStatus.blinking,
-              ),
-
-              // Upper-middle left rectangle
-              Aisle(topLeft: Offset(10, 17), width: 18, height: 7),
-
-              // Upper-middle center rectangle
-              Aisle(
-                topLeft: Offset(31, 17),
-                width: 12,
-                height: 7,
-                status: AisleStatus.grey,
-              ),
-
-              // Right tall vertical rectangle
-              Aisle(topLeft: Offset(46, 17), width: 4, height: 18),
-
-              // Lower-middle left rectangle
-              Aisle(topLeft: Offset(10, 27), width: 18, height: 7),
-
-              // Lower-middle center rectangle
-              Aisle(topLeft: Offset(31, 27), width: 12, height: 7),
-
-              // Bottom three circles
-              Aisle(topLeft: Offset(23, 42), width: 5, height: 5),
-              Aisle(topLeft: Offset(31, 42), width: 3, height: 3),
-              Aisle(
-                topLeft: Offset(38, 42),
-                width: 5,
-                height: 5,
-                status: AisleStatus.white,
-              ),
-
-              // Bottom large rectangle
-              // Aisle(topLeft: Offset(17, 50), width: 30, height: 9),
-
-              // Borders
-              Aisle(topLeft: Offset(0, 0), width: 8, height: 64),
-              Aisle(topLeft: Offset(0, 0), width: 64, height: 8),
-              Aisle(topLeft: Offset(56, 0), width: 8, height: 64),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

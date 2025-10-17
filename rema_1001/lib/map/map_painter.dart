@@ -7,7 +7,8 @@ final double hardShadowHeight = 12;
 final double aisleBorderRadius = 8;
 final softShadowOffset = Offset(4, 12);
 final backgroundBorderRadius = Radius.circular(16);
-final backgroundPaint = Paint()..color = const Color(0xff434343);
+final backgroundColor = Color(0xff434343);
+final backgroundPaint = Paint()..color = backgroundColor;
 
 final class MapPainter implements CustomPainter {
   final map_model.MapModel map;
@@ -102,7 +103,7 @@ final class MapPainter implements CustomPainter {
     }
     canvas.drawRRect(aisleRect, aisle.paint);
 
-    canvas.drawRRect(hardShadowRect, aisle.glowPaint);
+    canvas.drawRRect(aisleRect, aisle.glowPaint);
   }
 
   void _paintAisleGroup(
@@ -149,7 +150,10 @@ final class MapPainter implements CustomPainter {
     );
 
     // Glow
-    canvas.drawPath(combinedPath, sampleAisle.glowPaint);
+    canvas.drawPath(
+      combinedPath.shift(Offset(0, -hardShadowHeight)),
+      sampleAisle.glowPaint,
+    );
   }
 
   void _paintIsles(Canvas canvas, Size size, map_model.MapModel map) {
