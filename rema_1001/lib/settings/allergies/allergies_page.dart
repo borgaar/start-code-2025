@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rema_1001/settings/cubit/allergies_cubit.dart';
-import 'package:rema_1001/settings/cubit/allergies_state.dart';
+import 'package:rema_1001/settings/allergies/bloc/allergies_cubit.dart';
+import 'package:rema_1001/settings/allergies/bloc/allergies_state.dart';
 
 class AllergiesPage extends StatelessWidget {
   const AllergiesPage({super.key});

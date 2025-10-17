@@ -3,6 +3,14 @@ import { route } from "~/lib/route";
 import { z } from "zod";
 import { ProductSchema } from "~/generated/zod/schemas/models";
 
+const ProductTransferSchema = ProductSchema.omit({
+  createdAt: true,
+  updatedAt: true,
+}).extend({
+  updatedAt: z.string(),
+  createdAt: z.string(),
+});
+
 const getAllRoute = route().get(
   "/",
   describeRoute({
@@ -12,7 +20,9 @@ const getAllRoute = route().get(
       200: {
         description: "Success",
         content: {
-          "application/json": { schema: resolver(z.array(ProductSchema)) },
+          "application/json": {
+            schema: resolver(z.array(ProductTransferSchema)),
+          },
         },
       },
     },
@@ -32,7 +42,7 @@ const getByIdRoute = route().get(
       200: {
         description: "Product found",
         content: {
-          "application/json": { schema: resolver(ProductSchema) },
+          "application/json": { schema: resolver(ProductTransferSchema) },
         },
       },
       404: {

@@ -3,13 +3,15 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsup",
+    "build": "tsup && pnpm --filter admin-panel build",
     "start": "node dist/index.js",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "tsx prisma/seed.ts",
+    "admin:dev": "pnpm --filter admin-panel dev",
+    "admin:build": "pnpm --filter admin-panel build",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -19,6 +21,7 @@
     "@hono/zod-validator": "^0.7.4",
     "@prisma/client": "^6.17.1",
     "@scalar/hono-api-reference": "^0.9.22",
+    "prisma-zod-generator": "^1.28.3",
     "chalk": "^5.6.2",
     "hono": "^4.10.1",
     "hono-openapi": "^1.1.0",
@@ -27,7 +30,6 @@
   "devDependencies": {
     "@types/node": "^20.11.17",
     "prisma": "^6.17.1",
-    "prisma-zod-generator": "^1.28.3",
     "tsup": "^8.5.0",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"

@@ -7,6 +7,7 @@ class SettingsCubit extends Cubit<SettingsState> {
   static const String _darkModeKey = 'dark_mode_enabled';
   static const String _biometricsKey = 'biometrics_enabled';
   static const String _languageKey = 'language';
+  static const String _householdSizeKey = 'household_size';
 
   SettingsCubit() : super(const SettingsState()) {
     _loadSettings();
@@ -22,6 +23,7 @@ class SettingsCubit extends Cubit<SettingsState> {
           darkModeEnabled: prefs.getBool(_darkModeKey) ?? false,
           biometricsEnabled: prefs.getBool(_biometricsKey) ?? false,
           language: prefs.getString(_languageKey) ?? 'English',
+          householdSize: prefs.getInt(_householdSizeKey) ?? 1,
           isLoading: false,
         ),
       );
@@ -52,5 +54,12 @@ class SettingsCubit extends Cubit<SettingsState> {
     emit(state.copyWith(language: language));
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_languageKey, language);
+  }
+
+  Future<void> setHouseholdSize(int size) async {
+    if (size < 1 || size > 20) return; // Reasonable limits
+    emit(state.copyWith(householdSize: size));
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_householdSizeKey, size);
   }
 }

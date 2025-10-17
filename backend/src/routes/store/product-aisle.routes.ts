@@ -9,8 +9,15 @@ import {
 
 const productInAisleSchema = ProductInAisleSchema;
 const productInAisleWithProductSchema = ProductInAisleSchema.extend({
-  product: ProductSchema,
+  product: ProductSchema.omit({
+    createdAt: true,
+    updatedAt: true,
+  }).extend({
+    updatedAt: z.string(),
+    createdAt: z.string(),
+  }),
 });
+
 const addProductToAisleBodySchema = ProductInAisleSchema.omit({
   id: true,
 });

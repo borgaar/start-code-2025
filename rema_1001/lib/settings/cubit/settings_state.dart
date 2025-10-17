@@ -5,6 +5,7 @@ class SettingsState extends Equatable {
   final bool darkModeEnabled;
   final bool biometricsEnabled;
   final String language;
+  final int householdSize;
   final bool isLoading;
 
   const SettingsState({
@@ -12,6 +13,7 @@ class SettingsState extends Equatable {
     this.darkModeEnabled = false,
     this.biometricsEnabled = false,
     this.language = 'English',
+    this.householdSize = 1,
     this.isLoading = false,
   });
 
@@ -20,6 +22,7 @@ class SettingsState extends Equatable {
     bool? darkModeEnabled,
     bool? biometricsEnabled,
     String? language,
+    int? householdSize,
     bool? isLoading,
   }) {
     return SettingsState(
@@ -27,6 +30,7 @@ class SettingsState extends Equatable {
       darkModeEnabled: darkModeEnabled ?? this.darkModeEnabled,
       biometricsEnabled: biometricsEnabled ?? this.biometricsEnabled,
       language: language ?? this.language,
+      householdSize: householdSize ?? this.householdSize,
       isLoading: isLoading ?? this.isLoading,
     );
   }
@@ -37,6 +41,7 @@ class SettingsState extends Equatable {
     darkModeEnabled,
     biometricsEnabled,
     language,
+    householdSize,
     isLoading,
   ];
 }
