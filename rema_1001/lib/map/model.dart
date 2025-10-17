@@ -31,31 +31,11 @@ final class Aisle extends Equatable {
     required this.height,
     this.status = AisleStatus.black,
   }) {
-    switch (status) {
-      case AisleStatus.black:
-        paint = aisleBlackPaint;
-        hardShadowPaint = aisleBlackShadowPaint;
-        softShadowPaint = defaultSoftShadowPaint;
-        glowPaint = Paint()..color = Colors.transparent;
-        break;
-      case AisleStatus.grey:
-        paint = aisleGreyPaint;
-        hardShadowPaint = aisleGreyShadowPaint;
-        softShadowPaint = defaultSoftShadowPaint;
-        glowPaint = Paint()..color = Colors.transparent;
-        break;
-      case AisleStatus.white:
-        paint = aisleWhitePaint;
-        hardShadowPaint = aisleWhiteShadowPaint;
-        softShadowPaint = defaultSoftShadowPaint;
-        glowPaint = Paint()..color = Colors.transparent;
-        break;
-      case AisleStatus.blinking:
-        paint = aisleBlinkingPaint;
-        hardShadowPaint = aisleBlinkingShadowPaint;
-        glowPaint = aisleBlinkingGlowPaint;
-        break;
-    }
+    final paints = getColorSetForAisleStatus(status);
+    paint = paints.aislePaint;
+    hardShadowPaint = paints.hardShadowPaint;
+    softShadowPaint = paints.softShadowPaint;
+    glowPaint = paints.glowPaint;
   }
 
   // this lint fucks up the class due to late
@@ -94,5 +74,14 @@ final class Aisle extends Equatable {
   }
 
   @override
-  List<Object?> get props => [topLeft, width, height];
+  List<Object?> get props => [
+    topLeft,
+    width,
+    height,
+    status,
+    hardShadowPaint,
+    paint,
+    softShadowPaint,
+    glowPaint,
+  ];
 }
