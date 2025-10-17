@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rema_1001/router/router.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,13 +10,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
       title: 'Rema 1001',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
       ),
-      home: const MyHomePage(title: 'Rema 1001'),
+      routerConfig: router,
     );
   }
 }

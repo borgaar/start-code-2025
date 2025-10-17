@@ -2,42 +2,55 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rema_1001/router/route_names.dart';
 
-class TripsScreen extends StatelessWidget {
-  const TripsScreen({super.key});
+class ListsScreen extends StatelessWidget {
+  const ListsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Trips')),
+      appBar: AppBar(
+        title: const Text('Shopping Lists'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              // Add new list functionality
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Your Trips',
+              'Your Shopping Lists',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView(
                 children: [
-                  _buildTripCard(
-                    'Rema 1001 Sentrum',
-                    'Distance: 2.3 km',
-                    Icons.store,
+                  _buildListCard(
+                    'Weekly Groceries',
+                    '12 items',
+                    Icons.shopping_cart,
+                    Colors.blue,
                   ),
                   const SizedBox(height: 12),
-                  _buildTripCard(
-                    'Rema 1001 Vest',
-                    'Distance: 4.1 km',
-                    Icons.store,
+                  _buildListCard(
+                    'Party Supplies',
+                    '8 items',
+                    Icons.celebration,
+                    Colors.orange,
                   ),
                   const SizedBox(height: 12),
-                  _buildTripCard(
-                    'Rema 1001 Øst',
-                    'Distance: 5.7 km',
-                    Icons.store,
+                  _buildListCard(
+                    'Breakfast Items',
+                    '5 items',
+                    Icons.free_breakfast,
+                    Colors.green,
                   ),
                 ],
               ),
@@ -55,12 +68,15 @@ class TripsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildTripCard(String title, String subtitle, IconData icon) {
+  Widget _buildListCard(String title, String itemCount, IconData icon, Color color) {
     return Card(
       child: ListTile(
-        leading: Icon(icon, size: 40),
+        leading: CircleAvatar(
+          backgroundColor: color.withValues(alpha: 0.2),
+          child: Icon(icon, color: color),
+        ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle),
+        subtitle: Text(itemCount),
         trailing: const Icon(Icons.arrow_forward_ios),
       ),
     );

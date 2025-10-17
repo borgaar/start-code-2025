@@ -13,11 +13,27 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text('Home'),
-            const SizedBox(height: 12),
-            ElevatedButton(
-              onPressed: () => context.pushNamed(RouteNames.about),
-              child: const Text('Go to About'),
+            const Text(
+              'Welcome to Rema 1001',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => context.pushNamed(RouteNames.trips),
+              icon: const Icon(Icons.map),
+              label: const Text('View Trips'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => context.pushNamed(RouteNames.lists),
+              icon: const Icon(Icons.list),
+              label: const Text('Shopping Lists'),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () => context.pushNamed(RouteNames.profile),
+              icon: const Icon(Icons.person),
+              label: const Text('Profile'),
             ),
           ],
         ),
