@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rema_1001/constants/assets.dart';
 import 'package:rema_1001/router/route_names.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -15,10 +16,10 @@ class ProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            const CircleAvatar(
+            CircleAvatar(
               radius: 60,
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.person, size: 80, color: Colors.white),
+              backgroundColor: Color(0xFF4A9EFF),
+              backgroundImage: AssetImage(Assets.oddReitan),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -26,9 +27,9 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'odd.reitan@reitan.com',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            Text(
+              'odd.reitan@reitan.no',
+              style: TextStyle(fontSize: 16, color: Colors.grey[400]),
             ),
             const SizedBox(height: 32),
             Expanded(

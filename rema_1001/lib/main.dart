@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rema_1001/constants/theme.dart';
+import 'package:rema_1001/data/api/api_client.dart';
+import 'package:rema_1001/data/repositories/aisle_repository.dart';
+import 'package:rema_1001/data/repositories/aisle_repository_impl.dart';
+import 'package:rema_1001/data/repositories/product_repository.dart';
+import 'package:rema_1001/data/repositories/product_repository_impl.dart';
+import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
+import 'package:rema_1001/data/repositories/shopping_list_repository_impl.dart';
+import 'package:rema_1001/data/repositories/store_repository.dart';
+import 'package:rema_1001/data/repositories/store_repository_impl.dart';
+import 'package:rema_1001/page/shopping_lists/cubit/shopping_lists_cubit.dart';
 import 'package:rema_1001/router/router.dart';
-import 'package:rema_1001/settings/cubit/allergies_cubit.dart';
+import 'package:rema_1001/settings/allergies/bloc/allergies_cubit.dart';
 import 'package:rema_1001/settings/cubit/settings_cubit.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,22 +25,53 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
+    // Initialize API client
+    final apiClient = ApiClient();
+
+    return MultiRepositoryProvider(
       providers: [
-        BlocProvider(
-          create: (context) => SettingsCubit(),
+        RepositoryProvider<ProductRepository>(
+          create: (context) => ProductRepositoryImpl(apiClient: apiClient),
         ),
-        BlocProvider(
-          create: (context) => AllergiesCubit(),
+        RepositoryProvider<ShoppingListRepository>(
+          create: (context) => ShoppingListRepositoryImpl(apiClient: apiClient),
+        ),
+        RepositoryProvider<StoreRepository>(
+          create: (context) => StoreRepositoryImpl(apiClient: apiClient),
+        ),
+        RepositoryProvider<AisleRepository>(
+          create: (context) => AisleRepositoryImpl(apiClient: apiClient),
         ),
       ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: 'Rema 1001',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (context) => SettingsCubit()),
+          BlocProvider(create: (context) => AllergiesCubit()),
+          BlocProvider(
+            create: (context) => ShoppingListsCubit(
+              repository: context.read<ShoppingListRepository>(),
+            )..loadShoppingLists(emitLoading: true),
+          ),
+        ],
+        child: SkeletonizerConfig(
+          data: SkeletonizerConfigData.dark(
+            enableSwitchAnimation: true,
+            switchAnimationConfig: SwitchAnimationConfig(
+              layoutBuilder: (currentChild, previousChildren) => Stack(
+                children: [
+                  ...previousChildren,
+                  currentChild ?? SizedBox.shrink(),
+                ],
+              ),
+            ),
+          ),
+          child: MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            title: 'Rema 1001',
+            theme: themeData,
+            routerConfig: router,
+          ),
         ),
-        routerConfig: router,
       ),
     );
   }
