@@ -1,0 +1,33 @@
+[
+  {
+    "slug": "elgeseter",
+    "name": "Elgeseter",
+    "aisles": [
+      { "type": "OBSTACLE", "x": 0, "y": 0, "width": 64, "height": 8 },
+      { "type": "OBSTACLE", "x": 0, "y": 0, "width": 8, "height": 64 },
+      { "type": "OBSTACLE", "x": 56, "y": 0, "width": 8, "height": 64 },
+
+      { "type": "FREEZER", "x": 31, "y": 4, "width": 12, "height": 4 },
+
+      { "type": "DRINKS", "x": 12, "y": 15, "width": 16, "height": 5 },
+      { "type": "PANTRY", "x": 12, "y": 25, "width": 16, "height": 5 },
+      { "type": "SWEETS", "x": 12, "y": 35, "width": 16, "height": 5 },
+
+      { "type": "PANTRY", "x": 31, "y": 25, "width": 12, "height": 5 },
+
+      { "type": "CHEESE", "x": 31, "y": 35, "width": 12, "height": 5 },
+
+      { "type": "MEAT", "x": 31, "y": 15, "width": 5, "height": 5 },
+      { "type": "MEAT", "x": 38, "y": 15, "width": 5, "height": 5 },
+
+      { "type": "DAIRY", "x": 47, "y": 15, "width": 5, "height": 5 },
+      { "type": "FRIDGE", "x": 47, "y": 25, "width": 5, "height": 20 },
+
+      { "type": "FRUIT", "x": 20, "y": 45, "width": 5, "height": 5 },
+      { "type": "FRUIT", "x": 29, "y": 45, "width": 5, "height": 5 },
+      { "type": "FRUIT", "x": 38, "y": 45, "width": 5, "height": 5 },
+
+      { "type": "VEGETABLES", "x": 15, "y": 55, "width": 32, "height": 5 }
+    ]
+  }
+]
