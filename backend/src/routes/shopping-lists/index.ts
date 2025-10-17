@@ -29,8 +29,22 @@ const ShoppingListTransferSchema = ShoppingListSchema.omit({
   createdAt: z.string(),
 });
 
+const ShoppingListWithItemsSchema = ShoppingListTransferSchema.extend({
+  items: z.array(
+    ShoppingListItemSchema.extend({
+      product: ProductSchema.omit({
+        createdAt: true,
+        updatedAt: true,
+      }).extend({
+        updatedAt: z.string(),
+        createdAt: z.string(),
+      }),
+    })
+  ),
+});
+
 const shoppingListItemWithProductSchema = ShoppingListItemSchema.extend({
-  product: ProductSchema.omit({
+  products: ProductSchema.omit({
     createdAt: true,
     updatedAt: true,
   }).extend({
@@ -105,7 +119,7 @@ const getByIdRoute = route().get(
       200: {
         description: "Shopping list found",
         content: {
-          "application/json": { schema: resolver(ShoppingListTransferSchema) },
+          "application/json": { schema: resolver(ShoppingListWithItemsSchema) },
         },
       },
       404: {
@@ -114,7 +128,6 @@ const getByIdRoute = route().get(
     },
   }),
   async (c) => {
-    console.log("getByIdRoute");
     const { id } = c.req.param();
     const shoppingList = await c.get("db").shoppingList.findUnique({
       where: { id },
@@ -124,8 +137,6 @@ const getByIdRoute = route().get(
         },
       },
     });
-
-    console.log(shoppingList);
 
     if (!shoppingList) {
       return c.json({ error: "Shopping list not found" }, 404);
