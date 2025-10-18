@@ -88,6 +88,7 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return BlocConsumer<MapCubit, MapState>(
       listener: (BuildContext context, MapState state) {
+        print(state.runtimeType);
         if (state is MapLoaded && context.read<MapCubit>().last is MapInitial) {
           // Entrance animation
           _entranceAnimationController.forward(from: 0);
@@ -114,6 +115,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
             aspectRatio: 1,
             child: CustomPaint(
               painter: MapPainter(
+                currentPathStep: state is MapPathfindingLoaded
+                    ? state.currentWaypointIndex
+                    : 0,
                 path: state is MapPathfindingLoaded ? state.path : null,
                 map: MapModel(
                   aisles: state.map.aisles.mapIndexed((idx, aisle) {

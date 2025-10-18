@@ -77,14 +77,16 @@ final class ShoppingListAisleItem extends Equatable {
 
 final class MapPathfindingLoaded extends MapLoaded {
   final List<Waypoint> path;
+  final int currentWaypointIndex;
 
   const MapPathfindingLoaded({
     required super.map,
+    required this.currentWaypointIndex,
     required this.path,
     required super.currentStep,
     required super.aisleGroups,
   });
 
   @override
-  List<Object?> get props => [...super.props, path, currentStep];
+  List<Object?> get props => [...super.props, path, currentWaypointIndex];
 }

@@ -65,6 +65,7 @@ class MapCubit extends Cubit<MapState> {
           width: a.width.toDouble(),
           height: a.height.toDouble(),
           status: status,
+          id: a.id,
         );
       }).toList(),
     );
@@ -77,48 +78,83 @@ class MapCubit extends Cubit<MapState> {
       end: store.exit,
     );
 
+    // reorder aisleGroups based on path
+    final orderedAisleGroups = path
+        .where((w) => w.targetAisleIndex != null)
+        .map(
+          (waypoint) => aisleGroups.firstWhereOrNull(
+            (group) => group.aisleId == aisles[waypoint.targetAisleIndex!].id,
+          ),
+        )
+        .whereType<ShoppingListAisleGroup>()
+        .toList();
+
+    final targetAisleIdx = map.aisles.indexWhere(
+      (aisle) => aisle.id == orderedAisleGroups.first.aisleId,
+    );
+
+    final targetWaypointIdx = path.indexWhere(
+      (w) => w.targetAisleIndex == targetAisleIdx,
+    );
+
     emit(
       MapPathfindingLoaded(
         map: map,
         path: path,
         currentStep: 0,
-        aisleGroups: aisleGroups,
+        aisleGroups: orderedAisleGroups,
+        currentWaypointIndex: targetWaypointIdx,
       ),
     );
   }
 
   void next() {
-    // emit(
-    //   MapLoaded(
-    //     map: MapModel(
-    //       walkPoints: [],
-    //       aisles: [
-    //         // Right tall vertical rectangle
-    //         Aisle(topLeft: Offset(46, 17), width: 4, height: 18),
+    final s = state;
+    if (s is! MapPathfindingLoaded) return;
 
-    //         // Lower-middle left rectangle
-    //         Aisle(topLeft: Offset(10, 27), width: 18, height: 7),
+    final nextStep = s.currentStep + 1;
+    if (nextStep >= s.aisleGroups.length) return;
 
-    //         // Lower-middle center rectangle
-    //         Aisle(
-    //           topLeft: Offset(31, 27),
-    //           width: 12,
-    //           height: 7,
-    //           status: AisleStatus.white,
-    //         ),
-    //       ],
-    //     ),
-    //     path: [],
-    //     currentStep: 0,
-    //   ),
-    // );
-  }
+    // Get the current aisle group
+    final currentAisleGroup = s.aisleGroups[nextStep];
 
-  void checkItem() {}
+    final targetAisleIdx = s.map.aisles.indexWhere(
+      (aisle) => aisle.id == currentAisleGroup.aisleId,
+    );
 
-  @override
-  void onChange(Change<MapState> change) {
-    last = change.currentState;
-    super.onChange(change);
+    final targetWaypointIdx = s.path.indexWhere(
+      (w) => w.targetAisleIndex == targetAisleIdx,
+    );
+
+    // Set the status of the aisles in the current aisle group to blinking
+    final updatedAisles = s.map.aisles.mapIndexed((idx, aisle) {
+      if (idx == targetAisleIdx) {
+        return aisle.copyWith(status: AisleStatus.blinking);
+      }
+      if (aisle.status == AisleStatus.blinking) {
+        return aisle.copyWith(status: AisleStatus.grey);
+      }
+      return aisle;
+    });
+
+    final updatedMap = MapModel(aisles: updatedAisles.toList());
+
+    emit(
+      MapPathfindingLoaded(
+        map: updatedMap,
+        aisleGroups: s.aisleGroups,
+        currentStep: nextStep,
+        path: s.path,
+        currentWaypointIndex: targetWaypointIdx,
+      ),
+    );
+
+    void checkItem() {}
+
+    @override
+    void onChange(Change<MapState> change) {
+      last = change.currentState;
+      super.onChange(change);
+    }
   }
 }

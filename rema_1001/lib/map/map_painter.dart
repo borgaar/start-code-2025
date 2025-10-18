@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 import 'package:rema_1001/map/model.dart' as map_model;
 import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
@@ -20,8 +21,9 @@ Offset getSoftShadowOffset(double scaleX, double scaleY) {
 final class MapPainter implements CustomPainter {
   final map_model.MapModel map;
   final List<Waypoint>? path;
+  final int currentPathStep;
 
-  MapPainter({required this.map, required this.path});
+  MapPainter({required this.map, required this.path, this.currentPathStep = 0});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -57,33 +59,113 @@ final class MapPainter implements CustomPainter {
   }
 
   void _paintPath(Canvas canvas, Size size, List<Waypoint> path) {
-    // Paint a dot for each point in the path (in red)
-    final paint = Paint()..color = const Color(0xFFFF0000);
     final scaleX = size.width / dimension;
     final scaleY = size.height / dimension;
 
-    final drawPath = Path();
-    drawPath.moveTo(path[0].position.dx * scaleX, path[0].position.dy * scaleY);
+    // Create the full path
+    final fullPath = Path();
+    fullPath.moveTo(path[0].position.dx * scaleX, path[0].position.dy * scaleY);
 
-    for (final waypoint in path) {
-      final position = Offset(
-        waypoint.position.dx * scaleX,
-        waypoint.position.dy * scaleY,
+    for (int i = 1; i < path.length; i++) {
+      fullPath.lineTo(
+        path[i].position.dx * scaleX,
+        path[i].position.dy * scaleY,
       );
-      drawPath.lineTo(
-        waypoint.position.dx * scaleX,
-        waypoint.position.dy * scaleY,
-      );
-      canvas.drawCircle(position, 4, paint);
     }
 
-    final pathPaint = Paint()
-      ..color = const Color(0x88FF0000)
+    // Paint the full path in gray
+    final grayPathPaint = Paint()
+      ..color = const Color(0xFF5A5A5A)
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 4
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    canvas.drawPath(fullPath, grayPathPaint);
+
+    // Paint the active path (up to current step) in white
+    if (currentPathStep > 0 && currentPathStep < path.length) {
+      final activePath = Path();
+      activePath.moveTo(
+        path[0].position.dx * scaleX,
+        path[0].position.dy * scaleY,
+      );
+
+      for (int i = 1; i <= currentPathStep && i < path.length; i++) {
+        activePath.lineTo(
+          path[i].position.dx * scaleX,
+          path[i].position.dy * scaleY,
+        );
+      }
+
+      final whitePathPaint = Paint()
+        ..color = const Color(0xFFFFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 5
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
+
+      canvas.drawPath(activePath, whitePathPaint);
+    }
+
+    // Draw a dot at the current position
+    if (currentPathStep >= 0 && currentPathStep < path.length) {
+      final currentPosition = Offset(
+        path[currentPathStep].position.dx * scaleX,
+        path[currentPathStep].position.dy * scaleY,
+      );
+
+      final dotPaint = Paint()..color = const Color(0xFFFFFFFF);
+      canvas.drawCircle(currentPosition, 6, dotPaint);
+    }
+
+    // Draw arrow at the end of the path
+    _paintArrow(canvas, size, path);
+  }
+
+  void _paintArrow(Canvas canvas, Size size, List<Waypoint> path) {
+    if (path.length < 2) return;
+
+    final scaleX = size.width / dimension;
+    final scaleY = size.height / dimension;
+
+    // Get the last two points to determine arrow direction
+    final lastPoint = Offset(
+      path[path.length - 1].position.dx * scaleX,
+      path[path.length - 1].position.dy * scaleY,
+    );
+    final secondLastPoint = Offset(
+      path[path.length - 2].position.dx * scaleX,
+      path[path.length - 2].position.dy * scaleY,
+    );
+
+    // Calculate direction vector
+    final direction = lastPoint - secondLastPoint;
+    final angle = direction.direction;
+
+    // Arrow dimensions
+    final arrowLength = 12.0;
+
+    // Create arrow path
+    final arrowPath = Path();
+    arrowPath.moveTo(lastPoint.dx, lastPoint.dy);
+    arrowPath.lineTo(
+      lastPoint.dx - arrowLength * math.cos(angle - math.pi / 6),
+      lastPoint.dy - arrowLength * math.sin(angle - math.pi / 6),
+    );
+    arrowPath.moveTo(lastPoint.dx, lastPoint.dy);
+    arrowPath.lineTo(
+      lastPoint.dx - arrowLength * math.cos(angle + math.pi / 6),
+      lastPoint.dy - arrowLength * math.sin(angle + math.pi / 6),
+    );
+
+    final arrowPaint = Paint()
+      ..color = const Color(0xFF5A5A5A)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
 
-    canvas.drawPath(drawPath, pathPaint);
+    canvas.drawPath(arrowPath, arrowPaint);
   }
 
   void _paintIsle(Canvas canvas, Size size, map_model.Aisle aisle) {

@@ -19,6 +19,7 @@ final class Aisle extends Equatable {
   final double height;
   final AisleStatus status;
   final double hardShadowHeight;
+  final String id;
 
   late final Paint paint;
   late final Paint hardShadowPaint;
@@ -26,6 +27,7 @@ final class Aisle extends Equatable {
   late final Paint glowPaint;
 
   Aisle({
+    required this.id,
     required this.topLeft,
     required this.width,
     required this.height,
@@ -51,6 +53,7 @@ final class Aisle extends Equatable {
     required this.softShadowPaint,
     required this.glowPaint,
     required this.hardShadowHeight,
+    required this.id,
   });
 
   Aisle copyWith({
@@ -74,6 +77,7 @@ final class Aisle extends Equatable {
       softShadowPaint: softShadowPaint ?? this.softShadowPaint,
       glowPaint: glowPaint ?? this.glowPaint,
       hardShadowHeight: hardShadowHeight ?? this.hardShadowHeight,
+      id: id,
     );
   }
 
@@ -87,5 +91,6 @@ final class Aisle extends Equatable {
     paint,
     softShadowPaint,
     glowPaint,
+    id,
   ];
 }
