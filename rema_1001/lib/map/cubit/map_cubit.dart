@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:rema_1001/data/models/aisle.dart' as aisle_model;
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
+import 'package:rema_1001/data/repositories/store_repository.dart';
 import 'package:rema_1001/map/cubit/calculate_path_in_isolate.dart';
 import 'package:rema_1001/map/cubit/reolve_product_isles.dart';
 import 'package:rema_1001/map/model.dart';
@@ -13,11 +14,15 @@ import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
 part 'map_state.dart';
 
 class MapCubit extends Cubit<MapState> {
-  MapCubit(this._aisleRepository, this._shoppingListRepository)
-    : super(MapInitial());
+  MapCubit(
+    this._aisleRepository,
+    this._shoppingListRepository,
+    this._storeRepository,
+  ) : super(MapInitial());
 
   final AisleRepository _aisleRepository;
   final ShoppingListRepository _shoppingListRepository;
+  final StoreRepository _storeRepository;
 
   MapState? last;
 
@@ -28,6 +33,7 @@ class MapCubit extends Cubit<MapState> {
     final aisles = await _aisleRepository.getAislesForStore("elgeseter");
     final shoppingList = await _shoppingListRepository
         .getShoppingListWithAisles(id: shoppingListid, storeSlug: "elgeseter");
+    final store = await _storeRepository.getStoreBySlug("elgeseter");
 
     final aisleGroups = resolveProductIsles(
       shoppingList: shoppingList,
@@ -36,7 +42,7 @@ class MapCubit extends Cubit<MapState> {
 
     final pathfindingAisles = aisles.mapIndexed((idx, a) {
       return PathfindingAisle(
-        topLeft: Offset(a.gridX.toDouble(), a.gridY.toDouble()),
+        topLeft: a.position,
         width: a.width,
         height: a.height,
         isTarget: aisleGroups.any((group) => group.aisleId == a.id),
@@ -56,7 +62,7 @@ class MapCubit extends Cubit<MapState> {
         }
 
         return Aisle(
-          topLeft: Offset(a.gridX.toDouble(), a.gridY.toDouble()),
+          topLeft: a.position,
           width: a.width.toDouble(),
           height: a.height.toDouble(),
           status: status,
@@ -68,8 +74,8 @@ class MapCubit extends Cubit<MapState> {
 
     final path = await calculatePathInIsolate(
       aisles: pathfindingAisles,
-      start: Offset(20, 60),
-      end: Offset(50, 60),
+      start: store.entrance,
+      end: store.exit,
     );
 
     emit(

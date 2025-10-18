@@ -20,7 +20,7 @@ final class MapPainter implements CustomPainter {
   void paint(Canvas canvas, Size size) {
     _paintBackground(canvas, size);
     _paintIsles(canvas, size, map);
-    if (path != null) {
+    if (path != null && path!.isNotEmpty) {
       _paintPath(canvas, size, path!);
     }
   }

@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:equatable/equatable.dart';
 
 enum AisleType {
@@ -20,8 +21,7 @@ class Aisle extends Equatable {
   final String id;
   final String storeSlug;
   final AisleType type;
-  final int gridX;
-  final int gridY;
+  final Offset position;
   final int width;
   final int height;
 
@@ -29,8 +29,7 @@ class Aisle extends Equatable {
     required this.id,
     required this.storeSlug,
     required this.type,
-    required this.gridX,
-    required this.gridY,
+    required this.position,
     required this.width,
     required this.height,
   });
@@ -43,8 +42,10 @@ class Aisle extends Equatable {
         (e) => e.name == json['type'],
         orElse: () => AisleType.OTHER,
       ),
-      gridX: json['gridX'] as int,
-      gridY: json['gridY'] as int,
+      position: Offset(
+        (json['gridX'] as int).toDouble(),
+        (json['gridY'] as int).toDouble(),
+      ),
       width: json['width'] as int,
       height: json['height'] as int,
     );
@@ -55,8 +56,8 @@ class Aisle extends Equatable {
       'id': id,
       'storeSlug': storeSlug,
       'type': type.name,
-      'gridX': gridX,
-      'gridY': gridY,
+      'gridX': position.dx.toInt(),
+      'gridY': position.dy.toInt(),
       'width': width,
       'height': height,
     };
@@ -66,8 +67,7 @@ class Aisle extends Equatable {
     String? id,
     String? storeSlug,
     AisleType? type,
-    int? gridX,
-    int? gridY,
+    Offset? position,
     int? width,
     int? height,
   }) {
@@ -75,13 +75,12 @@ class Aisle extends Equatable {
       id: id ?? this.id,
       storeSlug: storeSlug ?? this.storeSlug,
       type: type ?? this.type,
-      gridX: gridX ?? this.gridX,
-      gridY: gridY ?? this.gridY,
+      position: position ?? this.position,
       width: width ?? this.width,
       height: height ?? this.height,
     );
   }
 
   @override
-  List<Object?> get props => [id, storeSlug, type, gridX, gridY, width, height];
+  List<Object?> get props => [id, storeSlug, type, position, width, height];
 }

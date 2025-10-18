@@ -7,6 +7,7 @@ class Product extends Equatable {
   final String description;
   final double price;
   final double pricePerUnit;
+  final double? discount;
   final String unit;
   final List<String> allergens;
   final double carbonFootprintGram;
@@ -21,6 +22,7 @@ class Product extends Equatable {
     required this.description,
     required this.price,
     required this.pricePerUnit,
+    this.discount,
     required this.unit,
     required this.allergens,
     required this.carbonFootprintGram,
@@ -37,6 +39,7 @@ class Product extends Equatable {
       description: json['description'] as String,
       price: (json['price'] as num).toDouble(),
       pricePerUnit: (json['pricePerUnit'] as num).toDouble(),
+      discount: json['discount'] != null ? (json['discount'] as num).toDouble() : null,
       unit: json['unit'] as String,
       allergens:
           (json['allergens'] as List<dynamic>?)
@@ -105,6 +108,7 @@ class Product extends Equatable {
       'description': description,
       'price': price,
       'pricePerUnit': pricePerUnit,
+      'discount': discount,
       'unit': unit,
       'allergens': allergens,
       'carbonFootprintGram': carbonFootprintGram,
@@ -122,6 +126,7 @@ class Product extends Equatable {
     description,
     price,
     pricePerUnit,
+    discount,
     unit,
     allergens,
     carbonFootprintGram,

@@ -12,7 +12,7 @@ class MapScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) =>
-          MapCubit(context.read(), context.read())..intialize(),
+          MapCubit(context.read(), context.read(), context.read())..intialize(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Shopping Lists'),
