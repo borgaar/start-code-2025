@@ -1,34 +1,40 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useStore } from '@/hooks/use-stores'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { getStoreOptions } from '@/hooks/use-stores'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ArrowLeft, MapPin } from 'lucide-react'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/stores/$slug/')({
   component: StoreDetailPage,
+  loader: async ({ params, context }) => {
+    const store = await context.queryClient.ensureQueryData(
+      getStoreOptions(params.slug),
+    )
+    if (!store) {
+      throw redirect({
+        to: '/stores',
+      })
+    }
+    return store
+  },
+  pendingComponent: () => (
+    <div className="p-8">
+      <div className="text-center">Loading store...</div>
+    </div>
+  ),
+  errorComponent: ({ error }) => (
+    <div className="p-8">
+      <div className="text-center text-red-500">
+        Error loading store: {error.message}
+      </div>
+    </div>
+  ),
 })
 
 function StoreDetailPage() {
   const { slug } = Route.useParams()
-  const { data: store, isLoading, error } = useStore(slug)
-
-  if (isLoading) {
-    return (
-      <div className="p-8">
-        <div className="text-center">Loading store...</div>
-      </div>
-    )
-  }
-
-  if (error || !store) {
-    return (
-      <div className="p-8">
-        <div className="text-center text-red-500">
-          Error loading store: {error?.message || 'Store not found'}
-        </div>
-      </div>
-    )
-  }
+  const { data: store } = useSuspenseQuery(getStoreOptions(slug))
 
   return (
     <div className="p-8">

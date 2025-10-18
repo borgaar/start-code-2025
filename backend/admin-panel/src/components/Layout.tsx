@@ -1,8 +1,8 @@
-import { Link, Outlet, useRouterState } from '@tanstack/react-router'
+import { Link, useRouterState } from '@tanstack/react-router'
 import { Button } from '@/components/ui/button'
 import { Package, ShoppingCart, Store, Home } from 'lucide-react'
 
-export function Layout() {
+export function Layout({ children }: { children: React.ReactNode }) {
   const router = useRouterState()
   const currentPath = router.location.pathname
 
@@ -64,9 +64,7 @@ export function Layout() {
           </div>
         </div>
       </nav>
-      <main>
-        <Outlet />
-      </main>
+      <main>{children}</main>
     </div>
   )
 }

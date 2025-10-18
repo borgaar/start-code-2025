@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import {
-  useAisles,
+  getAislesOptions,
+  getStoreOptions,
   useCreateAisle,
   useDeleteAisle,
-  useStore,
 } from '@/hooks/use-stores'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,15 +17,47 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { cn } from '@/lib/utils'
 
 export const Route = createFileRoute('/stores/$slug/aisles')({
   component: AislesPage,
+  loader: async ({ params, context }) => {
+    const store = await context.queryClient.ensureQueryData(
+      getStoreOptions(params.slug),
+    )
+    if (!store) {
+      throw redirect({
+        to: '/stores',
+      })
+    }
+
+    const aisles = await context.queryClient.ensureQueryData(
+      getAislesOptions(params.slug),
+    )
+
+    return { store, aisles: aisles ?? [] }
+  },
+
+  pendingComponent: () => (
+    <div className="p-8">
+      <div className="text-center">Loading aisles...</div>
+    </div>
+  ),
+  errorComponent: ({ error }) => (
+    <div className="p-8">
+      <div className="text-center text-red-500">
+        Error loading aisles: {error.message}
+      </div>
+    </div>
+  ),
 })
 
 function AislesPage() {
   const { slug } = Route.useParams()
-  const { data: store } = useStore(slug)
-  const { data: aisles, isLoading, error } = useAisles(slug)
+
+  const { data: store } = useSuspenseQuery(getStoreOptions(slug))
+  const { data: aisles } = useSuspenseQuery(getAislesOptions(slug))
   const createAisle = useCreateAisle()
   const deleteAisle = useDeleteAisle()
 
@@ -37,24 +69,6 @@ function AislesPage() {
     if (confirm('Are you sure you want to delete this aisle?')) {
       deleteAisle.mutate({ slug, aisleId })
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="p-8">
-        <div className="text-center">Loading aisles...</div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="p-8">
-        <div className="text-center text-red-500">
-          Error loading aisles: {error.message}
-        </div>
-      </div>
-    )
   }
 
   return (
@@ -129,29 +143,35 @@ function AislesPage() {
         <CardContent>
           <div className="relative bg-gray-100 p-4 rounded-lg overflow-auto">
             <div
-              className="relative"
+              className="grid bg-[#434343]"
               style={{
-                width: '100%',
-                height: '600px',
-                minWidth: '800px',
+                gridTemplateColumns: 'repeat(64, 10px)',
+                gridTemplateRows: 'repeat(64, 10px)',
               }}
             >
               {aisles?.map((aisle) => (
                 <div
                   key={aisle.id}
-                  className={`absolute border-2 ${
-                    aisle.type === 'OBSTACLE'
-                      ? 'bg-red-200 border-red-400'
-                      : 'bg-blue-200 border-blue-400'
-                  } flex items-center justify-center text-xs font-semibold`}
+                  className="text-center relative"
                   style={{
-                    left: `${aisle.gridX * 50}px`,
-                    top: `${aisle.gridY * 50}px`,
-                    width: `${aisle.width * 50}px`,
-                    height: `${aisle.height * 50}px`,
+                    gridColumnStart: aisle.gridX + 1,
+                    gridColumnEnd: aisle.gridX + aisle.width + 1,
+                    gridRowStart: aisle.gridY + 1,
+                    gridRowEnd: aisle.gridY + aisle.height + 1,
+                    backgroundColor:
+                      aisle.type === 'OBSTACLE' ? '#2c2c2c' : '#6B6B6B',
                   }}
                 >
-                  {aisle.type}
+                  {aisle.type != 'OBSTACLE' && (
+                    <span
+                      className={cn(
+                        'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+                        aisle.height > aisle.width + 1 && 'rotate-90',
+                      )}
+                    >
+                      {aisle.type}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

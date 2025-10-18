@@ -1,5 +1,9 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
-import { useStores, useCreateStore, useDeleteStore } from '@/hooks/use-stores'
+import {
+  getStoresOptions,
+  useCreateStore,
+  useDeleteStore,
+} from '@/hooks/use-stores'
 import {
   Table,
   TableBody,
@@ -11,13 +15,29 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, ExternalLink, Trash2, MapPin } from 'lucide-react'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/stores/')({
   component: StoresPage,
+  loader: async ({ context }) => {
+    return await context.queryClient.ensureQueryData(getStoresOptions())
+  },
+  pendingComponent: () => (
+    <div className="p-8">
+      <div className="text-center">Loading stores...</div>
+    </div>
+  ),
+  errorComponent: ({ error }) => (
+    <div className="p-8">
+      <div className="text-center text-red-500">
+        Error loading stores: {error.message}
+      </div>
+    </div>
+  ),
 })
 
 function StoresPage() {
-  const { data: stores, isLoading, error } = useStores()
+  const { data: stores } = useSuspenseQuery(getStoresOptions())
   const createStore = useCreateStore()
   const deleteStore = useDeleteStore()
 
@@ -29,24 +49,6 @@ function StoresPage() {
     if (confirm('Are you sure you want to delete this store?')) {
       deleteStore.mutate(slug)
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="p-8">
-        <div className="text-center">Loading stores...</div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="p-8">
-        <div className="text-center text-red-500">
-          Error loading stores: {error.message}
-        </div>
-      </div>
-    )
   }
 
   return (

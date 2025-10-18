@@ -1,8 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { client } from '@/lib/api'
 
-export function useShoppingLists() {
-  return useQuery({
+export function getShoppingListsOptions() {
+  return queryOptions({
     queryKey: ['shopping-lists'],
     queryFn: async () => {
       const { data, error } = await client.GET('/api/shopping-lists')
@@ -12,17 +16,17 @@ export function useShoppingLists() {
   })
 }
 
-export function useShoppingList(id: string) {
-  return useQuery({
+export function getShoppingListOptions(id: string) {
+  return queryOptions({
     queryKey: ['shopping-lists', id],
     queryFn: async () => {
       const { data, error } = await client.GET('/api/shopping-lists/{id}', {
         params: { path: { id } },
       })
       if (error) throw error
+      if (!data) throw new Error('Shopping list not found')
       return data
     },
-    enabled: !!id,
   })
 }
 
@@ -40,7 +44,7 @@ export function useCreateShoppingList() {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shopping-lists'] })
+      queryClient.invalidateQueries(getShoppingListsOptions())
     },
   })
 }
@@ -57,8 +61,8 @@ export function useUpdateShoppingList() {
       return data
     },
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: ['shopping-lists'] })
-      queryClient.invalidateQueries({ queryKey: ['shopping-lists', id] })
+      queryClient.invalidateQueries(getShoppingListsOptions())
+      queryClient.invalidateQueries(getShoppingListOptions(id))
     },
   })
 }
@@ -73,8 +77,9 @@ export function useDeleteShoppingList() {
       })
       if (error) throw error
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['shopping-lists'] })
+    onSuccess: (_, id) => {
+      queryClient.invalidateQueries(getShoppingListsOptions())
+      queryClient.invalidateQueries(getShoppingListOptions(id))
     },
   })
 }
@@ -94,7 +99,7 @@ export function useAddItemToList() {
       return data
     },
     onSuccess: (_, id) => {
-      queryClient.invalidateQueries({ queryKey: ['shopping-lists', id] })
+      queryClient.invalidateQueries(getShoppingListOptions(id))
     },
   })
 }
@@ -113,7 +118,7 @@ export function useRemoveItemFromList() {
       if (error) throw error
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['shopping-lists', id] })
+      queryClient.invalidateQueries(getShoppingListOptions(id))
     },
   })
 }
@@ -133,7 +138,7 @@ export function useUpdateItemInList() {
       return data
     },
     onSuccess: (_, { id }) => {
-      queryClient.invalidateQueries({ queryKey: ['shopping-lists', id] })
+      queryClient.invalidateQueries(getShoppingListOptions(id))
     },
   })
 }

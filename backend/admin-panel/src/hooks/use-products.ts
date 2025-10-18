@@ -1,27 +1,28 @@
-import { useQuery } from '@tanstack/react-query'
+import { queryOptions } from '@tanstack/react-query'
 import { client } from '@/lib/api'
 
-export function useProducts() {
-  return useQuery({
+export function getProductsOptions() {
+  return queryOptions({
     queryKey: ['products'],
     queryFn: async () => {
-      const { data, error } = await client.GET('/api/products')
-      if (error) throw error
-      return data
+      const response = await client.GET('/api/products')
+      if (!response.response.ok || response.data == null)
+        throw new Error('Failed to fetch products')
+      return response.data
     },
   })
 }
 
-export function useProduct(id: string) {
-  return useQuery({
+export function getProductOptions(id: string) {
+  return queryOptions({
     queryKey: ['products', id],
     queryFn: async () => {
-      const { data, error } = await client.GET('/api/products/{id}', {
+      const response = await client.GET('/api/products/{id}', {
         params: { path: { id } },
       })
-      if (error) throw error
-      return data
+      if (response.error) throw response.error
+      if (!response.data) throw new Error('Product not found')
+      return response.data
     },
-    enabled: !!id,
   })
 }

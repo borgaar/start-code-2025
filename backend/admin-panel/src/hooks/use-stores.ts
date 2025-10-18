@@ -1,8 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { client } from '@/lib/api'
 
-export function useStores() {
-  return useQuery({
+export function getStoresOptions() {
+  return queryOptions({
     queryKey: ['stores'],
     queryFn: async () => {
       const { data, error } = await client.GET('/api/store')
@@ -12,17 +16,17 @@ export function useStores() {
   })
 }
 
-export function useStore(slug: string) {
-  return useQuery({
+export function getStoreOptions(slug: string) {
+  return queryOptions({
     queryKey: ['stores', slug],
     queryFn: async () => {
       const { data, error } = await client.GET('/api/store/{slug}', {
         params: { path: { slug } },
       })
       if (error) throw error
+      if (!data) throw new Error('Store not found')
       return data
     },
-    enabled: !!slug,
   })
 }
 
@@ -36,7 +40,7 @@ export function useCreateStore() {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stores'] })
+      queryClient.invalidateQueries(getStoresOptions())
     },
   })
 }
@@ -52,10 +56,9 @@ export function useUpdateStore() {
       if (error) throw error
       return data
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['stores'] })
-      if (!data) return
-      queryClient.invalidateQueries({ queryKey: ['stores', data.slug] })
+    onSuccess: (_, slug) => {
+      queryClient.invalidateQueries(getStoresOptions())
+      queryClient.invalidateQueries(getStoreOptions(slug))
     },
   })
 }
@@ -70,14 +73,15 @@ export function useDeleteStore() {
       })
       if (error) throw error
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stores'] })
+    onSuccess: (_, slug) => {
+      queryClient.invalidateQueries(getStoresOptions())
+      queryClient.invalidateQueries(getStoreOptions(slug))
     },
   })
 }
 
-export function useAisles(slug: string) {
-  return useQuery({
+export function getAislesOptions(slug: string) {
+  return queryOptions({
     queryKey: ['stores', slug, 'aisles'],
     queryFn: async () => {
       const { data, error } = await client.GET('/api/store/{slug}/aisle', {
@@ -86,12 +90,11 @@ export function useAisles(slug: string) {
       if (error) throw error
       return data
     },
-    enabled: !!slug,
   })
 }
 
-export function useAisle(slug: string, aisleId: string) {
-  return useQuery({
+export function getAisleOptions(slug: string, aisleId: string) {
+  return queryOptions({
     queryKey: ['stores', slug, 'aisles', aisleId],
     queryFn: async () => {
       const { data, error } = await client.GET(
@@ -101,9 +104,9 @@ export function useAisle(slug: string, aisleId: string) {
         },
       )
       if (error) throw error
+      if (!data) throw new Error('Aisle not found')
       return data
     },
-    enabled: !!slug && !!aisleId,
   })
 }
 
@@ -119,7 +122,7 @@ export function useCreateAisle() {
       return data
     },
     onSuccess: (_, slug) => {
-      queryClient.invalidateQueries({ queryKey: ['stores', slug, 'aisles'] })
+      queryClient.invalidateQueries(getAislesOptions(slug))
     },
   })
 }
@@ -145,10 +148,8 @@ export function useUpdateAisle() {
       return data
     },
     onSuccess: (_, { slug, aisleId }) => {
-      queryClient.invalidateQueries({ queryKey: ['stores', slug, 'aisles'] })
-      queryClient.invalidateQueries({
-        queryKey: ['stores', slug, 'aisles', aisleId],
-      })
+      queryClient.invalidateQueries(getAislesOptions(slug))
+      queryClient.invalidateQueries(getAisleOptions(slug, aisleId))
     },
   })
 }
@@ -173,13 +174,13 @@ export function useDeleteAisle() {
       if (error) throw error
     },
     onSuccess: (_, { slug }) => {
-      queryClient.invalidateQueries({ queryKey: ['stores', slug, 'aisles'] })
+      queryClient.invalidateQueries(getAislesOptions(slug))
     },
   })
 }
 
-export function useAisleTypes() {
-  return useQuery({
+export function getAisleTypesOptions() {
+  return queryOptions({
     queryKey: ['aisle-types'],
     queryFn: async () => {
       const { data, error } = await client.GET('/api/store/aisle-types')
@@ -189,8 +190,8 @@ export function useAisleTypes() {
   })
 }
 
-export function useAisleProducts(slug: string, aisleId: string) {
-  return useQuery({
+export function getAisleProductsOptions(slug: string, aisleId: string) {
+  return queryOptions({
     queryKey: ['stores', slug, 'aisles', aisleId, 'products'],
     queryFn: async () => {
       const { data, error } = await client.GET(
@@ -202,7 +203,6 @@ export function useAisleProducts(slug: string, aisleId: string) {
       if (error) throw error
       return data
     },
-    enabled: !!slug && !!aisleId,
   })
 }
 
@@ -216,7 +216,7 @@ export function useAddProductToAisle() {
       return data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stores'] })
+      queryClient.invalidateQueries(getStoresOptions())
     },
   })
 }
@@ -241,7 +241,7 @@ export function useRemoveProductFromAisle() {
       if (error) throw error
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['stores'] })
+      queryClient.invalidateQueries(getStoresOptions())
     },
   })
 }

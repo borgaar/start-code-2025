@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useProducts } from '@/hooks/use-products'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { getProductsOptions } from '@/hooks/use-products'
 import {
   Table,
   TableBody,
@@ -12,31 +12,35 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, ExternalLink } from 'lucide-react'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/products/')({
   component: ProductsPage,
+  loader: async ({ context }) => {
+    try {
+      return await context.queryClient.ensureQueryData(getProductsOptions())
+    } catch {
+      throw redirect({
+        to: '/',
+      })
+    }
+  },
+  pendingComponent: () => (
+    <div className="p-8">
+      <div className="text-center">Loading products...</div>
+    </div>
+  ),
+  errorComponent: ({ error }) => (
+    <div className="p-8">
+      <div className="text-center text-red-500">
+        Error loading products: {error.message}
+      </div>
+    </div>
+  ),
 })
 
 function ProductsPage() {
-  const { data: products, isLoading, error } = useProducts()
-
-  if (isLoading) {
-    return (
-      <div className="p-8">
-        <div className="text-center">Loading products...</div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="p-8">
-        <div className="text-center text-red-500">
-          Error loading products: {error.message}
-        </div>
-      </div>
-    )
-  }
+  const { data: products } = useSuspenseQuery(getProductsOptions())
 
   return (
     <div className="p-8">

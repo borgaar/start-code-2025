@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
-  useShoppingLists,
   useCreateShoppingList,
   useDeleteShoppingList,
+  getShoppingListsOptions,
 } from '@/hooks/use-shopping-lists'
 import {
   Table,
@@ -15,13 +15,29 @@ import {
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, ExternalLink, Trash2 } from 'lucide-react'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/shopping-lists/')({
   component: ShoppingListsPage,
+  loader: async ({ context }) => {
+    return await context.queryClient.ensureQueryData(getShoppingListsOptions())
+  },
+  pendingComponent: () => (
+    <div className="p-8">
+      <div className="text-center">Loading shopping lists...</div>
+    </div>
+  ),
+  errorComponent: ({ error }) => (
+    <div className="p-8">
+      <div className="text-center text-red-500">
+        Error loading shopping lists: {error.message}
+      </div>
+    </div>
+  ),
 })
 
 function ShoppingListsPage() {
-  const { data: lists, isLoading, error } = useShoppingLists()
+  const { data: lists } = useSuspenseQuery(getShoppingListsOptions())
   const createList = useCreateShoppingList()
   const deleteList = useDeleteShoppingList()
 
@@ -35,24 +51,6 @@ function ShoppingListsPage() {
     if (confirm('Are you sure you want to delete this shopping list?')) {
       deleteList.mutate(id)
     }
-  }
-
-  if (isLoading) {
-    return (
-      <div className="p-8">
-        <div className="text-center">Loading shopping lists...</div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div className="p-8">
-        <div className="text-center text-red-500">
-          Error loading shopping lists: {error.message}
-        </div>
-      </div>
-    )
   }
 
   return (

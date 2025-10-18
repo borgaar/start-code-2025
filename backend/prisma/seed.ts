@@ -91,6 +91,7 @@ async function main() {
       unit: product.unit,
       allergens: product.allergens,
       carbonFootprintGram: product.carbonFootprintGram,
+      ...(Math.random() < 0.1 ? { discount: Math.random() * 0.3} : {})
     })),
   });
 

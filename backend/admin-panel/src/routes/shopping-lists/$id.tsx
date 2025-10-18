@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import {
-  useShoppingList,
   useRemoveItemFromList,
   useUpdateItemInList,
+  getShoppingListOptions,
 } from '@/hooks/use-shopping-lists'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -15,14 +15,41 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { ArrowLeft, Trash2, Plus } from 'lucide-react'
+import { useSuspenseQuery } from '@tanstack/react-query'
 
 export const Route = createFileRoute('/shopping-lists/$id')({
   component: ShoppingListDetailPage,
+  loader: async ({ params, context }) => {
+    try {
+      const data = await context.queryClient.ensureQueryData(
+        getShoppingListOptions(params.id),
+      )
+      return data
+    } catch {
+      throw redirect({
+        to: '/shopping-lists',
+      })
+    }
+  },
+
+  pendingComponent: () => (
+    <div className="p-8">
+      <div className="text-center">Loading shopping list...</div>
+    </div>
+  ),
+
+  errorComponent: ({ error }) => (
+    <div className="p-8">
+      <div className="text-center text-red-500">
+        Error loading shopping list: {error?.message || 'List not found'}
+      </div>
+    </div>
+  ),
 })
 
 function ShoppingListDetailPage() {
   const { id } = Route.useParams()
-  const { data: list, isLoading, error } = useShoppingList(id)
+  const { data: list } = useSuspenseQuery(getShoppingListOptions(id))
   const removeItem = useRemoveItemFromList()
   const updateItem = useUpdateItemInList()
 
@@ -34,24 +61,6 @@ function ShoppingListDetailPage() {
 
   const handleToggleChecked = (itemId: string) => {
     updateItem.mutate({ id, itemId })
-  }
-
-  if (isLoading) {
-    return (
-      <div className="p-8">
-        <div className="text-center">Loading shopping list...</div>
-      </div>
-    )
-  }
-
-  if (error || !list) {
-    return (
-      <div className="p-8">
-        <div className="text-center text-red-500">
-          Error loading shopping list: {error?.message || 'List not found'}
-        </div>
-      </div>
-    )
   }
 
   const totalPrice = list.items.reduce(

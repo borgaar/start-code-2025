@@ -20,6 +20,7 @@ model Product {
   description         String
   price               Float
   pricePerUnit        Float
+  discount            Float?
   unit                String
   allergens           String[]
   carbonFootprintGram Float
