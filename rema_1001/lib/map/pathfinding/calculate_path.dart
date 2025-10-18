@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
 
@@ -21,13 +22,13 @@ bool _isInBounds(Offset point) {
 /// Includes 1 coordinate padding around aisles to avoid corner clipping
 /// Extra 2 units of padding on top for graphical clearance
 bool _collidesWithAisle(Offset point, List<PathfindingAisle> aisles) {
-  const double sidePadding = 0.0;
-  const double topPadding = 0.0; // Extra clearance on top
-  const double bottomPadding = 0.0;
+  const double sidePadding = 0.5;
+  const double topPadding = 0.5;
+  const double bottomPadding = 0.5;
 
   for (final aisle in aisles) {
     final left = aisle.topLeft.dx - sidePadding;
-    final top = aisle.topLeft.dy - topPadding; // 2 units above
+    final top = aisle.topLeft.dy - topPadding;
     final right = aisle.topLeft.dx + aisle.width + sidePadding;
     final bottom = aisle.topLeft.dy + aisle.height + bottomPadding;
 
@@ -658,6 +659,119 @@ List<Waypoint> calculatePath({
     );
   }
 
+  /// Merge adjacent path points when they can be replaced by a single corner
+  /// without colliding with aisles. This should be called after A* and any
+  /// path simplification.
+  ///
+  /// Example: [{1,1},{5,3},{6,4}]  ->  [{1,1},{5,4}]  or  [{1,1},{6,3}]
+  List<Offset> mergeTightAdjacentPoints(
+    List<Offset> path,
+    List<PathfindingAisle> aisles,
+  ) {
+    if (path.length < 2) return path;
+
+    final result = <Offset>[];
+    int i = 0;
+
+    while (i < path.length - 1) {
+      final a = path[i];
+      final b = path[i + 1];
+
+      final dx = (b.dx - a.dx).round();
+      final dy = (b.dy - a.dy).round();
+
+      // Case 1: diagonal neighbors (|dx|==1 && |dy|==1)
+      if (dx.abs() == 1 && dy.abs() == 1) {
+        // Two candidate corner points: (ax, by) and (bx, ay)
+        final cornerA = Offset(a.dx, b.dy); // e.g., (5,4)
+        final cornerB = Offset(b.dx, a.dy); // e.g., (6,3)
+
+        final aBlocked = _collidesWithAisle(cornerA, aisles);
+        final bBlocked = _collidesWithAisle(cornerB, aisles);
+
+        if (aBlocked && bBlocked) {
+          // Can't merge, keep 'a' and move on
+          result.add(a);
+          i += 1;
+          continue;
+        }
+
+        Offset pick;
+        if (!aBlocked && bBlocked) {
+          pick = cornerA;
+        } else if (aBlocked && !bBlocked) {
+          pick = cornerB;
+        } else {
+          // Neither is blocked — pick the one that makes a better local bend.
+          // "Better" = shorter + straighter wrt previous/next points.
+          final prev = result.isNotEmpty ? result.last : null;
+          final next = (i + 2 < path.length) ? path[i + 2] : null;
+
+          double score(Offset c) {
+            // Prefer line of sight and smaller total length prev->c->next
+            double s = 0.0;
+
+            if (prev != null) {
+              s += _distance(prev, c);
+              // reward line-of-sight (subtract a tiny epsilon)
+              if (_hasLineOfSight(prev, c, aisles)) s -= 0.001;
+            }
+            if (next != null) {
+              s += _distance(c, next);
+              if (_hasLineOfSight(c, next, aisles)) s -= 0.001;
+            }
+            return s;
+          }
+
+          final sA = score(cornerA);
+          final sB = score(cornerB);
+          pick = (sA <= sB) ? cornerA : cornerB;
+        }
+
+        // Emit the merged corner instead of the pair (a,b)
+        // Avoid duplicating if equals last
+        if (result.isEmpty || _distance(result.last, pick) >= 0.1) {
+          result.add(Offset(pick.dx.roundToDouble(), pick.dy.roundToDouble()));
+        }
+        // Skip both a and b
+        i += 2;
+        continue;
+      }
+
+      // Case 2: very close points (distance < 1.0) — keep just one of them
+      if (_distance(a, b) < 1.0) {
+        // Prefer the non-colliding one; if both fine, keep 'b' to move forward
+        final keepA = !_collidesWithAisle(a, aisles);
+        final keepB = !_collidesWithAisle(b, aisles);
+        final chosen = keepB || !keepA ? b : a;
+
+        if (result.isEmpty || _distance(result.last, chosen) >= 0.1) {
+          result.add(
+            Offset(chosen.dx.roundToDouble(), chosen.dy.roundToDouble()),
+          );
+        }
+        i += 2; // consumed both
+        continue;
+      }
+
+      // Default: keep point a
+      if (result.isEmpty || _distance(result.last, a) >= 0.1) {
+        result.add(Offset(a.dx.roundToDouble(), a.dy.roundToDouble()));
+      }
+      i += 1;
+    }
+
+    // Add the final point if we didn't consume it above
+    if (i == path.length - 1) {
+      final last = path.last;
+      if (result.isEmpty || _distance(result.last, last) >= 0.1) {
+        result.add(Offset(last.dx.roundToDouble(), last.dy.roundToDouble()));
+      }
+    }
+
+    return result;
+  }
+
   // ========================================================================
   // BUILD COMPLETE PATH WITH INTERMEDIATE WAYPOINTS
   // ========================================================================
@@ -693,6 +807,7 @@ List<Waypoint> calculatePath({
 
     // Simplify the path to reduce waypoints
     pathSegment = _simplifyPath(pathSegment, aisles);
+    pathSegment = mergeTightAdjacentPoints(pathSegment, aisles);
 
     // Add waypoints (skip first if it duplicates last added)
     for (int i = 0; i < pathSegment.length; i++) {
@@ -724,6 +839,7 @@ List<Waypoint> calculatePath({
 
   // Simplify final segment
   finalSegment = _simplifyPath(finalSegment, aisles);
+  finalSegment = mergeTightAdjacentPoints(finalSegment, aisles);
 
   for (int i = 0; i < finalSegment.length; i++) {
     if (waypoints.isNotEmpty &&
