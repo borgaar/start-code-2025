@@ -84,7 +84,6 @@ async function main() {
       },
     },
   });
-  await prisma.aisle.deleteMany();
   await prisma.shoppingList.deleteMany();
   console.log("Creating products...");
 
