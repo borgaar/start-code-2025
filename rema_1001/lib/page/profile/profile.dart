@@ -16,10 +16,31 @@ class ProfileScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(height: 20),
-            CircleAvatar(
-              radius: 60,
-              backgroundColor: Color(0xFF4A9EFF),
-              backgroundImage: AssetImage(Assets.oddReitan),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.red, width: 3),
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 3),
+                ),
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.primary,
+                      width: 3,
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Color(0xFF4A9EFF),
+                    backgroundImage: AssetImage(Assets.oddReitan),
+                  ),
+                ),
+              ),
             ),
             const SizedBox(height: 20),
             const Text(
@@ -28,7 +49,7 @@ class ProfileScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'odd.reitan@reitan.no',
+              'odd@reitan.no',
               style: TextStyle(fontSize: 16, color: Colors.grey[400]),
             ),
             const SizedBox(height: 32),
@@ -62,13 +83,6 @@ class ProfileScreen extends StatelessWidget {
                     'Get help with your account',
                   ),
                 ],
-              ),
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                onPressed: () => context.goNamed(RouteNames.home),
-                child: const Text('Back to Home'),
               ),
             ),
           ],
