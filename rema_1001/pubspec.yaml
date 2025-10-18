@@ -44,6 +44,7 @@ dependencies:
   skeletonizer: ^2.1.0+1
   carousel_slider: ^5.1.1
   flutter_dotenv: ^5.2.1
+  flutter_animate: ^4.5.2
 
 dev_dependencies:
   flutter_test:
