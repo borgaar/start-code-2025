@@ -796,6 +796,10 @@ export interface operations {
                     "application/json": {
                         slug: string;
                         name: string;
+                        entranceX: number;
+                        entranceY: number;
+                        exitX: number;
+                        exitY: number;
                         updatedAt: string;
                         createdAt: string;
                     }[];
@@ -815,6 +819,10 @@ export interface operations {
                 "application/json": {
                     slug: string;
                     name: string;
+                    entranceX: number;
+                    entranceY: number;
+                    exitX: number;
+                    exitY: number;
                 };
             };
         };
@@ -828,6 +836,10 @@ export interface operations {
                     "application/json": {
                         slug: string;
                         name: string;
+                        entranceX: number;
+                        entranceY: number;
+                        exitX: number;
+                        exitY: number;
                         updatedAt: string;
                         createdAt: string;
                     };
@@ -869,6 +881,10 @@ export interface operations {
                     "application/json": {
                         slug: string;
                         name: string;
+                        entranceX: number;
+                        entranceY: number;
+                        exitX: number;
+                        exitY: number;
                         updatedAt: string;
                         createdAt: string;
                     };
@@ -896,6 +912,10 @@ export interface operations {
             content: {
                 "application/json": {
                     name?: string;
+                    entranceX?: number;
+                    entranceY?: number;
+                    exitX?: number;
+                    exitY?: number;
                 };
             };
         };
@@ -909,6 +929,10 @@ export interface operations {
                     "application/json": {
                         slug: string;
                         name: string;
+                        entranceX: number;
+                        entranceY: number;
+                        exitX: number;
+                        exitY: number;
                         updatedAt: string;
                         createdAt: string;
                     };

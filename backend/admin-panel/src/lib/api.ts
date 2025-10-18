@@ -13,3 +13,22 @@ const { VITE_BASE_API_URL } = z
 export const client = createClient<paths>({
   baseUrl: VITE_BASE_API_URL,
 })
+
+// Typescript magic ;)
+export type ResponseType<
+  TPath extends keyof paths,
+  TMethod extends keyof paths[TPath],
+  TStatus extends keyof paths[TPath][TMethod] extends never
+    ? never
+    : paths[TPath][TMethod] extends { responses: infer R }
+      ? keyof R
+      : never,
+> = paths[TPath][TMethod] extends { responses: infer R }
+  ? TStatus extends keyof R
+    ? R[TStatus] extends { content: infer C }
+      ? C extends { 'application/json': infer J }
+        ? J
+        : never
+      : never
+    : never
+  : never

@@ -6,18 +6,10 @@ import {
   useDeleteAisle,
   useUpdateAisle,
   getAisleTypesOptions,
+  useUpdateStore,
 } from '@/hooks/use-stores'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
 import {
   Select,
   SelectContent,
@@ -25,35 +17,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import {
-  ArrowLeft,
-  Plus,
-  Trash2,
-  Move,
-  Maximize2,
-  Pencil,
-  Save,
-} from 'lucide-react'
+import { ArrowLeft, Trash2, Move, Maximize2, Pencil, Save } from 'lucide-react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
 import { useState, useRef, useEffect } from 'react'
+import type { ResponseType } from '@/lib/api'
 
 type Tool = 'draw' | 'move' | 'resize' | 'delete'
 
-type AisleType =
-  | 'OBSTACLE'
-  | 'FREEZER'
-  | 'DRINKS'
-  | 'PANTRY'
-  | 'SWEETS'
-  | 'CHEESE'
-  | 'MEAT'
-  | 'DAIRY'
-  | 'FRIDGE'
-  | 'FRUIT'
-  | 'VEGETABLES'
-  | 'BAKERY'
-  | 'OTHER'
+type AisleType = ResponseType<'/api/resources/aisle-types', 'get', 200>[number]
 
 interface Aisle {
   id: string
@@ -119,6 +91,7 @@ function AislesPage() {
   const createAisle = useCreateAisle()
   const deleteAisle = useDeleteAisle()
   const updateAisle = useUpdateAisle()
+  const updateStore = useUpdateStore()
 
   // Drawing state
   const [activeTool, setActiveTool] = useState<Tool | null>(null)
@@ -128,6 +101,25 @@ function AislesPage() {
   const [modifiedAisles, setModifiedAisles] = useState<
     Map<string, ModifiedAisle>
   >(new Map())
+
+  const [selectedPoint, setSelectedPoint] = useState<
+    'entrance' | 'exit' | null
+  >(null)
+  const [localEntranceCoords, setLocalEntranceCoords] = useState<{
+    x: number
+    y: number
+  }>({
+    x: store.entranceX,
+    y: store.entranceY,
+  })
+  const [localExitCoords, setLocalExitCoords] = useState<{
+    x: number
+    y: number
+  }>({
+    x: store.exitX,
+    y: store.exitY,
+  })
+
   const [deletedAisles, setDeletedAisles] = useState<Set<string>>(new Set())
   const [newAisles, setNewAisles] = useState<ModifiedAisle[]>([])
 
@@ -153,17 +145,13 @@ function AislesPage() {
   }, [aisles])
 
   const hasModifications =
-    modifiedAisles.size > 0 || deletedAisles.size > 0 || newAisles.length > 0
-
-  const handleCreateAisle = () => {
-    createAisle.mutate({ slug })
-  }
-
-  const handleDeleteAisle = (aisleId: string) => {
-    if (confirm('Are you sure you want to delete this aisle?')) {
-      deleteAisle.mutate({ slug, aisleId })
-    }
-  }
+    modifiedAisles.size > 0 ||
+    deletedAisles.size > 0 ||
+    newAisles.length > 0 ||
+    store.entranceX !== localEntranceCoords.x ||
+    store.entranceY !== localEntranceCoords.y ||
+    store.exitX !== localExitCoords.x ||
+    store.exitY !== localExitCoords.y
 
   const getGridCoordinates = (
     clientX: number,
@@ -238,6 +226,19 @@ function AislesPage() {
       }
     } else if (activeTool === 'move') {
       const aisle = findAisleAtPosition(coords.x, coords.y)
+      if (
+        coords.x === localEntranceCoords.x &&
+        coords.y === localEntranceCoords.y
+      ) {
+        setSelectedPoint('entrance')
+        setDragStart(coords)
+        return
+      }
+      if (coords.x === localExitCoords.x && coords.y === localExitCoords.y) {
+        setSelectedPoint('exit')
+        setDragStart(coords)
+        return
+      }
       if (aisle) {
         setSelectedAisleId(aisle.id)
         setDragStart(coords)
@@ -337,6 +338,16 @@ function AislesPage() {
         )
         setDragStart(coords)
       }
+    } else if (activeTool === 'move' && selectedPoint && dragStart) {
+      const newCoords = getGridCoordinates(e.clientX, e.clientY)
+      if (newCoords) {
+        if (selectedPoint === 'entrance') {
+          setLocalEntranceCoords(newCoords)
+        }
+        if (selectedPoint === 'exit') {
+          setLocalExitCoords(newCoords)
+        }
+      }
     }
   }
 
@@ -391,6 +402,7 @@ function AislesPage() {
     setSelectedAisleId(null)
     setDragStart(null)
     setResizeHandle(null)
+    setSelectedPoint(null)
   }
 
   const handleSaveChanges = async () => {
@@ -429,6 +441,14 @@ function AislesPage() {
         await deleteAisle.mutateAsync({ slug, aisleId })
       }
 
+      await updateStore.mutateAsync({
+        slug,
+        entranceX: localEntranceCoords.x,
+        entranceY: localEntranceCoords.y,
+        exitX: localExitCoords.x,
+        exitY: localExitCoords.y,
+      })
+
       // Clear modifications
       setModifiedAisles(new Map())
       setDeletedAisles(new Set())
@@ -445,6 +465,9 @@ function AislesPage() {
     setDeletedAisles(new Set())
     setNewAisles([])
     setActiveTool(null)
+    setSelectedPoint(null)
+    setLocalEntranceCoords({ x: store.entranceX, y: store.entranceY })
+    setLocalExitCoords({ x: store.exitX, y: store.exitY })
   }
 
   const getPreviewRectangle = () => {
@@ -469,59 +492,6 @@ function AislesPage() {
           </Link>
         </Button>
       </div>
-
-      <Card className="mb-6">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Aisles - {store?.name}</CardTitle>
-          <Button onClick={handleCreateAisle} disabled={createAisle.isPending}>
-            <Plus className="mr-2 h-4 w-4" />
-            {createAisle.isPending ? 'Creating...' : 'New Aisle'}
-          </Button>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Type</TableHead>
-                <TableHead>Position (X, Y)</TableHead>
-                <TableHead>Size (W × H)</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {aisles?.map((aisle) => (
-                <TableRow key={aisle.id}>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        aisle.type === 'OBSTACLE' ? 'destructive' : 'secondary'
-                      }
-                    >
-                      {aisle.type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    ({aisle.gridX}, {aisle.gridY})
-                  </TableCell>
-                  <TableCell>
-                    {aisle.width} × {aisle.height}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteAisle(aisle.id)}
-                      disabled={deleteAisle.isPending}
-                    >
-                      <Trash2 className="h-4 w-4 text-red-500" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
 
       {/* Grid Visualization with Drawing Tools */}
       <Card>
@@ -628,7 +598,7 @@ function AislesPage() {
           <div className="relative bg-gray-100 p-4 rounded-lg overflow-auto">
             <div
               ref={gridRef}
-              className="grid bg-[#434343] cursor-crosshair"
+              className="grid bg-[#434343] cursor-crosshair w-fit"
               style={{
                 gridTemplateColumns: 'repeat(64, 10px)',
                 gridTemplateRows: 'repeat(64, 10px)',
@@ -675,6 +645,44 @@ function AislesPage() {
                     )}
                   </div>
                 ))}
+
+              {/* Entrance */}
+
+              <div
+                id="store-entrance"
+                className={cn(
+                  'bg-green-400',
+                  activeTool === 'move' && 'cursor-move',
+                  activeTool === 'resize' && 'cursor-not-allowed',
+                  activeTool === 'delete' && 'cursor-not-allowed',
+                )}
+                style={{
+                  gridColumnStart: localEntranceCoords.x + 1,
+                  gridColumnEnd: localEntranceCoords.x + 1,
+                  gridRowStart: localEntranceCoords.y + 1,
+                  gridRowEnd: localEntranceCoords.y + 1,
+                }}
+              >
+                Enter
+              </div>
+              {/* Exit */}
+              <div
+                id="store-exit"
+                className={cn(
+                  'bg-red-400',
+                  activeTool === 'move' && 'cursor-move',
+                  activeTool === 'resize' && 'cursor-not-allowed',
+                  activeTool === 'delete' && 'cursor-not-allowed',
+                )}
+                style={{
+                  gridColumnStart: localExitCoords.x + 1,
+                  gridColumnEnd: localExitCoords.x + 1,
+                  gridRowStart: localExitCoords.y + 1,
+                  gridRowEnd: localExitCoords.y + 1,
+                }}
+              >
+                Exit
+              </div>
 
               {/* Draw preview */}
               {preview && (

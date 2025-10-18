@@ -54,14 +54,25 @@ export function useUpdateStore() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (slug: string) => {
+    mutationFn: async ({
+      slug,
+      ...body
+    }: {
+      slug: string
+      name?: string
+      entranceX?: number
+      entranceY?: number
+      exitX?: number
+      exitY?: number
+    }) => {
       const { data, error } = await client.PUT('/api/store/{slug}', {
         params: { path: { slug } },
+        body,
       })
       if (error) throw error
       return data
     },
-    onSuccess: (_, slug) => {
+    onSuccess: (_, { slug }) => {
       queryClient.invalidateQueries(getStoresOptions())
       queryClient.invalidateQueries(getStoreOptions(slug))
     },

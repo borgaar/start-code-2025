@@ -96,6 +96,10 @@ export const createStoreRoute = route().post(
         data: {
           slug: body.slug,
           name: body.name,
+          entranceX: 50,
+          entranceY: 62,
+          exitX: 10,
+          exitY: 62,
         },
       });
 
@@ -183,7 +187,7 @@ export const updateStoreRoute = route().put(
     try {
       const store = await c.get("db").store.update({
         where: { slug },
-        data: { name: body.name },
+        data: { ...body },
       });
 
       return c.json(store);
