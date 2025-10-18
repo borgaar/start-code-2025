@@ -1,18 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:rema_1001/page/shopping_trip/shopping_trip.dart';
-import 'package:rema_1001/page/home.dart';
+import 'package:rema_1001/page/ai_assistant/ai_assistant.dart';
 import 'package:rema_1001/page/map.dart';
-import 'package:rema_1001/page/shopping_lists/shopping_lists.dart';
-import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/shopping_list_detail_page.dart';
-import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/add_item/add_item_page.dart';
 import 'package:rema_1001/page/profile/profile.dart';
+import 'package:rema_1001/page/profile/settings/allergies/allergies_page.dart';
+import 'package:rema_1001/page/profile/settings/settings.dart';
+import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/add_item/add_item_page.dart';
+import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/shopping_list_detail_page.dart';
+import 'package:rema_1001/page/shopping_lists/shopping_lists.dart';
+import 'package:rema_1001/page/shopping_trip/shopping_trip.dart';
 import 'package:rema_1001/router/fade_transition_page.dart';
 import 'package:rema_1001/router/nav_bar.dart';
 import 'package:rema_1001/router/route_names.dart';
-import 'package:rema_1001/page/profile/settings/settings.dart';
-import 'package:rema_1001/page/profile/settings/allergies/allergies_page.dart';
 
 final GoRouter router = GoRouter(
   initialLocation: "/home",
@@ -29,7 +29,7 @@ final GoRouter router = GoRouter(
           path: "/home",
           name: RouteNames.home,
           pageBuilder: (context, state) =>
-              FadeTransitionPage<void>(state: state, child: const HomeScreen()),
+              FadeTransitionPage<void>(state: state, child: AiAssistantPage()),
         ),
         GoRoute(
           path: "/trips",
