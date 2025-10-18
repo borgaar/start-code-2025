@@ -16,12 +16,8 @@ import { Route as ProductsIndexRouteImport } from './routes/products/index'
 import { Route as ShoppingListsIdRouteImport } from './routes/shopping-lists/$id'
 import { Route as ProductsNewRouteImport } from './routes/products/new'
 import { Route as ProductsIdRouteImport } from './routes/products/$id'
-import { Route as DemoTanstackQueryRouteImport } from './routes/demo/tanstack-query'
-import { Route as DemoStoreRouteImport } from './routes/demo/store'
 import { Route as StoresSlugIndexRouteImport } from './routes/stores/$slug/index'
 import { Route as StoresSlugAislesRouteImport } from './routes/stores/$slug/aisles'
-import { Route as DemoFormSimpleRouteImport } from './routes/demo/form.simple'
-import { Route as DemoFormAddressRouteImport } from './routes/demo/form.address'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,16 +54,6 @@ const ProductsIdRoute = ProductsIdRouteImport.update({
   path: '/products/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoStoreRoute = DemoStoreRouteImport.update({
-  id: '/demo/store',
-  path: '/demo/store',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StoresSlugIndexRoute = StoresSlugIndexRouteImport.update({
   id: '/stores/$slug/',
   path: '/stores/$slug/',
@@ -78,60 +64,38 @@ const StoresSlugAislesRoute = StoresSlugAislesRouteImport.update({
   path: '/stores/$slug/aisles',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DemoFormSimpleRoute = DemoFormSimpleRouteImport.update({
-  id: '/demo/form/simple',
-  path: '/demo/form/simple',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DemoFormAddressRoute = DemoFormAddressRouteImport.update({
-  id: '/demo/form/address',
-  path: '/demo/form/address',
-  getParentRoute: () => rootRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/demo/store': typeof DemoStoreRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/new': typeof ProductsNewRoute
   '/shopping-lists/$id': typeof ShoppingListsIdRoute
   '/products': typeof ProductsIndexRoute
   '/shopping-lists': typeof ShoppingListsIndexRoute
   '/stores': typeof StoresIndexRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
   '/stores/$slug/aisles': typeof StoresSlugAislesRoute
   '/stores/$slug': typeof StoresSlugIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/demo/store': typeof DemoStoreRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/new': typeof ProductsNewRoute
   '/shopping-lists/$id': typeof ShoppingListsIdRoute
   '/products': typeof ProductsIndexRoute
   '/shopping-lists': typeof ShoppingListsIndexRoute
   '/stores': typeof StoresIndexRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
   '/stores/$slug/aisles': typeof StoresSlugAislesRoute
   '/stores/$slug': typeof StoresSlugIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/demo/store': typeof DemoStoreRoute
-  '/demo/tanstack-query': typeof DemoTanstackQueryRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/new': typeof ProductsNewRoute
   '/shopping-lists/$id': typeof ShoppingListsIdRoute
   '/products/': typeof ProductsIndexRoute
   '/shopping-lists/': typeof ShoppingListsIndexRoute
   '/stores/': typeof StoresIndexRoute
-  '/demo/form/address': typeof DemoFormAddressRoute
-  '/demo/form/simple': typeof DemoFormSimpleRoute
   '/stores/$slug/aisles': typeof StoresSlugAislesRoute
   '/stores/$slug/': typeof StoresSlugIndexRoute
 }
@@ -139,62 +103,46 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/demo/store'
-    | '/demo/tanstack-query'
     | '/products/$id'
     | '/products/new'
     | '/shopping-lists/$id'
     | '/products'
     | '/shopping-lists'
     | '/stores'
-    | '/demo/form/address'
-    | '/demo/form/simple'
     | '/stores/$slug/aisles'
     | '/stores/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/demo/store'
-    | '/demo/tanstack-query'
     | '/products/$id'
     | '/products/new'
     | '/shopping-lists/$id'
     | '/products'
     | '/shopping-lists'
     | '/stores'
-    | '/demo/form/address'
-    | '/demo/form/simple'
     | '/stores/$slug/aisles'
     | '/stores/$slug'
   id:
     | '__root__'
     | '/'
-    | '/demo/store'
-    | '/demo/tanstack-query'
     | '/products/$id'
     | '/products/new'
     | '/shopping-lists/$id'
     | '/products/'
     | '/shopping-lists/'
     | '/stores/'
-    | '/demo/form/address'
-    | '/demo/form/simple'
     | '/stores/$slug/aisles'
     | '/stores/$slug/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DemoStoreRoute: typeof DemoStoreRoute
-  DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
   ProductsIdRoute: typeof ProductsIdRoute
   ProductsNewRoute: typeof ProductsNewRoute
   ShoppingListsIdRoute: typeof ShoppingListsIdRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
   ShoppingListsIndexRoute: typeof ShoppingListsIndexRoute
   StoresIndexRoute: typeof StoresIndexRoute
-  DemoFormAddressRoute: typeof DemoFormAddressRoute
-  DemoFormSimpleRoute: typeof DemoFormSimpleRoute
   StoresSlugAislesRoute: typeof StoresSlugAislesRoute
   StoresSlugIndexRoute: typeof StoresSlugIndexRoute
 }
@@ -250,20 +198,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/tanstack-query': {
-      id: '/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof DemoTanstackQueryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/store': {
-      id: '/demo/store'
-      path: '/demo/store'
-      fullPath: '/demo/store'
-      preLoaderRoute: typeof DemoStoreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/stores/$slug/': {
       id: '/stores/$slug/'
       path: '/stores/$slug'
@@ -278,35 +212,17 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StoresSlugAislesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/demo/form/simple': {
-      id: '/demo/form/simple'
-      path: '/demo/form/simple'
-      fullPath: '/demo/form/simple'
-      preLoaderRoute: typeof DemoFormSimpleRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo/form/address': {
-      id: '/demo/form/address'
-      path: '/demo/form/address'
-      fullPath: '/demo/form/address'
-      preLoaderRoute: typeof DemoFormAddressRouteImport
-      parentRoute: typeof rootRouteImport
-    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DemoStoreRoute: DemoStoreRoute,
-  DemoTanstackQueryRoute: DemoTanstackQueryRoute,
   ProductsIdRoute: ProductsIdRoute,
   ProductsNewRoute: ProductsNewRoute,
   ShoppingListsIdRoute: ShoppingListsIdRoute,
   ProductsIndexRoute: ProductsIndexRoute,
   ShoppingListsIndexRoute: ShoppingListsIndexRoute,
   StoresIndexRoute: StoresIndexRoute,
-  DemoFormAddressRoute: DemoFormAddressRoute,
-  DemoFormSimpleRoute: DemoFormSimpleRoute,
   StoresSlugAislesRoute: StoresSlugAislesRoute,
   StoresSlugIndexRoute: StoresSlugIndexRoute,
 }
