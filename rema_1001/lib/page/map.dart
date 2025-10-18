@@ -30,46 +30,57 @@ class MapScreen extends StatelessWidget {
       )..intialize(),
       child: Scaffold(
         appBar: AppBar(
-          title: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset("assets/images/rema-1000.png", height: 17),
-              SizedBox(width: 8),
-              BlocBuilder<MapCubit, MapState>(
-                builder: (context, state) {
-                  if (state is MapLoaded) {
-                    return Text(state.storeName);
-                  }
-                  return SizedBox.shrink();
-                },
-              ),
-              // SizedBox(width: 8),
-              IconButton(
-                onPressed: () async {
-                  final storeSlug = await showDialog(
-                    context: context,
-                    builder: (context) => StoreSelectionDialog(),
-                  );
+          title: LayoutBuilder(
+            builder: (context, constraints) {
+              final isSmall = constraints.maxWidth < 280;
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if (!isSmall) ...[
+                    Image.asset(
+                      "assets/images/rema-1000.png",
+                      height: 17,
+                    ).animate().fadeIn(),
+                    SizedBox(width: 8),
+                  ],
 
-                  if (storeSlug == null) return;
-
-                  final slug = storeSlug as String;
-                  if (!context.mounted) {
-                    return;
-                  }
-
-                  GoRouter.of(context).pushReplacementNamed(
-                    RouteNames.map,
-                    pathParameters: {
-                      'storeSlug': slug,
-                      'shoppingListId': shoppingListId,
+                  BlocBuilder<MapCubit, MapState>(
+                    builder: (context, state) {
+                      if (state is MapLoaded) {
+                        return Text(state.storeName);
+                      }
+                      return SizedBox.shrink();
                     },
-                  );
-                },
-                icon: Icon(Icons.keyboard_arrow_down),
-              ),
-            ],
+                  ),
+                  // SizedBox(width: 8),
+                  IconButton(
+                    onPressed: () async {
+                      final storeSlug = await showDialog(
+                        context: context,
+                        builder: (context) => StoreSelectionDialog(),
+                      );
+
+                      if (storeSlug == null) return;
+
+                      final slug = storeSlug as String;
+                      if (!context.mounted) {
+                        return;
+                      }
+
+                      GoRouter.of(context).pushReplacementNamed(
+                        RouteNames.map,
+                        pathParameters: {
+                          'storeSlug': slug,
+                          'shoppingListId': shoppingListId,
+                        },
+                      );
+                    },
+                    icon: Icon(Icons.keyboard_arrow_down),
+                  ),
+                ],
+              );
+            },
           ),
           actions: [
             Builder(
