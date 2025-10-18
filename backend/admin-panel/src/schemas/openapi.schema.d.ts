@@ -834,12 +834,8 @@ export interface operations {
         requestBody?: {
             content: {
                 "application/json": {
-                    slug: string;
                     name: string;
-                    entranceX: number;
-                    entranceY: number;
-                    exitX: number;
-                    exitY: number;
+                    slug: string;
                 };
             };
         };

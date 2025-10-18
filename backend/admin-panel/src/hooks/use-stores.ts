@@ -39,9 +39,15 @@ export function useCreateStore() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async () => {
-      const { data, error } = await client.POST('/api/store')
+    mutationFn: async ({ slug, name }: { slug: string; name: string }) => {
+      const { data, error } = await client.POST('/api/store', {
+        body: {
+          name,
+          slug,
+        },
+      })
       if (error) throw error
+      if (!data) throw new Error('Store not created')
       return data
     },
     onSuccess: () => {

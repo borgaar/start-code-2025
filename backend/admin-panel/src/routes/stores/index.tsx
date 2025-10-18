@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Plus, ExternalLink, Trash2, MapPin } from 'lucide-react'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import slugify from 'slugify'
 
 export const Route = createFileRoute('/stores/')({
   component: StoresPage,
@@ -42,7 +43,13 @@ function StoresPage() {
   const deleteStore = useDeleteStore()
 
   const handleCreateStore = () => {
-    createStore.mutate()
+    const name = prompt('Enter the name of the store')
+    if (!name) return
+    const slug = slugify(name, { lower: true })
+    createStore.mutate({
+      slug,
+      name,
+    })
   }
 
   const handleDeleteStore = (slug: string) => {

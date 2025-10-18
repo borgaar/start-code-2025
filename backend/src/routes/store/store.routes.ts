@@ -27,7 +27,10 @@ const StoreTransferSchema = StoreSchema.omit({
 });
 
 const createStoreRequestBodyOpenAPI = await resolver(
-  createStoreBodySchema
+  createStoreBodySchema.pick({
+    name: true,
+    slug: true,
+  })
 ).toOpenAPISchema();
 
 const updateStoreRequestBodyOpenAPI = await resolver(
@@ -62,7 +65,13 @@ export const getAllStoresRoute = route().get(
 // Create a new store
 export const createStoreRoute = route().post(
   "/",
-  zValidator("json", createStoreBodySchema),
+  zValidator(
+    "json",
+    createStoreBodySchema.pick({
+      name: true,
+      slug: true,
+    })
+  ),
   describeRoute({
     tags: ["store"],
     summary: "Create a new store",
@@ -77,7 +86,9 @@ export const createStoreRoute = route().post(
       201: {
         description: "Created",
         content: {
-          "application/json": { schema: resolver(StoreTransferSchema) },
+          "application/json": {
+            schema: resolver(StoreTransferSchema),
+          },
         },
       },
       400: {
