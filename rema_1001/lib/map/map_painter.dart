@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'package:equatable/equatable.dart';
 import 'package:flutter/widgets.dart';
 import 'package:rema_1001/map/model.dart' as map_model;
 import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
@@ -18,7 +19,7 @@ Offset getSoftShadowOffset(double scaleX, double scaleY) {
   );
 }
 
-final class MapPainter implements CustomPainter {
+final class MapPainter with EquatableMixin implements CustomPainter {
   final map_model.MapModel map;
   final List<Waypoint>? path;
   final int currentPathStep;
@@ -63,7 +64,7 @@ final class MapPainter implements CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+    return oldDelegate != this;
   }
 
   void _paintPath(Canvas canvas, Size size, List<Waypoint> path) {
@@ -445,4 +446,13 @@ final class MapPainter implements CustomPainter {
       backgroundPaint,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    map,
+    path,
+    currentPathStep,
+    grayPathAnimationProgress,
+    whitePathAnimationProgress,
+  ];
 }
