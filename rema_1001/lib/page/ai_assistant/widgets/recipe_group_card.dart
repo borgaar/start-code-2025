@@ -25,11 +25,13 @@ class _RecipeGroupCardState extends State<RecipeGroupCard> {
       child: Theme(
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
+          backgroundColor: Color.fromARGB(255, 22, 22, 22),
           initiallyExpanded: open,
           onExpansionChanged: (v) => setState(() => open = v),
           tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           collapsedIconColor: Colors.white70,
           iconColor: Colors.white70,
+          expansionAnimationStyle: AnimationStyle(curve: Curves.easeOut),
           title: Text(
             widget.group.title,
             style: const TextStyle(

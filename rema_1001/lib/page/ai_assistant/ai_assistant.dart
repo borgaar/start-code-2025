@@ -30,7 +30,7 @@ class _AiAssistantView extends StatelessWidget {
       backgroundColor: const Color.fromARGB(255, 29, 29, 29),
       body: Stack(
         children: [
-          const CornerBlob(top: -50, right: 240, size: 220),
+          const CornerBlob(top: -50, left: -90, size: 220),
           const CornerBlob(
             top: -110,
             right: -150,
@@ -43,7 +43,7 @@ class _AiAssistantView extends StatelessWidget {
             size: 340,
             color: Color.fromARGB(255, 94, 155, 245),
           ),
-          const CornerBlob(bottom: -40, left: 300, size: 240),
+          const CornerBlob(bottom: -50, right: -150, size: 240),
           SafeArea(
             child: Center(
               child: ConstrainedBox(
