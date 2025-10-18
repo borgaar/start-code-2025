@@ -63,6 +63,14 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _transitionController.dispose();
+    _entranceAnimationController.dispose();
+    _glowAnimationController.dispose();
+    super.dispose();
+  }
+
   /// Calculate deterministic staggered delay for each aisle based on idx
   double _getStaggeredProgress(int idx, double animationProgress) {
     // Use a simple hash function based on idx to create deterministic randomness
