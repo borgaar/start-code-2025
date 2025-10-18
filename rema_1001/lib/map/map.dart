@@ -35,6 +35,9 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
   double _previousWhitePathRatio = 0.0;
   double _targetWhitePathRatio = 1.0;
 
+  // Track waypoint index during backward animation
+  int? _animatingToWaypointIndex;
+
   @override
   void initState() {
     _transitionController = AnimationController(
@@ -97,6 +100,17 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     );
 
     _whitePathAnimationController.addListener(() => setState(() {}));
+
+    _whitePathAnimationController.addStatusListener((status) {
+      if (status == AnimationStatus.completed && _animatingToWaypointIndex != null) {
+        // When backward animation completes, reset to show full path
+        setState(() {
+          _animatingToWaypointIndex = null;
+          _previousWhitePathRatio = 1.0;
+          _targetWhitePathRatio = 1.0;
+        });
+      }
+    });
 
     _whitePathAnimation = CurvedAnimation(
       parent: _whitePathAnimationController,
@@ -220,6 +234,10 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         if (state is MapLoaded && context.read<MapCubit>().last is MapInitial) {
           // Entrance animation
           _entranceAnimationController.forward(from: 0);
+          _grayPathAnimationController.reset();
+          _whitePathAnimationController.reset();
+          _previousWhitePathRatio = 0.0;
+          _targetWhitePathRatio = 1.0;
         } else if (state is MapLoaded &&
             context.read<MapCubit>().last is MapLoaded) {
           // State transition animation
@@ -253,13 +271,29 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
               dimension,
             );
 
-            // Calculate ratio for smooth transition
-            if (currentLength > 0) {
-              _previousWhitePathRatio = previousLength / currentLength;
+            // Determine if we're going forward or backward
+            final isMovingForward = state.currentStep > lastState.currentStep;
+
+            if (isMovingForward) {
+              // Moving forward: extend from previous to current
+              _animatingToWaypointIndex = null; // Use current waypoint
+              if (currentLength > 0) {
+                _previousWhitePathRatio = previousLength / currentLength;
+              } else {
+                _previousWhitePathRatio = 0.0;
+              }
+              _targetWhitePathRatio = 1.0;
             } else {
-              _previousWhitePathRatio = 0.0;
+              // Moving backward: retract from previous to current
+              // Keep rendering to the OLD (longer) waypoint during animation
+              _animatingToWaypointIndex = lastState.currentWaypointIndex;
+              _previousWhitePathRatio = 1.0;
+              if (previousLength > 0) {
+                _targetWhitePathRatio = currentLength / previousLength;
+              } else {
+                _targetWhitePathRatio = 0.0;
+              }
             }
-            _targetWhitePathRatio = 1.0;
 
             // Always animate from 0 to 1 to use full curve
             _whitePathAnimationController.forward(from: 0);
@@ -284,15 +318,17 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
           _whitePathAnimation.value,
         )!;
 
+        // Use override waypoint during backward animation, otherwise use current
+        final displayWaypointIndex = _animatingToWaypointIndex ??
+            (state is MapPathfindingLoaded ? state.currentWaypointIndex : 0);
+
         return ClipRRect(
           borderRadius: BorderRadiusGeometry.circular(30),
           child: AspectRatio(
             aspectRatio: 1,
             child: CustomPaint(
               painter: MapPainter(
-                currentPathStep: state is MapPathfindingLoaded
-                    ? state.currentWaypointIndex
-                    : 0,
+                currentPathStep: displayWaypointIndex,
                 grayPathAnimationProgress: _grayPathAnimation.value,
                 whitePathAnimationProgress: mappedWhitePathProgress,
                 path: state is MapPathfindingLoaded ? state.path : null,

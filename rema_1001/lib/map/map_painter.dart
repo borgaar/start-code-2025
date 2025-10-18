@@ -252,8 +252,12 @@ final class MapPainter implements CustomPainter {
     return curvedPath;
   }
 
-  void _paintArrow(Canvas canvas, Size size, List<Waypoint> path,
-      {double opacity = 1.0}) {
+  void _paintArrow(
+    Canvas canvas,
+    Size size,
+    List<Waypoint> path, {
+    double opacity = 1.0,
+  }) {
     if (path.length < 2) return;
 
     final scaleX = size.width / dimension;

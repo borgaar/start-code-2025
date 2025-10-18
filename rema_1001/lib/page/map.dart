@@ -43,10 +43,10 @@ class MapScreen extends StatelessWidget {
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             Padding(padding: const EdgeInsets.all(16.0), child: MapWidget()),
-            SizedBox(child: Expanded(child: ProductList())),
+            Expanded(child: SizedBox(child: ProductList())),
           ],
         ),
       ),
