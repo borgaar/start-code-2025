@@ -31,6 +31,7 @@ List<ShoppingListAisleGroup> resolveProductIsles({
       itemName: item.product.name,
       quantity: item.quantity,
       isChecked: item.checked,
+      product: item.product,
     );
 
     aisleGroups.putIfAbsent(aisleId, () => []).add(aisleItem);

@@ -42,6 +42,7 @@ dependencies:
   collection: ^1.19.1
   http: ^1.2.2
   skeletonizer: ^2.1.0+1
+  carousel_slider: ^5.1.1
 
 dev_dependencies:
   flutter_test:

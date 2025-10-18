@@ -1,7 +1,11 @@
 import 'package:bloc/bloc.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:rema_1001/data/models/aisle.dart' as aisle_model;
+import 'package:rema_1001/data/models/product.dart';
+import 'package:rema_1001/data/models/shopping_list_item.dart';
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
 import 'package:rema_1001/data/repositories/store_repository.dart';
@@ -14,25 +18,28 @@ part 'map_state.dart';
 
 class MapCubit extends Cubit<MapState> {
   MapCubit(
+    this.storeSlug,
+    this.shoppingListId,
     this._aisleRepository,
     this._shoppingListRepository,
     this._storeRepository,
   ) : super(MapInitial());
 
+  final String storeSlug;
+  final String shoppingListId;
   final AisleRepository _aisleRepository;
   final ShoppingListRepository _shoppingListRepository;
   final StoreRepository _storeRepository;
+  final carouselSliderController = CarouselSliderController();
 
   MapState? last;
 
   void intialize() async {
     emit(MapInitial());
-    final allShoppingLists = await _shoppingListRepository.getShoppingLists();
-    final shoppingListid = allShoppingLists.first.id;
-    final aisles = await _aisleRepository.getAislesForStore("elgeseter");
+    final aisles = await _aisleRepository.getAislesForStore(storeSlug);
     final shoppingList = await _shoppingListRepository
-        .getShoppingListWithAisles(id: shoppingListid, storeSlug: "elgeseter");
-    final store = await _storeRepository.getStoreBySlug("elgeseter");
+        .getShoppingListWithAisles(id: shoppingListId, storeSlug: storeSlug);
+    final store = await _storeRepository.getStoreBySlug(storeSlug);
 
     final aisleGroups = resolveProductIsles(
       shoppingList: shoppingList,
@@ -149,12 +156,49 @@ class MapCubit extends Cubit<MapState> {
       ),
     );
 
-    void checkItem() {}
-
     @override
     void onChange(Change<MapState> change) {
       last = change.currentState;
       super.onChange(change);
+    }
+  }
+
+  void toggleCheckItem(
+    ShoppingListAisleItem item,
+    ShoppingListAisleGroup aisle,
+  ) {
+    final currentState = state;
+    if (currentState is! MapPathfindingLoaded) return;
+
+    final updatedAisleGroups = currentState.aisleGroups.map((aisleGroup) {
+      if (aisleGroup.aisleId == aisle.aisleId) {
+        final updatedItems = aisleGroup.items.map((aisleItem) {
+          if (aisleItem.itemId == item.itemId) {
+            return aisleItem.copyWith(isChecked: !aisleItem.isChecked);
+          }
+          return aisleItem;
+        }).toList();
+        return aisleGroup.copyWith(items: updatedItems);
+      }
+      return aisleGroup;
+    }).toList();
+
+    emit(
+      MapPathfindingLoaded(
+        map: currentState.map,
+        aisleGroups: updatedAisleGroups,
+        currentStep: currentState.currentStep,
+        path: currentState.path,
+        currentWaypointIndex: currentState.currentWaypointIndex,
+      ),
+    );
+
+    // if all items in the aisle group are checked, move to next aisle
+    final currentAisleGroup = updatedAisleGroups[currentState.currentStep];
+    final allChecked = currentAisleGroup.items.every((i) => i.isChecked);
+    if (allChecked) {
+      next();
+      carouselSliderController.nextPage();
     }
   }
 }

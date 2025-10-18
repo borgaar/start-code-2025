@@ -2,15 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rema_1001/map/cubit/map_cubit.dart';
 import 'package:rema_1001/map/map.dart';
+import 'package:rema_1001/map/product_list/product_list.dart';
 
 class MapScreen extends StatelessWidget {
-  const MapScreen({super.key});
+  final String storeSlug;
+  final String shoppingListId;
+
+  const MapScreen({
+    super.key,
+    required this.storeSlug,
+    required this.shoppingListId,
+  });
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) =>
-          MapCubit(context.read(), context.read(), context.read())..intialize(),
+      create: (context) => MapCubit(
+        storeSlug,
+        shoppingListId,
+        context.read(),
+        context.read(),
+        context.read(),
+      )..intialize(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Shopping Lists'),
@@ -35,24 +48,25 @@ class MapScreen extends StatelessWidget {
               const SizedBox(height: 16),
               MapWidget(),
               const SizedBox(height: 16),
-              Center(
-                child: Builder(
-                  builder: (context) {
-                    return Row(
-                      children: [
-                        ElevatedButton(
-                          onPressed: context.read<MapCubit>().next,
-                          child: const Text('Next'),
-                        ),
-                        ElevatedButton(
-                          onPressed: context.read<MapCubit>().intialize,
-                          child: const Text('Refresh'),
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ),
+              // Center(
+              //   child: Builder(
+              //     builder: (context) {
+              //       return Row(
+              //         children: [
+              //           ElevatedButton(
+              //             onPressed: context.read<MapCubit>().next,
+              //             child: const Text('Next'),
+              //           ),
+              //           ElevatedButton(
+              //             onPressed: context.read<MapCubit>().intialize,
+              //             child: const Text('Refresh'),
+              //           ),
+              //         ],
+              //       );
+              //     },
+              //   ),
+              // ),
+              ProductList(),
             ],
           ),
         ),

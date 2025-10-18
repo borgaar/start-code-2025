@@ -56,6 +56,18 @@ final class ShoppingListAisleGroup extends Equatable {
 
   @override
   List<Object?> get props => [aisleId, items];
+
+  ShoppingListAisleGroup copyWith({
+    String? aisleId,
+    String? aisleType,
+    List<ShoppingListAisleItem>? items,
+  }) {
+    return ShoppingListAisleGroup(
+      items: items ?? this.items,
+      aisleId: aisleId ?? this.aisleId,
+      aisleType: aisleType ?? this.aisleType,
+    );
+  }
 }
 
 final class ShoppingListAisleItem extends Equatable {
@@ -63,16 +75,34 @@ final class ShoppingListAisleItem extends Equatable {
   final String itemName;
   final int quantity;
   final bool isChecked;
+  final Product product;
 
   const ShoppingListAisleItem({
     required this.itemId,
     required this.itemName,
     required this.quantity,
     required this.isChecked,
+    required this.product,
   });
 
+  ShoppingListAisleItem copyWith({
+    String? itemId,
+    String? itemName,
+    int? quantity,
+    bool? isChecked,
+    Product? product,
+  }) {
+    return ShoppingListAisleItem(
+      itemId: itemId ?? this.itemId,
+      itemName: itemName ?? this.itemName,
+      quantity: quantity ?? this.quantity,
+      isChecked: isChecked ?? this.isChecked,
+      product: product ?? this.product,
+    );
+  }
+
   @override
-  List<Object?> get props => [itemId, itemName, quantity, isChecked];
+  List<Object?> get props => [itemId, itemName, quantity, isChecked, product];
 }
 
 final class MapPathfindingLoaded extends MapLoaded {

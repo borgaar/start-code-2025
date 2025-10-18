@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:rema_1001/data/models/shopping_list.dart';
 import 'package:rema_1001/data/models/store.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
@@ -8,6 +9,7 @@ import 'package:rema_1001/page/shopping_trip/cubit/shopping_trip_cubit.dart';
 import 'package:rema_1001/page/shopping_trip/cubit/shopping_trip_state.dart';
 import 'package:rema_1001/page/shopping_trip/widget/expandable_store_card.dart';
 import 'package:rema_1001/page/shopping_trip/widget/recent_trip_card.dart';
+import 'package:rema_1001/router/route_names.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class TripsScreen extends StatefulWidget {
@@ -31,14 +33,9 @@ class _TripsScreenState extends State<TripsScreen> {
   }
 
   void _onShoppingListSelected(String storeSlug, String shoppingListId) {
-    // TODO: Implement the actual shopping trip logic here
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Starting trip at store: $storeSlug with list: $shoppingListId',
-        ),
-        duration: const Duration(seconds: 2),
-      ),
+    context.pushNamed(
+      RouteNames.map,
+      extra: {'storeSlug': storeSlug, 'shoppingListId': shoppingListId},
     );
   }
 

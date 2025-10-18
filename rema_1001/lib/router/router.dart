@@ -42,8 +42,19 @@ final GoRouter router = GoRouter(
         GoRoute(
           path: "/map",
           name: RouteNames.map,
-          pageBuilder: (context, state) =>
-              FadeTransitionPage<void>(state: state, child: const MapScreen()),
+          pageBuilder: (context, state) {
+            final extra = state.extra as Map<String, String>;
+            final storeSlug = extra['storeSlug']!;
+            final shoppingListId = extra['shoppingListId']!;
+
+            return FadeTransitionPage<void>(
+              state: state,
+              child: MapScreen(
+                storeSlug: storeSlug,
+                shoppingListId: shoppingListId,
+              ),
+            );
+          },
         ),
 
         GoRoute(
