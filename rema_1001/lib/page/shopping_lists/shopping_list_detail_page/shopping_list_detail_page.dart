@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:rema_1001/data/models/shopping_list.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/cubit/shopping_list_detail_cubit.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/cubit/shopping_list_detail_state.dart';
@@ -32,131 +33,160 @@ class _ShoppingListDetailView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: BlocBuilder<ShoppingListDetailCubit, ShoppingListDetailState>(
-          builder: (context, state) {
-            if (state is ShoppingListDetailInProgress) {
-              return Skeletonizer(
-                enabled: state is ShoppingListDetailLoading,
-                child: Text(state.shoppingList.name),
-              );
-            }
-            return SizedBox.shrink();
-          },
-        ),
-      ),
+      appBar: _buildAppBar(),
       body: BlocConsumer<ShoppingListDetailCubit, ShoppingListDetailState>(
-        listener: (context, state) {
-          if (state is ShoppingListDetailError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.message),
-                backgroundColor: Colors.red,
-                action: SnackBarAction(
-                  label: 'Retry',
-                  textColor: Colors.white,
-                  onPressed: () {
-                    context.read<ShoppingListDetailCubit>().loadShoppingList();
-                  },
-                ),
-              ),
-            );
-          }
-        },
-        builder: (context, state) {
-          if (state is ShoppingListDetailInProgress) {
-            final list = state.shoppingList;
-
-            // Separate checked and unchecked items
-            final uncheckedItems = list.items
-                .where((item) => !item.checked)
-                .toList();
-            final checkedItems = list.items
-                .where((item) => item.checked)
-                .toList();
-
-            return Skeletonizer(
-              enabled: state is ShoppingListDetailLoading,
-              child: RefreshIndicator(
-                onRefresh: () => context
-                    .read<ShoppingListDetailCubit>()
-                    .loadShoppingList(emitLoading: true),
-                child: ListView(
-                  children: [
-                    // Summary card
-                    ProgressCard(
-                      totalItems: list.items.length,
-                      checkedItems: checkedItems.length,
-                    ),
-
-                    // Unchecked items
-                    if (uncheckedItems.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                        child: Text(
-                          'To Buy',
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(
-                                color: Colors.grey[400],
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                      ...uncheckedItems.map(
-                        (item) => ShoppingListItemTile(item: item),
-                      ),
-                    ],
-
-                    // Checked items
-                    if (checkedItems.isNotEmpty) ...[
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-                        child: Text(
-                          'Completed',
-                          style: Theme.of(context).textTheme.titleSmall
-                              ?.copyWith(
-                                color: Colors.grey[500],
-                                fontWeight: FontWeight.bold,
-                              ),
-                        ),
-                      ),
-                      ...checkedItems.map(
-                        (item) => ShoppingListItemTile(item: item),
-                      ),
-                    ],
-
-                    const SizedBox(height: 80), // Space for FAB
-                  ],
-                ),
-              ),
-            );
-          }
-
-          return const Center(child: Text('Something went wrong'));
-        },
+        listener: _handleStateChange,
+        builder: _buildBody,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final cubit = context.read<ShoppingListDetailCubit>();
-          final result = await context.pushNamed(
-            RouteNames.addItem,
-            pathParameters: {'id': cubit.listId},
-          );
-          if (result != null &&
-              result is Map<String, dynamic> &&
-              context.mounted) {
-            final productId = result['productId'] as String;
-            final quantity = result['quantity'] as int;
-            cubit.addItem(productId, quantity);
+      floatingActionButton: _buildAddButton(context),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      title: BlocBuilder<ShoppingListDetailCubit, ShoppingListDetailState>(
+        builder: (context, state) {
+          if (state is ShoppingListDetailInProgress) {
+            return Skeletonizer(
+              enabled: state is ShoppingListDetailLoading,
+              child: Text(state.shoppingList.name),
+            );
           }
+          return const SizedBox.shrink();
         },
-        icon: const Icon(Icons.add),
-        label: SizedBox(
-          width: MediaQuery.of(context).size.width * 0.8,
-          child: const Text('Add Item'),
-        ),
       ),
+    );
+  }
+
+  void _handleStateChange(BuildContext context, ShoppingListDetailState state) {
+    if (state is ShoppingListDetailError) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(state.message),
+          backgroundColor: Colors.red,
+          action: SnackBarAction(
+            label: 'Prøv igjen',
+            textColor: Colors.white,
+            onPressed: () {
+              context.read<ShoppingListDetailCubit>().loadShoppingList();
+            },
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildBody(BuildContext context, ShoppingListDetailState state) {
+    if (state is! ShoppingListDetailInProgress) {
+      return const Center(child: Text('Noe gikk galt'));
+    }
+
+    final isLoading = state is ShoppingListDetailLoading;
+    final list = state.shoppingList;
+
+    return Skeletonizer(
+      enabled: isLoading,
+      child: RefreshIndicator(
+        onRefresh: () => context
+            .read<ShoppingListDetailCubit>()
+            .loadShoppingList(emitLoading: true),
+        child: _ShoppingListContent(list: list),
+      ),
+    );
+  }
+
+  Widget _buildAddButton(BuildContext context) {
+    return FloatingActionButton.extended(
+      onPressed: () => _handleAddItem(context),
+      icon: const Icon(Icons.add),
+      label: SizedBox(
+        width: MediaQuery.of(context).size.width * 0.8,
+        child: const Text('Legg til vare'),
+      ),
+    );
+  }
+
+  Future<void> _handleAddItem(BuildContext context) async {
+    final cubit = context.read<ShoppingListDetailCubit>();
+    final result = await context.pushNamed(
+      RouteNames.addItem,
+      pathParameters: {'id': cubit.listId},
+    );
+
+    if (result != null && result is Map<String, dynamic> && context.mounted) {
+      final productId = result['productId'] as String;
+      final quantity = result['quantity'] as int;
+      cubit.addItem(productId, quantity);
+    }
+  }
+}
+
+class _ShoppingListContent extends StatelessWidget {
+  final ShoppingList list;
+
+  const _ShoppingListContent({required this.list});
+
+  @override
+  Widget build(BuildContext context) {
+    final uncheckedItems = list.items.where((item) => !item.checked).toList();
+    final checkedItems = list.items.where((item) => item.checked).toList();
+
+    return ListView(
+      children: [
+        ProgressCard(
+          totalItems: list.items.length,
+          checkedItems: checkedItems.length,
+        ),
+        if (uncheckedItems.isNotEmpty)
+          _ItemSection(
+            title: 'Å handle',
+            items: uncheckedItems,
+            titleColor: Colors.grey[400],
+          ),
+        if (checkedItems.isNotEmpty)
+          _ItemSection(
+            title: 'Fullført',
+            items: checkedItems,
+            titleColor: Colors.grey[500],
+            topPadding: 16,
+          ),
+        const SizedBox(height: 80), // Space for FAB
+      ],
+    );
+  }
+}
+
+class _ItemSection extends StatelessWidget {
+  final String title;
+  final List items;
+  final Color? titleColor;
+  final double topPadding;
+
+  const _ItemSection({
+    required this.title,
+    required this.items,
+    this.titleColor,
+    this.topPadding = 8,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.fromLTRB(16, topPadding, 16, 8),
+          child: Text(
+            title,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: titleColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        ...items.map((item) => ShoppingListItemTile(item: item)),
+      ],
     );
   }
 }
