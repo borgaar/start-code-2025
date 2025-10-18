@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:rema_1001/map/model.dart' as map_model;
+import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
 import 'package:rema_1001/map/utils.dart';
 
 final dimension = 64;
@@ -12,13 +13,15 @@ final backgroundPaint = Paint()..color = backgroundColor;
 
 final class MapPainter implements CustomPainter {
   final map_model.MapModel map;
+  final List<Waypoint> path;
 
-  MapPainter({required this.map});
+  MapPainter({required this.map, required this.path});
 
   @override
   void paint(Canvas canvas, Size size) {
     _paintBackground(canvas, size);
     _paintIsles(canvas, size, map);
+    _paintPath(canvas, size, path);
   }
 
   @override
@@ -43,6 +46,36 @@ final class MapPainter implements CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     return true;
+  }
+
+  void _paintPath(Canvas canvas, Size size, List<Waypoint> path) {
+    // Paint a dot for each point in the path (in red)
+    final paint = Paint()..color = const Color(0xFFFF0000);
+    final scaleX = size.width / dimension;
+    final scaleY = size.height / dimension;
+
+    final drawPath = Path();
+    drawPath.moveTo(path[0].position.dx * scaleX, path[0].position.dy * scaleY);
+
+    for (final waypoint in path) {
+      final position = Offset(
+        waypoint.position.dx * scaleX,
+        waypoint.position.dy * scaleY,
+      );
+      drawPath.lineTo(
+        waypoint.position.dx * scaleX,
+        waypoint.position.dy * scaleY,
+      );
+      canvas.drawCircle(position, 4, paint);
+    }
+
+    final pathPaint = Paint()
+      ..color = const Color(0x88FF0000)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 4
+      ..strokeCap = StrokeCap.round;
+
+    canvas.drawPath(drawPath, pathPaint);
   }
 
   void _paintIsle(Canvas canvas, Size size, map_model.Aisle aisle) {

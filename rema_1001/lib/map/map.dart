@@ -56,6 +56,7 @@ class _MapWidgetState extends State<MapWidget>
           aspectRatio: 1,
           child: CustomPaint(
             painter: MapPainter(
+              path: state.path,
               map: MapModel(
                 walkPoints: const [],
                 aisles: state.map.aisles.mapIndexed((idx, aisle) {

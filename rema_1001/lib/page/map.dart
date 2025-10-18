@@ -5,13 +5,14 @@ import 'package:rema_1001/map/cubit/map_cubit.dart';
 import 'package:rema_1001/map/map.dart';
 import 'package:rema_1001/router/route_names.dart';
 
-class ListsScreen extends StatelessWidget {
-  const ListsScreen({super.key});
+class MapScreen extends StatelessWidget {
+  const MapScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MapCubit()..intialize(),
+      create: (context) =>
+          MapCubit(context.read(), context.read())..intialize(),
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Shopping Lists'),
@@ -39,9 +40,17 @@ class ListsScreen extends StatelessWidget {
               Center(
                 child: Builder(
                   builder: (context) {
-                    return ElevatedButton(
-                      onPressed: context.read<MapCubit>().next,
-                      child: const Text('Next'),
+                    return Row(
+                      children: [
+                        ElevatedButton(
+                          onPressed: context.read<MapCubit>().next,
+                          child: const Text('Next'),
+                        ),
+                        ElevatedButton(
+                          onPressed: context.read<MapCubit>().intialize,
+                          child: const Text('Refresh'),
+                        ),
+                      ],
                     );
                   },
                 ),

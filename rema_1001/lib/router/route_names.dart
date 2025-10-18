@@ -9,4 +9,5 @@ final class RouteNames {
   static const String profile = 'profile';
   static const String settings = 'settings';
   static const String allergies = 'allergies';
+  static const String map = 'map';
 }
