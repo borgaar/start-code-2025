@@ -77,7 +77,13 @@ async function main() {
   // Clear the data
   console.log("Clearing the data...");
   await prisma.product.deleteMany();
-  await prisma.store.deleteMany();
+  await prisma.store.deleteMany({
+    where: {
+      slug: {
+        in: mockStoresWithAisles.map((store) => store.slug),
+      },
+    },
+  });
   await prisma.aisle.deleteMany();
   await prisma.shoppingList.deleteMany();
   console.log("Creating products...");
@@ -93,6 +99,7 @@ async function main() {
       unit: product.unit,
       allergens: product.allergens,
       carbonFootprintGram: product.carbonFootprintGram,
+      aisleType: product.aisle,
       ...(Math.random() < 0.1 ? { discount: Math.random() * 0.3 } : {}),
     })),
   });
