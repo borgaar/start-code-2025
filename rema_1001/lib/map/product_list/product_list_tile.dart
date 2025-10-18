@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:rema_1001/constants/assets.dart';
 import 'package:rema_1001/map/cubit/map_cubit.dart';
 
 class ProductListTile extends StatelessWidget {
@@ -13,28 +14,29 @@ class ProductListTile extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  _formatTitle(item),
-                  style: TextStyle(
-                    fontSize: 14,
-                    decoration: item.isChecked
-                        ? TextDecoration.lineThrough
-                        : null,
-                    color: item.isChecked ? Colors.grey[600] : null,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _formatTitle(item),
+                style: TextStyle(
+                  fontSize: 14,
+                  decoration: item.isChecked
+                      ? TextDecoration.lineThrough
+                      : null,
+                  color: item.isChecked ? Colors.grey[600] : null,
                 ),
-                Text(
-                  "${item.product.pricePerUnit.round()} kr/${item.product.unit}",
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
+              ),
+              Text(
+                "${item.product.pricePerUnit.round()} kr/${item.product.unit}",
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+              ),
+            ],
           ),
+          if (item.product.discount != null)
+            Expanded(child: Image.asset(Assets.discount, height: 50)),
           Checkbox(
             value: false,
             onChanged: (value) {

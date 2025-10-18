@@ -49,7 +49,12 @@ class AisleCard extends StatelessWidget {
                     itemCount: aisle.items.length,
                     itemBuilder: (context, index) {
                       final item = aisle.items[index];
-                      return ProductListTile(item, aisle);
+                      return Padding(
+                        padding: index == aisle.items.length - 1
+                            ? const EdgeInsets.only(bottom: 64.0)
+                            : EdgeInsets.zero,
+                        child: ProductListTile(item, aisle),
+                      );
                     },
                   ),
                 ),
