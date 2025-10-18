@@ -1,0 +1,105 @@
+import 'dart:math';
+
+import 'package:bloc/bloc.dart';
+import 'package:collection/collection.dart';
+import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
+import 'package:rema_1001/data/models/aisle.dart' as aisle_model;
+import 'package:rema_1001/data/repositories/aisle_repository.dart';
+import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
+import 'package:rema_1001/map/model.dart';
+import 'package:rema_1001/map/pathfinding/calculate_path.dart';
+import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
+
+part 'map_state.dart';
+
+class MapCubit extends Cubit<MapState> {
+  MapCubit(this._aisleRepository, this._shoppingListRepository)
+    : super(MapInitial());
+
+  final AisleRepository _aisleRepository;
+  final ShoppingListRepository _shoppingListRepository;
+
+  MapState? last;
+
+  void intialize() async {
+    final aisles = await _aisleRepository.getAislesForStore("elgeseter");
+    // final shoppingList = await _shoppingListRepository.getShoppingListById(
+    //   "cmgvcikfl000ti6y58r1rendh",
+    // );
+
+    final pathfindingAisles = aisles.mapIndexed((idx, a) {
+      return PathfindingAisle(
+        topLeft: Offset(a.gridX.toDouble(), a.gridY.toDouble()),
+        width: a.width,
+        height: a.height,
+        isTarget: Random().nextBool(),
+      );
+    }).toList();
+
+    final path = calculatePath(
+      aisles: pathfindingAisles,
+      start: Offset(20, 60),
+      end: Offset(50, 60),
+    );
+
+    final map = MapModel(
+      walkPoints: [],
+      aisles: aisles.mapIndexed((idx, a) {
+        AisleStatus status;
+
+        if (pathfindingAisles[idx].isTarget) {
+          status = AisleStatus.white;
+        } else if (a.type == aisle_model.AisleType.OBSTACLE) {
+          status = AisleStatus.black;
+        } else {
+          status = AisleStatus.grey;
+        }
+
+        return Aisle(
+          topLeft: Offset(a.gridX.toDouble(), a.gridY.toDouble()),
+          width: a.width.toDouble(),
+          height: a.height.toDouble(),
+          status: status,
+        );
+      }).toList(),
+    );
+
+    emit(MapLoaded(map: map, path: path, currentStep: 0));
+  }
+
+  void next() {
+    emit(
+      MapLoaded(
+        map: MapModel(
+          walkPoints: [],
+          aisles: [
+            // Right tall vertical rectangle
+            Aisle(topLeft: Offset(46, 17), width: 4, height: 18),
+
+            // Lower-middle left rectangle
+            Aisle(topLeft: Offset(10, 27), width: 18, height: 7),
+
+            // Lower-middle center rectangle
+            Aisle(
+              topLeft: Offset(31, 27),
+              width: 12,
+              height: 7,
+              status: AisleStatus.white,
+            ),
+          ],
+        ),
+        path: [],
+        currentStep: 0,
+      ),
+    );
+  }
+
+  void checkItem() {}
+
+  @override
+  void onChange(Change<MapState> change) {
+    last = change.currentState;
+    super.onChange(change);
+  }
+}

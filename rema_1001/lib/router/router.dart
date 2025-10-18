@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rema_1001/page/shopping_trip/shopping_trip.dart';
 import 'package:rema_1001/page/home.dart';
+import 'package:rema_1001/page/map.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_lists.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/shopping_list_detail_page.dart';
 import 'package:rema_1001/page/shopping_lists/shopping_list_detail_page/add_item/add_item_page.dart';
@@ -38,6 +39,13 @@ final GoRouter router = GoRouter(
             child: const TripsScreen(),
           ),
         ),
+        GoRoute(
+          path: "/map",
+          name: RouteNames.map,
+          pageBuilder: (context, state) =>
+              FadeTransitionPage<void>(state: state, child: const MapScreen()),
+        ),
+
         GoRoute(
           path: "/lists",
           name: RouteNames.lists,
