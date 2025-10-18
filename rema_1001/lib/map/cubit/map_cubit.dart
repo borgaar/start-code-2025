@@ -2,10 +2,8 @@ import 'package:bloc/bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:rema_1001/data/models/aisle.dart' as aisle_model;
 import 'package:rema_1001/data/models/product.dart';
-import 'package:rema_1001/data/models/shopping_list_item.dart';
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
 import 'package:rema_1001/data/repositories/store_repository.dart';
@@ -104,12 +102,109 @@ class MapCubit extends Cubit<MapState> {
       (w) => w.targetAisleIndex == targetAisleIdx,
     );
 
+    // Update aisle colors based on their position in the waypoint path
+    final updatedAisles = map.aisles.mapIndexed((aisleIdx, aisle) {
+      // Current target aisle should blink
+      if (aisleIdx == targetAisleIdx) {
+        return aisle.copyWith(status: AisleStatus.blinking);
+      }
+
+      // Find this aisle's waypoint position in the path
+      final aisleWaypointIdx = path.indexWhere(
+        (w) => w.targetAisleIndex == aisleIdx,
+      );
+
+      // If aisle is not in the path (obstacle or non-target), keep it black
+      if (aisleWaypointIdx == -1) {
+        return aisle.copyWith(status: AisleStatus.black);
+      }
+
+      // At step 0, no aisles are behind us yet
+      // Aisles ahead of us in the path are grey
+      if (aisleWaypointIdx > targetWaypointIdx) {
+        return aisle.copyWith(status: AisleStatus.grey);
+      }
+
+      if (aisleWaypointIdx < targetWaypointIdx) {
+        return aisle.copyWith(status: AisleStatus.white);
+      }
+
+      return aisle;
+    }).toList();
+
+    final updatedMap = MapModel(aisles: updatedAisles);
+
     emit(
       MapPathfindingLoaded(
-        map: map,
+        map: updatedMap,
         path: path,
         currentStep: 0,
         aisleGroups: orderedAisleGroups,
+        currentWaypointIndex: targetWaypointIdx,
+      ),
+    );
+  }
+
+  /// Navigate to a specific step in the shopping journey
+  /// Updates aisle colors based on their position in the waypoint path:
+  /// - Target aisle: blinking
+  /// - Aisles behind us in the path: white
+  /// - Aisles ahead of us in the path: grey
+  /// - Obstacles/non-targets: black
+  void _navigateToStep(int newStep) {
+    final s = state;
+    if (s is! MapPathfindingLoaded) return;
+
+    // Validate bounds
+    if (newStep < 0 || newStep >= s.aisleGroups.length) return;
+
+    // Calculate waypoint index for the current step
+    final currentAisleGroup = s.aisleGroups[newStep];
+    final targetAisleIdx = s.map.aisles.indexWhere(
+      (aisle) => aisle.id == currentAisleGroup.aisleId,
+    );
+    final targetWaypointIdx = s.path.indexWhere(
+      (w) => w.targetAisleIndex == targetAisleIdx,
+    );
+
+    // Update aisle statuses based on their position in the waypoint path
+    final updatedAisles = s.map.aisles.mapIndexed((aisleIdx, aisle) {
+      // Current target aisle should blink
+      if (aisleIdx == targetAisleIdx) {
+        return aisle.copyWith(status: AisleStatus.blinking);
+      }
+
+      // Find this aisle's waypoint position in the path
+      final aisleWaypointIdx = s.path.indexWhere(
+        (w) => w.targetAisleIndex == aisleIdx,
+      );
+
+      // If aisle is not in the path (obstacle or non-target), keep it black
+      if (aisleWaypointIdx == -1) {
+        return aisle.copyWith(status: AisleStatus.black);
+      }
+
+      // Aisles behind us in the path are white
+      if (aisleWaypointIdx < targetWaypointIdx) {
+        return aisle.copyWith(status: AisleStatus.white);
+      }
+
+      // Aisles ahead of us in the path are grey
+      if (aisleWaypointIdx > targetWaypointIdx) {
+        return aisle.copyWith(status: AisleStatus.grey);
+      }
+
+      return aisle;
+    }).toList();
+
+    final updatedMap = MapModel(aisles: updatedAisles);
+
+    emit(
+      MapPathfindingLoaded(
+        map: updatedMap,
+        aisleGroups: s.aisleGroups,
+        currentStep: newStep,
+        path: s.path,
         currentWaypointIndex: targetWaypointIdx,
       ),
     );
@@ -120,47 +215,15 @@ class MapCubit extends Cubit<MapState> {
     if (s is! MapPathfindingLoaded) return;
 
     final nextStep = s.currentStep + 1;
-    if (nextStep >= s.aisleGroups.length) return;
+    _navigateToStep(nextStep);
+  }
 
-    // Get the current aisle group
-    final currentAisleGroup = s.aisleGroups[nextStep];
+  void previous() {
+    final s = state;
+    if (s is! MapPathfindingLoaded) return;
 
-    final targetAisleIdx = s.map.aisles.indexWhere(
-      (aisle) => aisle.id == currentAisleGroup.aisleId,
-    );
-
-    final targetWaypointIdx = s.path.indexWhere(
-      (w) => w.targetAisleIndex == targetAisleIdx,
-    );
-
-    // Set the status of the aisles in the current aisle group to blinking
-    final updatedAisles = s.map.aisles.mapIndexed((idx, aisle) {
-      if (idx == targetAisleIdx) {
-        return aisle.copyWith(status: AisleStatus.blinking);
-      }
-      if (aisle.status == AisleStatus.blinking) {
-        return aisle.copyWith(status: AisleStatus.grey);
-      }
-      return aisle;
-    });
-
-    final updatedMap = MapModel(aisles: updatedAisles.toList());
-
-    emit(
-      MapPathfindingLoaded(
-        map: updatedMap,
-        aisleGroups: s.aisleGroups,
-        currentStep: nextStep,
-        path: s.path,
-        currentWaypointIndex: targetWaypointIdx,
-      ),
-    );
-
-    @override
-    void onChange(Change<MapState> change) {
-      last = change.currentState;
-      super.onChange(change);
-    }
+    final previousStep = s.currentStep - 1;
+    _navigateToStep(previousStep);
   }
 
   void toggleCheckItem(
@@ -200,5 +263,11 @@ class MapCubit extends Cubit<MapState> {
       next();
       carouselSliderController.nextPage();
     }
+  }
+
+  @override
+  void onChange(Change<MapState> change) {
+    last = change.currentState;
+    super.onChange(change);
   }
 }

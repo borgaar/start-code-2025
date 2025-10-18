@@ -39,12 +39,6 @@ List<Destination> _destinations = [
     routeName: RouteNames.lists,
   ),
   const Destination(
-    label: "Kart",
-    icon: Icon(Icons.map_outlined),
-    selectedIcon: Icon(Icons.map),
-    routeName: RouteNames.map,
-  ),
-  const Destination(
     label: "Profil",
     icon: Icon(Icons.person_outline),
     selectedIcon: Icon(Icons.person_outline),

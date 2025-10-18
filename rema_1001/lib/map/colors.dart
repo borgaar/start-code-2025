@@ -12,10 +12,8 @@ final aisleBlackShadowPaint = Paint()
 final aisleWhitePaint = Paint()..color = const Color(0xffffffff);
 final aisleWhiteShadowPaint = Paint()..color = const Color(0xff9A9A9A);
 
-final aisleBlinkingPaint = Paint()..color = const Color(0xffffffff);
-final aisleBlinkingShadowPaint = Paint()..color = const Color(0xff9A9A9A);
 final aisleBlinkingGlowPaint = Paint()
-  ..color = const Color(0xFFFFFFFF)
+  ..color = const Color(0x40FFFFFF)
   ..maskFilter = MaskFilter.blur(BlurStyle.normal, 13);
 
 final defaultSoftShadowPaint = Paint()
@@ -61,9 +59,10 @@ ColorSet getColorSetForAisleStatus(AisleStatus status) {
         glowPaint: Paint()..color = Colors.transparent,
       );
     case AisleStatus.blinking:
+      // Blinking starts with grey - animation will handle color transition
       return (
-        aislePaint: aisleBlinkingPaint,
-        hardShadowPaint: aisleBlinkingShadowPaint,
+        aislePaint: aisleGreyPaint,
+        hardShadowPaint: aisleGreyShadowPaint,
         softShadowPaint: defaultSoftShadowPaint,
         glowPaint: aisleBlinkingGlowPaint,
       );

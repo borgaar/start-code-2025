@@ -22,8 +22,16 @@ final class MapPainter implements CustomPainter {
   final map_model.MapModel map;
   final List<Waypoint>? path;
   final int currentPathStep;
+  final double grayPathAnimationProgress;
+  final double whitePathAnimationProgress;
 
-  MapPainter({required this.map, required this.path, this.currentPathStep = 0});
+  MapPainter({
+    required this.map,
+    required this.path,
+    this.currentPathStep = 0,
+    required this.grayPathAnimationProgress,
+    required this.whitePathAnimationProgress,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -62,21 +70,39 @@ final class MapPainter implements CustomPainter {
     final scaleX = size.width / dimension;
     final scaleY = size.height / dimension;
 
-    // Create the full path with curved segments
-    final fullPath = _createCurvedPath(path, scaleX, scaleY, path.length - 1);
+    // Gray path animation: draws the full route progressively
+    if (grayPathAnimationProgress > 0.0) {
+      final fullPath = _createCurvedPath(path, scaleX, scaleY, path.length - 1);
+      final grayPathPaint = Paint()
+        ..color = const Color(0xFF5A5A5A)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 5
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round;
 
-    // Paint the full path in gray
-    final grayPathPaint = Paint()
-      ..color = const Color(0xFF5A5A5A)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 5
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
+      if (grayPathAnimationProgress < 1.0) {
+        // Progressive drawing
+        final pathMetrics = fullPath.computeMetrics();
+        for (final metric in pathMetrics) {
+          final extractLength = metric.length * grayPathAnimationProgress;
+          final extractedPath = metric.extractPath(0, extractLength);
+          canvas.drawPath(extractedPath, grayPathPaint);
+        }
+      } else {
+        // Fully drawn
+        canvas.drawPath(fullPath, grayPathPaint);
+      }
+    }
 
-    canvas.drawPath(fullPath, grayPathPaint);
+    // Arrow fades in when gray path is complete
+    if (grayPathAnimationProgress >= 1.0) {
+      _paintArrow(canvas, size, path, opacity: 1.0);
+    }
 
-    // Paint the active path (up to current step) in white
-    if (currentPathStep > 0 && currentPathStep < path.length) {
+    // White path animation: draws the active path (up to currentPathStep)
+    if (whitePathAnimationProgress > 0.0 &&
+        currentPathStep > 0 &&
+        currentPathStep < path.length) {
       final activePath = _createCurvedPath(
         path,
         scaleX,
@@ -93,8 +119,6 @@ final class MapPainter implements CustomPainter {
         ..strokeJoin = StrokeJoin.round
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
 
-      canvas.drawPath(activePath, glowPaint);
-
       // Draw solid white path on top
       final whitePathPaint = Paint()
         ..color = const Color(0xFFFFFFFF)
@@ -103,27 +127,47 @@ final class MapPainter implements CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
 
-      canvas.drawPath(activePath, whitePathPaint);
+      if (whitePathAnimationProgress < 1.0) {
+        // Progressive drawing
+        final pathMetrics = activePath.computeMetrics();
+        for (final metric in pathMetrics) {
+          final extractLength = metric.length * whitePathAnimationProgress;
+          final extractedPath = metric.extractPath(0, extractLength);
+          canvas.drawPath(extractedPath, glowPaint);
+          canvas.drawPath(extractedPath, whitePathPaint);
+
+          // Draw dot at the end of the currently drawn white path
+          final tangent = metric.getTangentForOffset(extractLength);
+          if (tangent != null) {
+            final dotPosition = tangent.position;
+            final dotPaint = Paint()..color = const Color(0xFFFFFFFF);
+            final dotGlowPaint = Paint()
+              ..color = const Color(0xFFFFFFFF)
+              ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+            canvas.drawCircle(dotPosition, 8, dotPaint);
+            canvas.drawCircle(dotPosition, 8, dotGlowPaint);
+          }
+        }
+      } else {
+        // Fully drawn - show complete white path with dot at current step
+        canvas.drawPath(activePath, glowPaint);
+        canvas.drawPath(activePath, whitePathPaint);
+
+        // Draw dot at the current step position
+        if (currentPathStep >= 0 && currentPathStep < path.length) {
+          final currentPosition = Offset(
+            path[currentPathStep].position.dx * scaleX,
+            path[currentPathStep].position.dy * scaleY,
+          );
+          final dotPaint = Paint()..color = const Color(0xFFFFFFFF);
+          final dotGlowPaint = Paint()
+            ..color = const Color(0xFFFFFFFF)
+            ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+          canvas.drawCircle(currentPosition, 8, dotPaint);
+          canvas.drawCircle(currentPosition, 8, dotGlowPaint);
+        }
+      }
     }
-
-    // Draw a dot at the current position
-    if (currentPathStep >= 0 && currentPathStep < path.length) {
-      final currentPosition = Offset(
-        path[currentPathStep].position.dx * scaleX,
-        path[currentPathStep].position.dy * scaleY,
-      );
-
-      final dotPaint = Paint()..color = const Color(0xFFFFFFFF);
-      // Draw glow effect
-      final glowPaint = Paint()
-        ..color = const Color(0xFFFFFFFF)
-        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
-      canvas.drawCircle(currentPosition, 8, dotPaint);
-      canvas.drawCircle(currentPosition, 8, glowPaint);
-    }
-
-    // Draw arrow at the end of the path
-    _paintArrow(canvas, size, path);
   }
 
   Path _createCurvedPath(
@@ -208,7 +252,8 @@ final class MapPainter implements CustomPainter {
     return curvedPath;
   }
 
-  void _paintArrow(Canvas canvas, Size size, List<Waypoint> path) {
+  void _paintArrow(Canvas canvas, Size size, List<Waypoint> path,
+      {double opacity = 1.0}) {
     if (path.length < 2) return;
 
     final scaleX = size.width / dimension;
@@ -245,7 +290,7 @@ final class MapPainter implements CustomPainter {
     );
 
     final arrowPaint = Paint()
-      ..color = const Color(0xFF5A5A5A)
+      ..color = Color(0xFF5A5A5A).withValues(alpha: opacity)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3
       ..strokeCap = StrokeCap.round;
