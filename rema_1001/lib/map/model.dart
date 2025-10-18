@@ -3,13 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:rema_1001/map/colors.dart';
 
 final class MapModel extends Equatable {
-  final List<Offset> walkPoints;
   final List<Aisle> aisles;
 
-  const MapModel({required this.walkPoints, required this.aisles});
+  const MapModel({required this.aisles});
 
   @override
-  List<Object?> get props => [walkPoints, aisles];
+  List<Object?> get props => [aisles];
 }
 
 enum AisleStatus { black, grey, white, blinking }
@@ -19,6 +18,7 @@ final class Aisle extends Equatable {
   final double width;
   final double height;
   final AisleStatus status;
+  final double hardShadowHeight;
 
   late final Paint paint;
   late final Paint hardShadowPaint;
@@ -30,6 +30,7 @@ final class Aisle extends Equatable {
     required this.width,
     required this.height,
     this.status = AisleStatus.black,
+    this.hardShadowHeight = 12,
   }) {
     final paints = getColorSetForAisleStatus(status);
     paint = paints.aislePaint;
@@ -49,6 +50,7 @@ final class Aisle extends Equatable {
     required this.status,
     required this.softShadowPaint,
     required this.glowPaint,
+    required this.hardShadowHeight,
   });
 
   Aisle copyWith({
@@ -70,6 +72,7 @@ final class Aisle extends Equatable {
       paint: paint ?? this.paint,
       softShadowPaint: softShadowPaint ?? this.softShadowPaint,
       glowPaint: glowPaint ?? this.glowPaint,
+      hardShadowHeight: hardShadowHeight,
     );
   }
 

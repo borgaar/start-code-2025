@@ -4,7 +4,6 @@ import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
 import 'package:rema_1001/map/utils.dart';
 
 final dimension = 64;
-final double hardShadowHeight = 12;
 final double aisleBorderRadius = 8;
 final softShadowOffset = Offset(4, 12);
 final backgroundBorderRadius = Radius.circular(16);
@@ -13,7 +12,7 @@ final backgroundPaint = Paint()..color = backgroundColor;
 
 final class MapPainter implements CustomPainter {
   final map_model.MapModel map;
-  final List<Waypoint> path;
+  final List<Waypoint>? path;
 
   MapPainter({required this.map, required this.path});
 
@@ -21,7 +20,9 @@ final class MapPainter implements CustomPainter {
   void paint(Canvas canvas, Size size) {
     _paintBackground(canvas, size);
     _paintIsles(canvas, size, map);
-    _paintPath(canvas, size, path);
+    if (path != null) {
+      _paintPath(canvas, size, path!);
+    }
   }
 
   @override
@@ -119,7 +120,7 @@ final class MapPainter implements CustomPainter {
     }
 
     final aisleRect = RRect.fromRectAndCorners(
-      rect.shift(Offset(0, -hardShadowHeight)),
+      rect.shift(Offset(0, -aisle.hardShadowHeight)),
       topLeft: hardShadowRect.tlRadius,
       topRight: hardShadowRect.trRadius,
       bottomLeft: hardShadowRect.blRadius,
@@ -178,13 +179,13 @@ final class MapPainter implements CustomPainter {
     canvas.drawPath(combinedPath, sampleAisle.hardShadowPaint);
     // Obstruction
     canvas.drawPath(
-      combinedPath.shift(Offset(0, -hardShadowHeight)),
+      combinedPath.shift(Offset(0, -sampleAisle.hardShadowHeight)),
       sampleAisle.paint,
     );
 
     // Glow
     canvas.drawPath(
-      combinedPath.shift(Offset(0, -hardShadowHeight)),
+      combinedPath.shift(Offset(0, -sampleAisle.hardShadowHeight)),
       sampleAisle.glowPaint,
     );
   }

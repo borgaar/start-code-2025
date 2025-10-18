@@ -9,7 +9,7 @@ class ApiClient {
 
   /// Get the base URL based on debug mode
   static String get baseUrl {
-    if (kDebugMode) {
+    if (false) {
       return 'http://10.10.30.101:3000';
     } else {
       return 'https://rema.tihlde.org';

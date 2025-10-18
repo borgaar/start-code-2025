@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
@@ -7,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:rema_1001/data/models/aisle.dart' as aisle_model;
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
+import 'package:rema_1001/map/cubit/calculate_path_in_isolate.dart';
+import 'package:rema_1001/map/cubit/reolve_product_isles.dart';
 import 'package:rema_1001/map/model.dart';
-import 'package:rema_1001/map/pathfinding/calculate_path.dart';
 import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
 
 part 'map_state.dart';
@@ -23,28 +22,27 @@ class MapCubit extends Cubit<MapState> {
   MapState? last;
 
   void intialize() async {
+    final allShoppingLists = await _shoppingListRepository.getShoppingLists();
+    final shoppingListid = allShoppingLists.first.id;
     final aisles = await _aisleRepository.getAislesForStore("elgeseter");
-    // final shoppingList = await _shoppingListRepository.getShoppingListById(
-    //   "cmgvcikfl000ti6y58r1rendh",
-    // );
+    final shoppingList = await _shoppingListRepository
+        .getShoppingListWithAisles(id: shoppingListid, storeSlug: "elgeseter");
+
+    final aisleGroups = resolveProductIsles(
+      shoppingList: shoppingList,
+      aisles: aisles,
+    );
 
     final pathfindingAisles = aisles.mapIndexed((idx, a) {
       return PathfindingAisle(
         topLeft: Offset(a.gridX.toDouble(), a.gridY.toDouble()),
         width: a.width,
         height: a.height,
-        isTarget: Random().nextBool(),
+        isTarget: aisleGroups.any((group) => group.aisleId == a.id),
       );
     }).toList();
 
-    final path = calculatePath(
-      aisles: pathfindingAisles,
-      start: Offset(20, 60),
-      end: Offset(50, 60),
-    );
-
     final map = MapModel(
-      walkPoints: [],
       aisles: aisles.mapIndexed((idx, a) {
         AisleStatus status;
 
@@ -65,34 +63,49 @@ class MapCubit extends Cubit<MapState> {
       }).toList(),
     );
 
-    emit(MapLoaded(map: map, path: path, currentStep: 0));
+    emit(MapLoaded(map: map, currentStep: 0, aisleGroups: aisleGroups));
+
+    final path = await calculatePathInIsolate(
+      aisles: pathfindingAisles,
+      start: Offset(20, 60),
+      end: Offset(50, 60),
+    );
+
+    emit(
+      MapPathfindingLoaded(
+        map: map,
+        path: path,
+        currentStep: 0,
+        aisleGroups: aisleGroups,
+      ),
+    );
   }
 
   void next() {
-    emit(
-      MapLoaded(
-        map: MapModel(
-          walkPoints: [],
-          aisles: [
-            // Right tall vertical rectangle
-            Aisle(topLeft: Offset(46, 17), width: 4, height: 18),
+    // emit(
+    //   MapLoaded(
+    //     map: MapModel(
+    //       walkPoints: [],
+    //       aisles: [
+    //         // Right tall vertical rectangle
+    //         Aisle(topLeft: Offset(46, 17), width: 4, height: 18),
 
-            // Lower-middle left rectangle
-            Aisle(topLeft: Offset(10, 27), width: 18, height: 7),
+    //         // Lower-middle left rectangle
+    //         Aisle(topLeft: Offset(10, 27), width: 18, height: 7),
 
-            // Lower-middle center rectangle
-            Aisle(
-              topLeft: Offset(31, 27),
-              width: 12,
-              height: 7,
-              status: AisleStatus.white,
-            ),
-          ],
-        ),
-        path: [],
-        currentStep: 0,
-      ),
-    );
+    //         // Lower-middle center rectangle
+    //         Aisle(
+    //           topLeft: Offset(31, 27),
+    //           width: 12,
+    //           height: 7,
+    //           status: AisleStatus.white,
+    //         ),
+    //       ],
+    //     ),
+    //     path: [],
+    //     currentStep: 0,
+    //   ),
+    // );
   }
 
   void checkItem() {}
