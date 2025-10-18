@@ -39,7 +39,7 @@ class ShoppingListSection extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'No shopping lists available',
+                      'Ingen handlelister tilgjengelig',
                       style: TextStyle(
                         color: Theme.of(
                           context,
@@ -74,7 +74,7 @@ class ShoppingListSection extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.w500),
                 ),
                 subtitle: Text(
-                  '$checkedItems/$totalItems items',
+                  '$checkedItems/$totalItems varer',
                   style: TextStyle(
                     color: Theme.of(
                       context,

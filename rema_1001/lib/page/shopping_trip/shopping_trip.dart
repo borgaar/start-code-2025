@@ -47,7 +47,7 @@ class _TripsScreenState extends State<TripsScreen> {
         context.read<ShoppingListRepository>(),
       )..loadData(),
       child: Scaffold(
-        appBar: AppBar(title: const Text('Shopping Trips')),
+        appBar: AppBar(title: const Text('Handleturer')),
         body: BlocConsumer<ShoppingTripCubit, ShoppingTripState>(
           listener: (context, state) {
             if (state is ShoppingTripError) {
@@ -75,7 +75,7 @@ class _TripsScreenState extends State<TripsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
-                            'Recent Trips',
+                            'Nylige turer',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -84,26 +84,26 @@ class _TripsScreenState extends State<TripsScreen> {
                           const SizedBox(height: 16),
                           const RecentTripCard(
                             title: 'Rema 1001 Sentrum',
-                            subtitle: 'Weekly shopping - 45 items',
+                            subtitle: 'Ukeshandel - 45 varer',
                             icon: Icons.store,
                           ),
                           const SizedBox(height: 12),
                           const RecentTripCard(
                             title: 'Rema 1001 Vest',
-                            subtitle: 'Quick shopping - 12 items',
+                            subtitle: 'Småhandel - 12 varer',
                             icon: Icons.store,
                           ),
                           const SizedBox(height: 12),
                           const RecentTripCard(
                             title: 'Rema 1001 Øst',
-                            subtitle: 'Party supplies - 28 items',
+                            subtitle: 'Festutstyr - 28 varer',
                             icon: Icons.store,
                           ),
                           const SizedBox(height: 32),
                           const Divider(),
                           const SizedBox(height: 16),
                           const Text(
-                            'Select a Store',
+                            'Velg en butikk',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
