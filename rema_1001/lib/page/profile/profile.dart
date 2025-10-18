@@ -40,26 +40,22 @@ class ProfileScreen extends StatelessWidget {
                     'My Orders',
                     'View your order history',
                   ),
-                  const Divider(),
                   _buildProfileOption(
                     Icons.favorite,
                     'Favorites',
                     'View your favorite items',
                   ),
-                  const Divider(),
                   _buildProfileOption(
                     Icons.payment,
                     'Payment Methods',
                     'Manage your payment options',
                   ),
-                  const Divider(),
                   _buildProfileOption(
                     Icons.settings,
                     'Settings',
                     'App preferences and settings',
                     () => context.pushNamed(RouteNames.settings),
                   ),
-                  const Divider(),
                   _buildProfileOption(
                     Icons.help_outline,
                     'Help & Support',
@@ -87,12 +83,16 @@ class ProfileScreen extends StatelessWidget {
     String subtitle, [
     VoidCallback? onTap,
   ]) {
-    return ListTile(
-      leading: Icon(icon, size: 30),
-      title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-      subtitle: Text(subtitle),
-      trailing: const Icon(Icons.arrow_forward_ios),
-      onTap: onTap,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: ListTile(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        leading: Icon(icon, size: 30),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(subtitle),
+        trailing: const Icon(Icons.arrow_forward_ios),
+        onTap: onTap,
+      ),
     );
   }
 }

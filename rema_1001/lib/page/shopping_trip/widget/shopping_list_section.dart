@@ -24,18 +24,6 @@ class ShoppingListSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Select Shopping List',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ),
           if (shoppingLists.isEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -71,6 +59,7 @@ class ShoppingListSection extends StatelessWidget {
                   list.items.where((item) => item.checked).length;
 
               return ListTile(
+                tileColor: Theme.of(context).listTileTheme.tileColor,
                 leading: CircleAvatar(
                   backgroundColor: Theme.of(
                     context,

@@ -15,12 +15,16 @@ class Settings extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Settings')),
       body: ListView(
+        padding: const EdgeInsets.all(16),
         children: [
           // General Settings Section
           _buildSectionHeader(context, 'General'),
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {
               return SwitchListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 title: const Text('Notifications'),
                 subtitle: const Text('Enable push notifications'),
                 value: state.notificationsEnabled,
@@ -31,6 +35,7 @@ class Settings extends StatelessWidget {
               );
             },
           ),
+          SizedBox(height: 8),
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {
               return SwitchListTile(
@@ -41,12 +46,19 @@ class Settings extends StatelessWidget {
                   context.read<SettingsCubit>().toggleDarkMode(value);
                 },
                 secondary: const Icon(Icons.dark_mode),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               );
             },
           ),
+          SizedBox(height: 8),
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {
               return ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 title: const Text('Language'),
                 subtitle: Text(state.language),
                 leading: const Icon(Icons.language),
@@ -55,9 +67,13 @@ class Settings extends StatelessWidget {
               );
             },
           ),
+          SizedBox(height: 8),
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {
               return ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 title: const Text('Household Size'),
                 subtitle: Text(
                   '${state.householdSize} ${state.householdSize == 1 ? 'person' : 'people'}',
@@ -69,14 +85,15 @@ class Settings extends StatelessWidget {
             },
           ),
 
-          const Divider(),
-
           // Health & Dietary Section
           _buildSectionHeader(context, 'Health & Dietary'),
           BlocBuilder<AllergiesCubit, AllergiesState>(
             builder: (context, state) {
               final allergyCount = state.selectedAllergies.length;
               return ListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 title: const Text('Allergies'),
                 subtitle: allergyCount > 0
                     ? Text(
@@ -89,7 +106,11 @@ class Settings extends StatelessWidget {
               );
             },
           ),
+          SizedBox(height: 8),
           ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             title: const Text('Dietary Preferences'),
             subtitle: const Text('Set your dietary preferences'),
             leading: const Icon(Icons.restaurant),
@@ -102,13 +123,14 @@ class Settings extends StatelessWidget {
             },
           ),
 
-          const Divider(),
-
           // Privacy & Security Section
           _buildSectionHeader(context, 'Privacy & Security'),
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {
               return SwitchListTile(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 title: const Text('Biometric Authentication'),
                 subtitle: const Text('Use fingerprint or face ID'),
                 value: state.biometricsEnabled,
@@ -119,7 +141,11 @@ class Settings extends StatelessWidget {
               );
             },
           ),
+          SizedBox(height: 8),
           ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             title: const Text('Privacy Policy'),
             leading: const Icon(Icons.policy),
             trailing: const Icon(Icons.chevron_right),
@@ -131,16 +157,21 @@ class Settings extends StatelessWidget {
             },
           ),
 
-          const Divider(),
-
           // About Section
           _buildSectionHeader(context, 'About'),
           ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             title: const Text('App Version'),
             subtitle: const Text('1.0.0'),
             leading: const Icon(Icons.info),
           ),
+          SizedBox(height: 8),
           ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
             title: const Text('Terms of Service'),
             leading: const Icon(Icons.description),
             trailing: const Icon(Icons.chevron_right),
@@ -182,6 +213,9 @@ class Settings extends StatelessWidget {
             return BlocBuilder<SettingsCubit, SettingsState>(
               builder: (context, state) {
                 return RadioListTile<String>(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   title: Text(language),
                   value: language,
                   groupValue: state.language,

@@ -36,6 +36,7 @@ class AllergiesPage extends StatelessWidget {
             children: [
               Expanded(
                 child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
                   itemCount: AllergiesCubit.availableAllergies.length,
                   itemBuilder: (context, index) {
                     final allergy = AllergiesCubit.availableAllergies[index];
@@ -43,17 +44,23 @@ class AllergiesPage extends StatelessWidget {
                       allergy,
                     );
 
-                    return CheckboxListTile(
-                      title: Text(allergy),
-                      value: isSelected,
-                      onChanged: (value) {
-                        context.read<AllergiesCubit>().toggleAllergy(allergy);
-                      },
-                      secondary: Icon(
-                        _getAllergyIcon(allergy),
-                        color: isSelected
-                            ? Theme.of(context).colorScheme.primary
-                            : null,
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: CheckboxListTile(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        title: Text(allergy),
+                        value: isSelected,
+                        onChanged: (value) {
+                          context.read<AllergiesCubit>().toggleAllergy(allergy);
+                        },
+                        secondary: Icon(
+                          _getAllergyIcon(allergy),
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : null,
+                        ),
                       ),
                     );
                   },

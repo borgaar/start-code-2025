@@ -23,9 +23,18 @@ class ExpandableStoreCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).listTileTheme.tileColor,
       child: Column(
         children: [
           ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: isExpanded
+                  ? BorderRadius.only(
+                      topLeft: Radius.circular(12.0),
+                      topRight: Radius.circular(12.0),
+                    )
+                  : BorderRadius.all(Radius.circular(12.0)),
+            ),
             leading: const Icon(Icons.store, size: 40),
             title: Text(
               store.name,

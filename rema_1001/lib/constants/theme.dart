@@ -6,26 +6,26 @@ final themeData = ThemeData(
   colorScheme: ColorScheme.dark(
     primary: Colors.blueAccent,
     secondary: Color(0xFF6B7280), // Gray for secondary elements
-    surface: Color(0xFF1F1F1F), // Very dark background
+    surface: Color(0xFF1D1D1D), // Very dark background
     error: Color(0xFFEF4444), // Red for errors
     onPrimary: Colors.white,
     onSecondary: Colors.white,
     onSurface: Colors.white,
     onError: Colors.white,
   ),
-  scaffoldBackgroundColor: Color(0xFF121212),
+  scaffoldBackgroundColor: Color(0xFF1D1D1D),
   appBarTheme: AppBarTheme(
-    backgroundColor: Color(0xFF1F1F1F),
+    backgroundColor: Color(0xFF1D1D1D),
     foregroundColor: Colors.white,
     elevation: 0,
   ),
   cardTheme: CardThemeData(
-    color: Color(0xFF1F1F1F),
+    color: Color(0xFF161616),
     elevation: 0,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
   ),
   listTileTheme: ListTileThemeData(
-    tileColor: Color(0xFF1F1F1F),
+    tileColor: Color(0xFF2C2C2C),
     textColor: Colors.white,
     iconColor: Colors.white70,
   ),
