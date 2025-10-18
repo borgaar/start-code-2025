@@ -2464,52 +2464,67 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "object",
-                  "properties": {
-                    "lists": {
-                      "type": "array",
-                      "items": {
-                        "type": "object",
-                        "properties": {
-                          "title": {
-                            "type": "string"
-                          },
+                  "anyOf": [
+                    {
+                      "type": "object",
+                      "properties": {
+                        "lists": {
+                          "type": "array",
                           "items": {
-                            "type": "array",
-                            "items": {
-                              "type": "object",
-                              "properties": {
-                                "productId": {
-                                  "type": "string"
-                                },
-                                "name": {
-                                  "type": "string"
-                                },
-                                "quantity": {
-                                  "type": "number"
-                                },
-                                "unit": {
-                                  "type": "string"
-                                }
+                            "type": "object",
+                            "properties": {
+                              "title": {
+                                "type": "string"
                               },
-                              "required": [
-                                "productId",
-                                "name",
-                                "quantity",
-                                "unit"
-                              ]
-                            }
+                              "items": {
+                                "type": "array",
+                                "items": {
+                                  "type": "object",
+                                  "properties": {
+                                    "productId": {
+                                      "type": "string"
+                                    },
+                                    "name": {
+                                      "type": "string"
+                                    },
+                                    "quantity": {
+                                      "type": "number"
+                                    },
+                                    "unit": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "productId",
+                                    "name",
+                                    "quantity",
+                                    "unit"
+                                  ]
+                                }
+                              }
+                            },
+                            "required": [
+                              "title",
+                              "items"
+                            ]
                           }
-                        },
-                        "required": [
-                          "title",
-                          "items"
-                        ]
-                      }
+                        }
+                      },
+                      "required": [
+                        "lists"
+                      ]
+                    },
+                    {
+                      "type": "object",
+                      "properties": {
+                        "error": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "error"
+                      ]
                     }
-                  },
-                  "required": [
-                    "lists"
                   ]
                 }
               }

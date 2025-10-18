@@ -48,7 +48,10 @@ class AiAssistantSuccess extends AiAssistantState {
 
 class AiAssistantFailure extends AiAssistantState {
   final String message;
-  const AiAssistantFailure(this.message);
+  final String? detailedReason;
+
+  const AiAssistantFailure(this.message, {this.detailedReason});
+
   @override
-  List<Object?> get props => [message];
+  List<Object?> get props => [message, detailedReason];
 }

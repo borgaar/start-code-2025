@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rema_1001/data/repositories/llm_repository.dart';
+import 'package:rema_1001/data/repositories/llm_repository_impl.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'ai_assistant_state.dart';
 
@@ -10,6 +12,10 @@ class AiAssistantCubit extends Cubit<AiAssistantState> {
   String? lastPrompt;
   final LlmRepository _llmRepository;
   final ShoppingListRepository _shoppingListRepository;
+
+  // SharedPreferences keys from SettingsCubit and AllergiesCubit
+  static const String _householdSizeKey = 'household_size';
+  static const String _allergiesKey = 'user_allergies';
 
   AiAssistantCubit(this._llmRepository, this._shoppingListRepository)
     : super(const AiAssistantInitial());
@@ -24,7 +30,26 @@ class AiAssistantCubit extends Cubit<AiAssistantState> {
 
     emit(const AiAssistantLoading());
     try {
-      final llmGroups = await _llmRepository.generateShoppingList(lastPrompt!);
+      // Fetch household size and allergies from SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      final householdSize = prefs.getInt(_householdSizeKey) ?? 1;
+      final allergiesList = prefs.getStringList(_allergiesKey) ?? [];
+
+      // Build enriched prompt with context
+      String enrichedPrompt = lastPrompt!;
+
+      if (householdSize > 1) {
+        enrichedPrompt += '\n\nHousehold size: $householdSize people';
+      }
+
+      if (allergiesList.isNotEmpty) {
+        enrichedPrompt +=
+            '\n\nAllergies to avoid (IF THE RECIPE CONTAINS ANY OF THESE, MY GRANDMOTHER WILL DIE!): ${allergiesList.join(', ')}';
+      }
+
+      final llmGroups = await _llmRepository.generateShoppingList(
+        enrichedPrompt,
+      );
 
       final groups = llmGroups.lists
           .map(
@@ -37,8 +62,16 @@ class AiAssistantCubit extends Cubit<AiAssistantState> {
           .toList();
 
       emit(AiAssistantSuccess(groups));
-    } catch (_) {
-      emit(const AiAssistantFailure('Noe gikk galt. Prøv igjen.'));
+    } catch (e) {
+      // Check if it's a LLM failure with a specific reason
+      if (e is LlmFailureException) {
+        emit(AiAssistantFailure(
+          'LLM kunne ikke generere handleliste',
+          detailedReason: e.reason,
+        ));
+      } else {
+        emit(const AiAssistantFailure('Noe gikk galt. Prøv igjen.'));
+      }
     }
   }
 
@@ -69,7 +102,9 @@ class AiAssistantCubit extends Cubit<AiAssistantState> {
 
     // Get all items from selected groups
     final selectedGroups = currentState.groups
-        .where((group) => currentState.selectedGroupTitles.contains(group.title))
+        .where(
+          (group) => currentState.selectedGroupTitles.contains(group.title),
+        )
         .toList();
 
     // Create list name by concatenating titles

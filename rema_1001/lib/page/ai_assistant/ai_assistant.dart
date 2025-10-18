@@ -94,35 +94,83 @@ class _AiAssistantView extends StatelessWidget {
                                 if (state is AiAssistantLoading)
                                   const LoadingCard(),
                                 if (state is AiAssistantFailure) ...[
-                                  Text(
-                                    state.message,
-                                    style: const TextStyle(
-                                      color: Colors.redAccent,
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(255, 60, 20, 20),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        color: Colors.redAccent.withValues(alpha: 0.5),
+                                        width: 1,
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            const Icon(
+                                              Icons.error_outline,
+                                              color: Colors.redAccent,
+                                              size: 20,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Expanded(
+                                              child: Text(
+                                                state.message,
+                                                style: const TextStyle(
+                                                  color: Colors.redAccent,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 14,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        if (state.detailedReason != null) ...[
+                                          const SizedBox(height: 12),
+                                          Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              color: const Color.fromARGB(255, 40, 15, 15),
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              state.detailedReason!,
+                                              style: const TextStyle(
+                                                color: Color.fromARGB(255, 255, 180, 180),
+                                                fontSize: 13,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ],
                                     ),
                                   ),
                                   const SizedBox(height: 16),
                                 ],
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: const Color.fromARGB(
-                                      255,
-                                      19,
-                                      19,
-                                      19,
+                                if (state is AiAssistantSuccess)
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: const Color.fromARGB(
+                                        255,
+                                        19,
+                                        19,
+                                        19,
+                                      ),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
-                                  child: Column(
-                                    children: [
-                                      if (state is AiAssistantSuccess) ...[
-                                        ...state.groups.map(
-                                          (g) => RecipeGroupCard(group: g),
-                                        ),
+                                    padding: EdgeInsets.fromLTRB(12, 0, 12, 12),
+                                    child: Column(
+                                      children: [
+                                        ...[
+                                          ...state.groups.map(
+                                            (g) => RecipeGroupCard(group: g),
+                                          ),
+                                        ],
                                       ],
-                                    ],
+                                    ),
                                   ),
-                                ),
                                 const SizedBox(height: 24),
                                 if (state is AiAssistantSuccess &&
                                     state.selectedGroupTitles.isNotEmpty)
@@ -130,21 +178,26 @@ class _AiAssistantView extends StatelessWidget {
                                     label: 'Gå til butikkart',
                                     onPressed: () async {
                                       // Create shopping list from selected groups
-                                      final cubit = context.read<AiAssistantCubit>();
-                                      final shoppingListId =
-                                          await cubit.createShoppingListFromSelected();
+                                      final cubit = context
+                                          .read<AiAssistantCubit>();
+                                      final shoppingListId = await cubit
+                                          .createShoppingListFromSelected();
 
-                                      if (shoppingListId == null || !context.mounted) {
+                                      if (shoppingListId == null ||
+                                          !context.mounted) {
                                         return;
                                       }
 
                                       // Show store selection dialog
-                                      final storeSlug = await showDialog<String>(
-                                        context: context,
-                                        builder: (context) => const StoreSelectionDialog(),
-                                      );
+                                      final storeSlug =
+                                          await showDialog<String>(
+                                            context: context,
+                                            builder: (context) =>
+                                                const StoreSelectionDialog(),
+                                          );
 
-                                      if (storeSlug == null || !context.mounted) {
+                                      if (storeSlug == null ||
+                                          !context.mounted) {
                                         return;
                                       }
 
@@ -166,18 +219,6 @@ class _AiAssistantView extends StatelessWidget {
                                 if (state is AiAssistantSuccess &&
                                     state.selectedGroupTitles.isNotEmpty)
                                   const SizedBox(height: 12),
-                                if (!isResult)
-                                  RemaSecondaryButton(
-                                    label: 'Få handleliste fra AI',
-                                    onPressed: () => context
-                                        .read<AiAssistantCubit>()
-                                        .requestList(
-                                          context
-                                                  .read<AiAssistantCubit>()
-                                                  .lastPrompt ??
-                                              'Ostekake',
-                                        ),
-                                  ),
                               ],
                             ),
                           ),

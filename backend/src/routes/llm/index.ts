@@ -20,9 +20,18 @@ const ShoppingListOptionSchema = z.object({
   items: z.array(ShoppingListItemResponseSchema),
 });
 
-const GenerateShoppingListResponseSchema = z.object({
+const GenerateShoppingListSuccessResponseSchema = z.object({
   lists: z.array(ShoppingListOptionSchema),
 });
+
+const GenerateShoppingListErrorResponseSchema = z.object({
+  error: z.string(),
+});
+
+const GenerateShoppingListResponseSchema = z.union([
+  GenerateShoppingListSuccessResponseSchema,
+  GenerateShoppingListErrorResponseSchema,
+]);
 
 const generateShoppingListRequestBodyOpenAPI = await resolver(
   GenerateShoppingListRequestSchema
@@ -147,6 +156,22 @@ const generateShoppingListRoute = route().post(
               required: ["lists"],
             },
           },
+          {
+            name: "report_error",
+            description:
+              "Report an error when unable to create shopping lists. Use this when the query is unclear, no suitable products are available, or the request cannot be fulfilled.",
+            input_schema: {
+              type: "object",
+              properties: {
+                message: {
+                  type: "string",
+                  description:
+                    "A clear, user-friendly error message explaining why shopping lists cannot be generated",
+                },
+              },
+              required: ["message"],
+            },
+          },
         ],
         messages: [
           {
@@ -164,7 +189,12 @@ Please analyze the query and suggest multiple recipe/meal options (typically 2-4
 
 Please! Absolutely no more than 3 lists!! Or my grandmother will die.
 Everything in norwegian! My grandmother does not speak english.
-Use the create_shopping_lists tool to return your recommendations. Each list should be a different variation or option that fits the query.`,
+
+If you can successfully create shopping lists, use the create_shopping_lists tool to return your recommendations. Each list should be a different variation or option that fits the query.
+
+If you produce an error message, please use maximum 200 characters or my grandmother will fall asleep and die.
+
+If you cannot create shopping lists (e.g., the query is too vague, no suitable products are available, or the request doesn't make sense for a grocery shopping context), use the report_error tool to explain why in a friendly, user-facing message.`,
           },
         ],
       });
@@ -181,30 +211,43 @@ Use the create_shopping_lists tool to return your recommendations. Each list sho
         );
       }
 
-      const recommendedLists = (
-        toolUse.input as {
-          lists: Array<{
-            title: string;
-            items: Array<{ productId: string; quantity: number }>;
-          }>;
-        }
-      ).lists;
+      // Check which tool was called
+      if (toolUse.name === "report_error") {
+        const errorInput = toolUse.input as { message: string };
+        return c.json({ error: errorInput.message });
+      }
 
-      // Add unit and name information from database for each list
-      const listsWithProductDetails = recommendedLists.map((list) => ({
-        title: list.title,
-        items: list.items.map((item) => {
-          const product = products.find((p) => p.productId === item.productId);
-          return {
-            productId: item.productId,
-            name: product?.name || "unknown",
-            quantity: item.quantity,
-            unit: product?.unit || "unknown",
-          };
-        }),
-      }));
+      if (toolUse.name === "create_shopping_lists") {
+        const recommendedLists = (
+          toolUse.input as {
+            lists: Array<{
+              title: string;
+              items: Array<{ productId: string; quantity: number }>;
+            }>;
+          }
+        ).lists;
 
-      return c.json({ lists: listsWithProductDetails });
+        // Add unit and name information from database for each list
+        const listsWithProductDetails = recommendedLists.map((list) => ({
+          title: list.title,
+          items: list.items.map((item) => {
+            const product = products.find(
+              (p) => p.productId === item.productId
+            );
+            return {
+              productId: item.productId,
+              name: product?.name || "unknown",
+              quantity: item.quantity,
+              unit: product?.unit || "unknown",
+            };
+          }),
+        }));
+
+        return c.json({ lists: listsWithProductDetails });
+      }
+
+      // Unknown tool called
+      return c.json({ error: "LLM called an unexpected tool" }, 500);
     } catch (error) {
       console.error("LLM API error:", error);
       return c.json({ error: "Failed to generate shopping list" }, 500);

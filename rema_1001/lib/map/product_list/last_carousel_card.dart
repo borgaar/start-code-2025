@@ -24,7 +24,7 @@ class LastCarouselCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "You are done!",
+                    "Du er ferdig!",
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -36,7 +36,7 @@ class LastCarouselCard extends StatelessWidget {
                       context.goNamed(RouteNames.home);
                     },
                     icon: const Icon(Icons.home),
-                    label: const Text("Back to Home"),
+                    label: const Text("Gå til hjem"),
                     style: FilledButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.black,
