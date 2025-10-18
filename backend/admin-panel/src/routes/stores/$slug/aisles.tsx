@@ -120,9 +120,6 @@ function AislesPage() {
   const [selectedAisleType, setSelectedAisleType] =
     useState<AisleType>('PANTRY')
   const [localAisles, setLocalAisles] = useState<Aisle[]>([])
-  const [modifiedAisles, setModifiedAisles] = useState<
-    Map<string, ModifiedAisle>
-  >(new Map())
 
   const [selectedPoint, setSelectedPoint] = useState<
     'entrance' | 'exit' | null
@@ -141,9 +138,6 @@ function AislesPage() {
     x: store.exitX,
     y: store.exitY,
   })
-
-  const [deletedAisles, setDeletedAisles] = useState<Set<string>>(new Set())
-  const [newAisles, setNewAisles] = useState<ModifiedAisle[]>([])
 
   // Drawing interaction state
   const [isDrawing, setIsDrawing] = useState(false)
@@ -169,15 +163,6 @@ function AislesPage() {
     )
     setLocalAisles(sortedAisles as Aisle[])
   }, [aisles])
-
-  const hasModifications =
-    modifiedAisles.size > 0 ||
-    deletedAisles.size > 0 ||
-    newAisles.length > 0 ||
-    store.entranceX !== localEntranceCoords.x ||
-    store.entranceY !== localEntranceCoords.y ||
-    store.exitX !== localExitCoords.x ||
-    store.exitY !== localExitCoords.y
 
   const getGridCoordinates = (
     clientX: number,
@@ -215,7 +200,7 @@ function AislesPage() {
   }
 
   const findAisleAtPosition = (x: number, y: number): Aisle | null => {
-    const visibleAisles = localAisles.filter((a) => !deletedAisles.has(a.id))
+    const visibleAisles = [...localAisles]
     // De-prioritize obstacles
     visibleAisles.sort((a, b) =>
       a.type === 'OBSTACLE' ? 1 : b.type === 'OBSTACLE' ? -1 : 0,
@@ -245,13 +230,10 @@ function AislesPage() {
     } else if (activeTool === 'delete') {
       const aisle = findAisleAtPosition(coords.x, coords.y)
       if (aisle) {
-        // Mark for deletion
-        setDeletedAisles((prev) => new Set(prev).add(aisle.id))
-        // Remove from modified if it was there
-        setModifiedAisles((prev) => {
-          const newMap = new Map(prev)
-          newMap.delete(aisle.id)
-          return newMap
+        setLocalAisles((prev) => prev.filter((a) => a.id !== aisle.id))
+        deleteAisle.mutate({
+          slug,
+          aisleId: aisle.id,
         })
       }
     } else if (activeTool === 'move') {
@@ -379,9 +361,19 @@ function AislesPage() {
       if (newCoords) {
         if (selectedPoint === 'entrance') {
           setLocalEntranceCoords(newCoords)
+          updateStore.mutate({
+            slug,
+            entranceX: newCoords.x,
+            entranceY: newCoords.y,
+          })
         }
         if (selectedPoint === 'exit') {
           setLocalExitCoords(newCoords)
+          updateStore.mutate({
+            slug,
+            exitX: newCoords.x,
+            exitY: newCoords.y,
+          })
         }
       }
     }
@@ -413,32 +405,66 @@ function AislesPage() {
         height,
       }
 
-      setNewAisles((prev) => [...prev, newAisle])
       setLocalAisles((prev) => [...prev, newAisle as Aisle])
+
+      createAisle.mutate({
+        slug,
+        body: {
+          type: newAisle.type,
+          gridX: newAisle.gridX,
+          gridY: newAisle.gridY,
+          width: newAisle.width,
+          height: newAisle.height,
+        },
+      })
     } else if (activeTool === 'move' && selectedAisleId && dragStart) {
       const aisle = localAisles.find((a) => a.id === selectedAisleId)
+
       if (aisle) {
-        const original = aisles.find((a) => a.id === selectedAisleId)
-        if (
-          original &&
-          (original.gridX !== aisle.gridX || original.gridY !== aisle.gridY)
-        ) {
-          setModifiedAisles((prev) => new Map(prev).set(selectedAisleId, aisle))
-        }
+        updateAisle.mutate({
+          slug,
+          aisleId: aisle.id,
+          body: {
+            gridX: aisle.gridX,
+            gridY: aisle.gridY,
+            width: aisle.width,
+            height: aisle.height,
+          },
+        })
+        setLocalAisles((prev) =>
+          prev.map((a) =>
+            a.id === aisle.id
+              ? { ...a, gridX: aisle.gridX, gridY: aisle.gridY }
+              : a,
+          ),
+        )
       }
     } else if (activeTool === 'resize' && selectedAisleId && resizeHandle) {
       const aisle = localAisles.find((a) => a.id === selectedAisleId)
       if (aisle) {
-        const original = aisles.find((a) => a.id === selectedAisleId)
-        if (
-          original &&
-          (original.gridX !== aisle.gridX ||
-            original.gridY !== aisle.gridY ||
-            original.width !== aisle.width ||
-            original.height !== aisle.height)
-        ) {
-          setModifiedAisles((prev) => new Map(prev).set(selectedAisleId, aisle))
-        }
+        updateAisle.mutate({
+          slug,
+          aisleId: aisle.id,
+          body: {
+            gridX: aisle.gridX,
+            gridY: aisle.gridY,
+            width: aisle.width,
+            height: aisle.height,
+          },
+        })
+        setLocalAisles((prev) =>
+          prev.map((a) =>
+            a.id === aisle.id
+              ? {
+                  ...a,
+                  gridX: aisle.gridX,
+                  gridY: aisle.gridY,
+                  width: aisle.width,
+                  height: aisle.height,
+                }
+              : a,
+          ),
+        )
       }
     }
     if (activeTool !== 'addItems') {
@@ -454,71 +480,6 @@ function AislesPage() {
     }
 
     resetToolState()
-  }
-
-  const handleSaveChanges = async () => {
-    try {
-      // Create new aisles
-      for (const newAisle of newAisles) {
-        await createAisle.mutateAsync({
-          slug,
-          body: {
-            type: newAisle.type,
-            gridX: newAisle.gridX,
-            gridY: newAisle.gridY,
-            width: newAisle.width,
-            height: newAisle.height,
-          },
-        })
-      }
-
-      // Update modified aisles
-      for (const [aisleId, aisle] of modifiedAisles) {
-        await updateAisle.mutateAsync({
-          slug,
-          aisleId,
-          body: {
-            type: aisle.type,
-            gridX: aisle.gridX,
-            gridY: aisle.gridY,
-            width: aisle.width,
-            height: aisle.height,
-          },
-        })
-      }
-
-      // Delete marked aisles
-      for (const aisleId of deletedAisles) {
-        await deleteAisle.mutateAsync({ slug, aisleId })
-      }
-
-      await updateStore.mutateAsync({
-        slug,
-        entranceX: localEntranceCoords.x,
-        entranceY: localEntranceCoords.y,
-        exitX: localExitCoords.x,
-        exitY: localExitCoords.y,
-      })
-
-      // Clear modifications
-      setModifiedAisles(new Map())
-      setDeletedAisles(new Set())
-      setNewAisles([])
-      setActiveTool(null)
-    } catch (error) {
-      console.error('Failed to save changes:', error)
-    }
-  }
-
-  const handleCancelChanges = () => {
-    setLocalAisles(aisles as Aisle[])
-    setModifiedAisles(new Map())
-    setDeletedAisles(new Set())
-    setNewAisles([])
-    setActiveTool(null)
-    setSelectedPoint(null)
-    setLocalEntranceCoords({ x: store.entranceX, y: store.entranceY })
-    setLocalExitCoords({ x: store.exitX, y: store.exitY })
   }
 
   const getPreviewRectangle = () => {
@@ -548,32 +509,6 @@ function AislesPage() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Store Layout</CardTitle>
-          {hasModifications && (
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={handleCancelChanges}
-                disabled={
-                  createAisle.isPending ||
-                  updateAisle.isPending ||
-                  deleteAisle.isPending
-                }
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleSaveChanges}
-                disabled={
-                  createAisle.isPending ||
-                  updateAisle.isPending ||
-                  deleteAisle.isPending
-                }
-              >
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </Button>
-            </div>
-          )}
         </CardHeader>
         <CardContent>
           {/* Tool Selection */}
@@ -582,7 +517,6 @@ function AislesPage() {
               <Button
                 variant={activeTool === 'addItems' ? 'default' : 'outline'}
                 size="sm"
-                disabled={hasModifications}
                 onClick={() => handleChangeClickTool('addItems')}
               >
                 <PlusCircleIcon className="mr-2 h-4 w-4" />
@@ -660,45 +594,43 @@ function AislesPage() {
               onMouseUp={handleGridMouseUp}
               onMouseLeave={handleGridMouseUp}
             >
-              {localAisles
-                .filter((a) => !deletedAisles.has(a.id))
-                .map((aisle) => (
-                  <div
-                    key={aisle.id}
-                    className={cn(
-                      'text-center relative border-2 border-transparent',
-                      activeTool === 'move' && 'cursor-move',
-                      activeTool === 'resize' && 'cursor-nwse-resize',
-                      activeTool === 'delete' &&
-                        'cursor-pointer hover:opacity-70',
-                      activeTool === 'addItems' &&
-                        aisle.type !== 'OBSTACLE' &&
-                        'cursor-pointer',
-                      activeTool === 'addItems' &&
-                        selectedAisleId === aisle.id &&
-                        'border-red-500',
-                    )}
-                    style={{
-                      gridColumnStart: aisle.gridX + 1,
-                      gridColumnEnd: aisle.gridX + aisle.width + 1,
-                      gridRowStart: aisle.gridY + 1,
-                      gridRowEnd: aisle.gridY + aisle.height + 1,
-                      backgroundColor:
-                        aisle.type === 'OBSTACLE' ? '#2c2c2c' : '#6B6B6B',
-                    }}
-                  >
-                    {aisle.type !== 'OBSTACLE' && (
-                      <span
-                        className={cn(
-                          'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs pointer-events-none',
-                          aisle.height > aisle.width + 1 && 'rotate-90',
-                        )}
-                      >
-                        {aisle.type}
-                      </span>
-                    )}
-                  </div>
-                ))}
+              {localAisles.map((aisle) => (
+                <div
+                  key={aisle.id}
+                  className={cn(
+                    'text-center relative border-2 border-transparent',
+                    activeTool === 'move' && 'cursor-move',
+                    activeTool === 'resize' && 'cursor-nwse-resize',
+                    activeTool === 'delete' &&
+                      'cursor-pointer hover:opacity-70',
+                    activeTool === 'addItems' &&
+                      aisle.type !== 'OBSTACLE' &&
+                      'cursor-pointer',
+                    activeTool === 'addItems' &&
+                      selectedAisleId === aisle.id &&
+                      'border-red-500',
+                  )}
+                  style={{
+                    gridColumnStart: aisle.gridX + 1,
+                    gridColumnEnd: aisle.gridX + aisle.width + 1,
+                    gridRowStart: aisle.gridY + 1,
+                    gridRowEnd: aisle.gridY + aisle.height + 1,
+                    backgroundColor:
+                      aisle.type === 'OBSTACLE' ? '#2c2c2c' : '#6B6B6B',
+                  }}
+                >
+                  {aisle.type !== 'OBSTACLE' && (
+                    <span
+                      className={cn(
+                        'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs pointer-events-none',
+                        aisle.height > aisle.width + 1 && 'rotate-90',
+                      )}
+                    >
+                      {aisle.type}
+                    </span>
+                  )}
+                </div>
+              ))}
 
               {/* Entrance */}
 
