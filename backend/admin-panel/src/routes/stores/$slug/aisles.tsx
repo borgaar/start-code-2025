@@ -26,7 +26,6 @@ import {
   Move,
   Maximize2,
   Pencil,
-  Save,
   PlusCircleIcon,
   Loader2Icon,
   PlusIcon,

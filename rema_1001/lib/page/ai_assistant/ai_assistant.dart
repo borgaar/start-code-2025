@@ -125,11 +125,11 @@ class _AiAssistantView extends StatelessWidget {
                                 ),
                                 const SizedBox(height: 24),
                                 if (state is AiAssistantSuccess &&
-                                    state.selectedProductIds.isNotEmpty)
+                                    state.selectedGroupTitles.isNotEmpty)
                                   RemaCtaButton(
                                     label: 'Gå til butikkart',
                                     onPressed: () async {
-                                      // Create shopping list from selected items
+                                      // Create shopping list from selected groups
                                       final cubit = context.read<AiAssistantCubit>();
                                       final shoppingListId =
                                           await cubit.createShoppingListFromSelected();
@@ -156,10 +156,15 @@ class _AiAssistantView extends StatelessWidget {
                                           'shoppingListId': shoppingListId,
                                         },
                                       );
+
+                                      // Reset the AI assistant page for next time
+                                      if (context.mounted) {
+                                        cubit.reset();
+                                      }
                                     },
                                   ),
                                 if (state is AiAssistantSuccess &&
-                                    state.selectedProductIds.isNotEmpty)
+                                    state.selectedGroupTitles.isNotEmpty)
                                   const SizedBox(height: 12),
                                 if (!isResult)
                                   RemaSecondaryButton(

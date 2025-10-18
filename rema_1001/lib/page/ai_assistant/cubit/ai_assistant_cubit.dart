@@ -42,56 +42,51 @@ class AiAssistantCubit extends Cubit<AiAssistantState> {
     }
   }
 
-  void toggleItemSelection(String productId) {
+  void toggleGroupSelection(String groupTitle) {
     final currentState = state;
     if (currentState is! AiAssistantSuccess) return;
 
-    final selectedIds = Set<String>.from(currentState.selectedProductIds);
-    if (selectedIds.contains(productId)) {
-      selectedIds.remove(productId);
+    final selectedTitles = Set<String>.from(currentState.selectedGroupTitles);
+    if (selectedTitles.contains(groupTitle)) {
+      selectedTitles.remove(groupTitle);
     } else {
-      selectedIds.add(productId);
+      selectedTitles.add(groupTitle);
     }
 
-    emit(currentState.copyWith(selectedProductIds: selectedIds));
+    emit(currentState.copyWith(selectedGroupTitles: selectedTitles));
+  }
+
+  void reset() {
+    lastPrompt = null;
+    emit(const AiAssistantInitial());
   }
 
   Future<String?> createShoppingListFromSelected() async {
     final currentState = state;
     if (currentState is! AiAssistantSuccess) return null;
 
-    if (currentState.selectedProductIds.isEmpty) return null;
+    if (currentState.selectedGroupTitles.isEmpty) return null;
 
-    // Get all selected items and their lists
-    final selectedItems = <String, List<String>>{};
-    for (final group in currentState.groups) {
-      final groupItems = group.itemsData
-          .where(
-            (item) => currentState.selectedProductIds.contains(item.productId),
-          )
-          .map((item) => item.productId)
-          .toList();
-
-      if (groupItems.isNotEmpty) {
-        selectedItems[group.title] = groupItems;
-      }
-    }
+    // Get all items from selected groups
+    final selectedGroups = currentState.groups
+        .where((group) => currentState.selectedGroupTitles.contains(group.title))
+        .toList();
 
     // Create list name by concatenating titles
-    final listName = selectedItems.keys.join(' & ');
+    final listName = selectedGroups.map((g) => g.title).join(' & ');
 
     // Create the shopping list
     final shoppingList = await _shoppingListRepository.createShoppingList(
       listName,
     );
 
-    // Add all selected items to the list
-    for (final productIds in selectedItems.values) {
-      for (final productId in productIds) {
+    // Add all items from selected groups to the list
+    for (final group in selectedGroups) {
+      for (final item in group.itemsData) {
         try {
           await _shoppingListRepository.addItemToShoppingList(
             shoppingListId: shoppingList.id,
-            productId: productId,
+            productId: item.productId,
             checked: false,
           );
         } catch (_) {
@@ -101,44 +96,5 @@ class AiAssistantCubit extends Cubit<AiAssistantState> {
     }
 
     return shoppingList.id;
-  }
-
-  // --- Temporary mock instead of a repository call ---
-  Future<List<RecipeGroup>> _mockGenerate(String prompt) async {
-    await Future.delayed(const Duration(milliseconds: 700));
-    final lower = prompt.toLowerCase();
-
-    if (lower.contains('ostekake')) {
-      return const [
-        RecipeGroup('Ostekake', [
-          'Melk, lett, 1l',
-          'Smør, 200g',
-          'Kjeks',
-          'Philadelphia',
-          'Sitron',
-        ]),
-        RecipeGroup('Til servering', ['Jordbær, 1 kurv', 'Sitronmelisse']),
-      ];
-    }
-    if (lower.contains('fisk') || lower.contains('middag')) {
-      return const [
-        RecipeGroup('Enkel fiskemiddag for 4', [
-          'Fiskegrateng, findus, 1kg',
-          'Gulrot, 4stk',
-          'Hvitløksbaguette',
-        ]),
-        RecipeGroup('Drikke', ['Melk, lett, 1l']),
-      ];
-    }
-    // default demo (matches your Figma)
-    return const [
-      RecipeGroup('Hjemmebakt grovbrød', []),
-      RecipeGroup('Ostekake', ['Melk, lett, 1l', 'Smør, 200g', 'Ost']),
-      RecipeGroup('Enkel fiskemiddag for 4', [
-        'Fiskegrateng, findus, 1kg',
-        'Gulrot, 4stk',
-        'Hvitløksbaguette',
-      ]),
-    ];
   }
 }

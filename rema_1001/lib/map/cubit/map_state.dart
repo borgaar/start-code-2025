@@ -120,3 +120,12 @@ final class MapPathfindingLoaded extends MapLoaded {
   @override
   List<Object?> get props => [...super.props, path, currentWaypointIndex];
 }
+
+final class MapError extends MapState {
+  final String message;
+
+  const MapError(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

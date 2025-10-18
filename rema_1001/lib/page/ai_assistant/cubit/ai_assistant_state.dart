@@ -28,22 +28,22 @@ class AiAssistantLoading extends AiAssistantState {
 
 class AiAssistantSuccess extends AiAssistantState {
   final List<RecipeGroup> groups;
-  final Set<String> selectedProductIds;
+  final Set<String> selectedGroupTitles;
 
-  const AiAssistantSuccess(this.groups, {this.selectedProductIds = const {}});
+  const AiAssistantSuccess(this.groups, {this.selectedGroupTitles = const {}});
 
   AiAssistantSuccess copyWith({
     List<RecipeGroup>? groups,
-    Set<String>? selectedProductIds,
+    Set<String>? selectedGroupTitles,
   }) {
     return AiAssistantSuccess(
       groups ?? this.groups,
-      selectedProductIds: selectedProductIds ?? this.selectedProductIds,
+      selectedGroupTitles: selectedGroupTitles ?? this.selectedGroupTitles,
     );
   }
 
   @override
-  List<Object?> get props => [groups, selectedProductIds];
+  List<Object?> get props => [groups, selectedGroupTitles];
 }
 
 class AiAssistantFailure extends AiAssistantState {

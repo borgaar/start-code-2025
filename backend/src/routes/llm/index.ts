@@ -120,7 +120,8 @@ const generateShoppingListRoute = route().post(
                       },
                       items: {
                         type: "array",
-                        description: "List of shopping list items for this option",
+                        description:
+                          "List of shopping list items for this option",
                         items: {
                           type: "object",
                           properties: {
@@ -161,6 +162,8 @@ Please analyze the query and suggest multiple recipe/meal options (typically 2-4
 1. A descriptive title (e.g., "Chocolate Cake", "Vanilla Sponge Cake")
 2. The list of products needed with appropriate quantities
 
+Please! Absolutely no more than 3 lists!! Or my grandmother will die.
+Everything in norwegian! My grandmother does not speak english.
 Use the create_shopping_lists tool to return your recommendations. Each list should be a different variation or option that fits the query.`,
           },
         ],

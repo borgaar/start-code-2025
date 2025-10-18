@@ -102,7 +102,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
     _whitePathAnimationController.addListener(() => setState(() {}));
 
     _whitePathAnimationController.addStatusListener((status) {
-      if (status == AnimationStatus.completed && _animatingToWaypointIndex != null) {
+      if (status == AnimationStatus.completed &&
+          _animatingToWaypointIndex != null) {
         // When backward animation completes, reset to show full path
         setState(() {
           _animatingToWaypointIndex = null;
@@ -301,6 +302,25 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         }
       },
       builder: (context, state) {
+        if (state is MapError) {
+          return ClipRRect(
+            borderRadius: BorderRadiusGeometry.circular(30),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Container(
+                color: backgroundColor,
+                alignment: Alignment.center,
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  state.message,
+                  style: const TextStyle(color: Colors.redAccent, fontSize: 16),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          );
+        }
+
         if (state is! MapLoaded) {
           return ClipRRect(
             borderRadius: BorderRadiusGeometry.circular(30),
@@ -319,7 +339,8 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
         )!;
 
         // Use override waypoint during backward animation, otherwise use current
-        final displayWaypointIndex = _animatingToWaypointIndex ??
+        final displayWaypointIndex =
+            _animatingToWaypointIndex ??
             (state is MapPathfindingLoaded ? state.currentWaypointIndex : 0);
 
         return ClipRRect(

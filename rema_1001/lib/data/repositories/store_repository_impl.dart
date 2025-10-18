@@ -49,7 +49,10 @@ class StoreRepositoryImpl implements StoreRepository {
   }
 
   @override
-  Future<Store> createStore({required String name, required String slug}) async {
+  Future<Store> createStore({
+    required String name,
+    required String slug,
+  }) async {
     try {
       final response = await _apiClient.post(
         '/api/store',
@@ -143,7 +146,6 @@ class StoreRepositoryImpl implements StoreRepository {
   @override
   Future<Aisle> createAisle({
     required String storeSlug,
-    required String name,
     required AisleType type,
     required int gridX,
     required int gridY,
@@ -154,7 +156,6 @@ class StoreRepositoryImpl implements StoreRepository {
       final response = await _apiClient.post(
         '/api/store/$storeSlug/aisle',
         body: {
-          'name': name,
           'type': type.name,
           'gridX': gridX,
           'gridY': gridY,
@@ -178,24 +179,23 @@ class StoreRepositoryImpl implements StoreRepository {
   Future<Aisle> updateAisle({
     required String storeSlug,
     required String aisleId,
-    required String name,
-    required AisleType type,
-    required int gridX,
-    required int gridY,
-    required int width,
-    required int height,
+    AisleType? type,
+    int? gridX,
+    int? gridY,
+    int? width,
+    int? height,
   }) async {
     try {
+      final body = <String, dynamic>{};
+      if (type != null) body['type'] = type.name;
+      if (gridX != null) body['gridX'] = gridX;
+      if (gridY != null) body['gridY'] = gridY;
+      if (width != null) body['width'] = width;
+      if (height != null) body['height'] = height;
+
       final response = await _apiClient.patch(
         '/api/store/$storeSlug/aisle/$aisleId',
-        body: {
-          'name': name,
-          'type': type.name,
-          'gridX': gridX,
-          'gridY': gridY,
-          'width': width,
-          'height': height,
-        },
+        body: body,
       );
       return Aisle.fromJson(response as Map<String, dynamic>);
     } catch (e, stackTrace) {
@@ -310,6 +310,29 @@ class StoreRepositoryImpl implements StoreRepository {
         stackTrace: stackTrace,
       );
       throw ApiException('Failed to remove product from aisle: $e');
+    }
+  }
+
+  @override
+  Future<List<Map<String, dynamic>>> getAislesWithProducts(
+    String storeSlug,
+  ) async {
+    try {
+      final response = await _apiClient.get(
+        '/api/store/$storeSlug/aisles-with-products',
+      );
+      if (response is List) {
+        return response.cast<Map<String, dynamic>>();
+      }
+      throw ApiException('Unexpected response format');
+    } catch (e, stackTrace) {
+      developer.log(
+        'Failed to fetch aisles with products for store: $storeSlug',
+        name: 'StoreRepository',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      throw ApiException('Failed to fetch aisles with products: $e');
     }
   }
 }
