@@ -16,6 +16,8 @@ RUN pnpm i --frozen-lockfile
 
 COPY . .
 
+COPY ./admin-panel/.env.prod ./admin-panel/.env
+
 RUN pnpm build
 
 FROM base AS runner
