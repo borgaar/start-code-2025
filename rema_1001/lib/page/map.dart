@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:rema_1001/map/cubit/map_cubit.dart';
 import 'package:rema_1001/map/map.dart';
-import 'package:rema_1001/router/route_names.dart';
 
 class MapScreen extends StatelessWidget {
   const MapScreen({super.key});

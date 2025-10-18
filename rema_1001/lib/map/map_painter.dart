@@ -4,11 +4,18 @@ import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
 import 'package:rema_1001/map/utils.dart';
 
 final dimension = 64;
-final double aisleBorderRadiusBase = 2;
+final double aisleBorderRadiusBase = 1;
 final double backgroundBorderRadiusBase = 4;
-final softShadowOffset = Offset(8, 10);
+final softShadowOffsetBase = Offset(0.4, 0.8);
 final backgroundColor = Color(0xff434343);
 final backgroundPaint = Paint()..color = backgroundColor;
+
+Offset getSoftShadowOffset(double scaleX, double scaleY) {
+  return Offset(
+    softShadowOffsetBase.dx * scaleX,
+    softShadowOffsetBase.dy * scaleY,
+  );
+}
 
 final class MapPainter implements CustomPainter {
   final map_model.MapModel map;
@@ -112,7 +119,7 @@ final class MapPainter implements CustomPainter {
     RRect? softShadowRRect;
     if (parentAisle == null) {
       softShadowRRect = RRect.fromRectAndCorners(
-        rect.shift(softShadowOffset),
+        rect.shift(getSoftShadowOffset(scaleX, scaleY)),
         topLeft: hardShadowRect.tlRadius,
         topRight: hardShadowRect.trRadius,
         bottomLeft: hardShadowRect.blRadius,
@@ -174,7 +181,7 @@ final class MapPainter implements CustomPainter {
 
     // Obstruction shadow
     canvas.drawPath(
-      combinedPath.shift(softShadowOffset),
+      combinedPath.shift(getSoftShadowOffset(scaleX, scaleY)),
       sampleAisle.softShadowPaint,
     );
 

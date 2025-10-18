@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:rema_1001/data/models/aisle.dart' as aisle_model;
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';

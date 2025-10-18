@@ -91,145 +91,153 @@ class _MapWidgetState extends State<MapWidget> with TickerProviderStateMixin {
       },
       builder: (context, state) {
         if (state is! MapLoaded) {
-          return AspectRatio(
-            aspectRatio: 1,
-            child: Container(color: backgroundColor),
+          return ClipRRect(
+            borderRadius: BorderRadiusGeometry.circular(30),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Container(color: backgroundColor),
+            ),
           );
         }
 
-        return AspectRatio(
-          aspectRatio: 1,
-          child: CustomPaint(
-            painter: MapPainter(
-              path: state is MapPathfindingLoaded ? state.path : null,
-              map: MapModel(
-                aisles: state.map.aisles.mapIndexed((idx, aisle) {
-                  final lastState = context.read<MapCubit>().last;
+        return ClipRRect(
+          borderRadius: BorderRadiusGeometry.circular(30),
+          child: AspectRatio(
+            aspectRatio: 1,
+            child: CustomPaint(
+              painter: MapPainter(
+                path: state is MapPathfindingLoaded ? state.path : null,
+                map: MapModel(
+                  aisles: state.map.aisles.mapIndexed((idx, aisle) {
+                    final lastState = context.read<MapCubit>().last;
 
-                  // ENTRANCE ANIMATION: Animate from MapInitial state
-                  if (lastState is MapInitial ||
-                      _entranceAnimationController.isAnimating) {
-                    final staggeredProgress = _getStaggeredProgress(
-                      idx,
-                      _entranceAnimation.value,
-                    );
+                    // ENTRANCE ANIMATION: Animate from MapInitial state
+                    if (lastState is MapInitial ||
+                        _entranceAnimationController.isAnimating) {
+                      final staggeredProgress = _getStaggeredProgress(
+                        idx,
+                        _entranceAnimation.value,
+                      );
 
-                    final targetColors = getColorSetForAisleStatus(
-                      aisle.status,
-                    );
-                    final shouldHaveGlow = aisle.status == AisleStatus.blinking;
+                      final targetColors = getColorSetForAisleStatus(
+                        aisle.status,
+                      );
+                      final shouldHaveGlow =
+                          aisle.status == AisleStatus.blinking;
 
-                    return aisle.copyWith(
-                      // Animate hard shadow height from 0 to 12
-                      hardShadowHeight: 12.0 * staggeredProgress,
+                      return aisle.copyWith(
+                        // Animate hard shadow height from 0 to 12
+                        hardShadowHeight: 12.0 * staggeredProgress,
 
-                      // Keep target colors for main paint and hard shadow
-                      paint: aislePaint(
-                        Color.lerp(
-                          backgroundColor,
-                          targetColors.aislePaint.color,
-                          staggeredProgress,
-                        )!,
-                      ),
+                        // Keep target colors for main paint and hard shadow
+                        paint: aislePaint(
+                          Color.lerp(
+                            backgroundColor,
+                            targetColors.aislePaint.color,
+                            staggeredProgress,
+                          )!,
+                        ),
 
-                      hardShadowPaint: aisleShadowPaint(
-                        Color.lerp(
-                          backgroundColor,
-                          targetColors.hardShadowPaint.color,
-                          staggeredProgress,
-                        )!,
-                      ),
+                        hardShadowPaint: aisleShadowPaint(
+                          Color.lerp(
+                            backgroundColor,
+                            targetColors.hardShadowPaint.color,
+                            staggeredProgress,
+                          )!,
+                        ),
 
-                      // Fade in soft shadow from transparent to full color
-                      softShadowPaint: aisleSoftShadowPaint(
-                        Color.lerp(
-                          Colors.transparent,
-                          targetColors.softShadowPaint.color,
-                          staggeredProgress,
-                        )!,
-                      ),
+                        // Fade in soft shadow from transparent to full color
+                        softShadowPaint: aisleSoftShadowPaint(
+                          Color.lerp(
+                            Colors.transparent,
+                            targetColors.softShadowPaint.color,
+                            staggeredProgress,
+                          )!,
+                        ),
 
-                      // Apply glow animation only if target status is blinking
-                      glowPaint: shouldHaveGlow
-                          ? aisleGlowPaint(
-                              targetColors.glowPaint.color.withValues(
-                                alpha: _glowAnimation.value,
-                              ),
-                            )
-                          : aisle.glowPaint,
-                    );
-                  }
+                        // Apply glow animation only if target status is blinking
+                        glowPaint: shouldHaveGlow
+                            ? aisleGlowPaint(
+                                targetColors.glowPaint.color.withValues(
+                                  alpha: _glowAnimation.value,
+                                ),
+                              )
+                            : aisle.glowPaint,
+                      );
+                    }
 
-                  // NO PREVIOUS STATE: Return aisle as-is
-                  if (lastState == null) {
-                    return aisle;
-                  }
-
-                  // TRANSITION ANIMATION: Animate between status changes
-                  if (lastState is MapLoaded) {
-                    final previousAisle = lastState.map.aisles[idx];
-
-                    // No status change, check if should apply glow animation
-                    if (aisle.status == previousAisle.status) {
-                      if (aisle.status == AisleStatus.blinking) {
-                        final targetColors = getColorSetForAisleStatus(
-                          aisle.status,
-                        );
-                        return aisle.copyWith(
-                          glowPaint: aisleGlowPaint(
-                            targetColors.glowPaint.color.withValues(
-                              alpha: _glowAnimation.value,
-                            ),
-                          ),
-                        );
-                      }
+                    // NO PREVIOUS STATE: Return aisle as-is
+                    if (lastState == null) {
                       return aisle;
                     }
 
-                    // Status changed - transition all colors
-                    final beginColors = getColorSetForAisleStatus(
-                      previousAisle.status,
-                    );
-                    final endColors = getColorSetForAisleStatus(aisle.status);
-                    final shouldHaveGlow = aisle.status == AisleStatus.blinking;
+                    // TRANSITION ANIMATION: Animate between status changes
+                    if (lastState is MapLoaded) {
+                      final previousAisle = lastState.map.aisles[idx];
 
-                    return aisle.copyWith(
-                      paint: aislePaint(
-                        ColorTween(
-                          begin: beginColors.aislePaint.color,
-                          end: endColors.aislePaint.color,
-                        ).animate(_transitionAnimation).value!,
-                      ),
-                      hardShadowPaint: aisleShadowPaint(
-                        ColorTween(
-                          begin: beginColors.hardShadowPaint.color,
-                          end: endColors.hardShadowPaint.color,
-                        ).animate(_transitionAnimation).value!,
-                      ),
-                      softShadowPaint: aisleSoftShadowPaint(
-                        ColorTween(
-                          begin: beginColors.softShadowPaint.color,
-                          end: endColors.softShadowPaint.color,
-                        ).animate(_transitionAnimation).value!,
-                      ),
-                      // Apply glow animation only if target status is blinking
-                      glowPaint: shouldHaveGlow
-                          ? aisleGlowPaint(
-                              endColors.glowPaint.color.withValues(
+                      // No status change, check if should apply glow animation
+                      if (aisle.status == previousAisle.status) {
+                        if (aisle.status == AisleStatus.blinking) {
+                          final targetColors = getColorSetForAisleStatus(
+                            aisle.status,
+                          );
+                          return aisle.copyWith(
+                            glowPaint: aisleGlowPaint(
+                              targetColors.glowPaint.color.withValues(
                                 alpha: _glowAnimation.value,
                               ),
-                            )
-                          : aisleGlowPaint(
-                              ColorTween(
-                                begin: beginColors.glowPaint.color,
-                                end: endColors.glowPaint.color,
-                              ).animate(_transitionAnimation).value!,
                             ),
-                    );
-                  }
+                          );
+                        }
+                        return aisle;
+                      }
 
-                  return aisle;
-                }).toList(),
+                      // Status changed - transition all colors
+                      final beginColors = getColorSetForAisleStatus(
+                        previousAisle.status,
+                      );
+                      final endColors = getColorSetForAisleStatus(aisle.status);
+                      final shouldHaveGlow =
+                          aisle.status == AisleStatus.blinking;
+
+                      return aisle.copyWith(
+                        paint: aislePaint(
+                          ColorTween(
+                            begin: beginColors.aislePaint.color,
+                            end: endColors.aislePaint.color,
+                          ).animate(_transitionAnimation).value!,
+                        ),
+                        hardShadowPaint: aisleShadowPaint(
+                          ColorTween(
+                            begin: beginColors.hardShadowPaint.color,
+                            end: endColors.hardShadowPaint.color,
+                          ).animate(_transitionAnimation).value!,
+                        ),
+                        softShadowPaint: aisleSoftShadowPaint(
+                          ColorTween(
+                            begin: beginColors.softShadowPaint.color,
+                            end: endColors.softShadowPaint.color,
+                          ).animate(_transitionAnimation).value!,
+                        ),
+                        // Apply glow animation only if target status is blinking
+                        glowPaint: shouldHaveGlow
+                            ? aisleGlowPaint(
+                                endColors.glowPaint.color.withValues(
+                                  alpha: _glowAnimation.value,
+                                ),
+                              )
+                            : aisleGlowPaint(
+                                ColorTween(
+                                  begin: beginColors.glowPaint.color,
+                                  end: endColors.glowPaint.color,
+                                ).animate(_transitionAnimation).value!,
+                              ),
+                      );
+                    }
+
+                    return aisle;
+                  }).toList(),
+                ),
               ),
             ),
           ),
