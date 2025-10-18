@@ -54,45 +54,47 @@ class AisleCard extends StatelessWidget {
                         ...aisle.items.mapIndexed((index, item) {
                           return ProductListTile(item, aisle);
                         }),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Row(
-                            children: [
-                              SizedBox(width: 16),
-                              Expanded(
-                                child: Divider(
-                                  height: 2,
-                                  color: Color(0xff2A2A2A),
+                        if (aisle.discountedItems.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            child: Row(
+                              children: [
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: Divider(
+                                    height: 2,
+                                    color: Color(0xff2A2A2A),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 8),
-                              Text(
-                                "Andre tilbud i hyllen",
-                                style: TextStyle(
-                                  color: Color(0xFF898989),
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 11,
-                                  fontFamily: "REMA",
+                                SizedBox(width: 8),
+                                Text(
+                                  "Andre tilbud i hyllen",
+                                  style: TextStyle(
+                                    color: Color(0xFF898989),
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 11,
+                                    fontFamily: "REMA",
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 8),
-                              Expanded(
-                                child: Divider(
-                                  height: 2,
-                                  color: Color(0xff2A2A2A),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Divider(
+                                    height: 2,
+                                    color: Color(0xff2A2A2A),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(width: 16),
-                            ],
+                                SizedBox(width: 16),
+                              ],
+                            ),
                           ),
-                        ),
-                        ...aisle.discountedItems.mapIndexed((index, item) {
-                          return ProductListDiscountedTile(
-                            item,
-                            aisle,
-                            index: index,
-                          );
-                        }),
+                        if (aisle.discountedItems.isNotEmpty)
+                          ...aisle.discountedItems.mapIndexed((index, item) {
+                            return ProductListDiscountedTile(
+                              item,
+                              aisle,
+                              index: index,
+                            );
+                          }),
                         SizedBox(height: 16),
                       ],
                     ),

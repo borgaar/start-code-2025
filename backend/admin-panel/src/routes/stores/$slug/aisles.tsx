@@ -363,19 +363,9 @@ function AislesPage() {
       if (newCoords) {
         if (selectedPoint === 'entrance') {
           setLocalEntranceCoords(newCoords)
-          updateStore.mutate({
-            slug,
-            entranceX: newCoords.x,
-            entranceY: newCoords.y,
-          })
         }
         if (selectedPoint === 'exit') {
           setLocalExitCoords(newCoords)
-          updateStore.mutate({
-            slug,
-            exitX: newCoords.x,
-            exitY: newCoords.y,
-          })
         }
       }
     }
@@ -467,6 +457,21 @@ function AislesPage() {
               : a,
           ),
         )
+      }
+    } else if (activeTool === 'move' && selectedPoint) {
+      if (selectedPoint === 'entrance') {
+        updateStore.mutate({
+          slug,
+          entranceX: localEntranceCoords.x,
+          entranceY: localEntranceCoords.y,
+        })
+      }
+      if (selectedPoint === 'exit') {
+        updateStore.mutate({
+          slug,
+          exitX: localExitCoords.x,
+          exitY: localExitCoords.y,
+        })
       }
     }
     if (activeTool !== 'addItems') {

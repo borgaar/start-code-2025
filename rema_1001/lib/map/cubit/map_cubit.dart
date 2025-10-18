@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bloc/bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:rema_1001/data/models/aisle.dart' as aisle_model;
 import 'package:rema_1001/data/models/product.dart';
 import 'package:rema_1001/data/models/product_in_aisle.dart';
+import 'package:rema_1001/data/models/store.dart';
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
 import 'package:rema_1001/data/repositories/store_repository.dart';
@@ -33,14 +36,23 @@ class MapCubit extends Cubit<MapState> {
   final carouselSliderController = CarouselSliderController();
 
   MapState? last;
+  Timer? _pollingTimer;
+  List<aisle_model.Aisle>? _previousAisles;
+  Store? _previousStore;
 
   void intialize() async {
     try {
       emit(MapInitial());
       final aisles = await _aisleRepository.getAislesForStore(storeSlug);
+
+      // Store aisles for comparison in polling
+      _previousAisles = aisles;
       final shoppingList = await _shoppingListRepository
           .getShoppingListWithAisles(id: shoppingListId, storeSlug: storeSlug);
       final store = await _storeRepository.getStoreBySlug(storeSlug);
+
+      // Store store data (entrance/exit) for comparison in polling
+      _previousStore = store;
 
       final aisleGroups = resolveProductIsles(
         shoppingList: shoppingList,
@@ -199,6 +211,9 @@ class MapCubit extends Cubit<MapState> {
           storeName: store.name,
         ),
       );
+
+      // Start polling for aisle changes in the background
+      _startPolling();
     } catch (e) {
       emit(MapError('Failed to load map data: $e'));
     }
@@ -361,9 +376,86 @@ class MapCubit extends Cubit<MapState> {
     }
   }
 
+  /// Start polling the backend every 1 second for aisle changes
+  void _startPolling() {
+    _pollingTimer?.cancel();
+    _pollingTimer = Timer.periodic(const Duration(milliseconds: 500), (
+      _,
+    ) async {
+      await _checkForAisleChanges();
+    });
+  }
+
+  /// Check if aisles or store entrance/exit have changed and reinitialize if needed
+  Future<void> _checkForAisleChanges() async {
+    try {
+      final currentAisles = await _aisleRepository.getAislesForStore(storeSlug);
+      final currentStore = await _storeRepository.getStoreBySlug(storeSlug);
+
+      // Skip if no previous data stored yet (shouldn't happen)
+      if (_previousAisles == null || _previousStore == null) {
+        _previousAisles = currentAisles;
+        _previousStore = currentStore;
+        return;
+      }
+
+      // Check if aisles or store entrance/exit have changed
+      final aislesChanged = _hasAislesChanged(_previousAisles!, currentAisles);
+      final storeChanged = _hasStoreChanged(_previousStore!, currentStore);
+
+      if (aislesChanged || storeChanged) {
+        _previousAisles = currentAisles;
+        _previousStore = currentStore;
+        intialize();
+      }
+    } catch (e) {
+      // Silently fail - don't disrupt the user experience
+      debugPrint('Failed to check for changes: $e');
+    }
+  }
+
+  /// Compare two aisle lists to detect changes
+  bool _hasAislesChanged(
+    List<aisle_model.Aisle> previous,
+    List<aisle_model.Aisle> current,
+  ) {
+    if (previous.length != current.length) return true;
+
+    // Compare each aisle by ID and key properties
+    for (int i = 0; i < previous.length; i++) {
+      final prev = previous[i];
+      final curr = current.firstWhereOrNull((a) => a.id == prev.id);
+
+      if (curr == null) return true;
+
+      // Check if position, size, or type has changed
+      if (prev.position != curr.position ||
+          prev.width != curr.width ||
+          prev.height != curr.height ||
+          prev.type != curr.type) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// Compare two store objects to detect entrance/exit changes
+  bool _hasStoreChanged(Store previous, Store current) {
+    // Check if entrance or exit positions have changed
+    return previous.entrance != current.entrance ||
+        previous.exit != current.exit;
+  }
+
   @override
   void onChange(Change<MapState> change) {
     last = change.currentState;
     super.onChange(change);
+  }
+
+  @override
+  Future<void> close() {
+    _pollingTimer?.cancel();
+    return super.close();
   }
 }
