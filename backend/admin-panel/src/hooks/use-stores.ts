@@ -248,13 +248,27 @@ export function useAddProductToAisle() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async () => {
-      const { data, error } = await client.POST('/api/store/product-in-aisle')
+    mutationFn: async ({
+      productId,
+      aisleId,
+    }: {
+      productId: string
+      aisleId: string
+    }) => {
+      const { data, error } = await client.POST('/api/store/product-in-aisle', {
+        body: {
+          aisleId,
+          productId,
+        },
+      })
       if (error) throw error
+      if (!data) throw new Error('Product not added to aisle')
       return data
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(getStoresOptions())
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(
+        getAislesWithProductsOptions(data.storeSlug),
+      )
     },
   })
 }
@@ -270,16 +284,40 @@ export function useRemoveProductFromAisle() {
       productId: string
       aisleId: string
     }) => {
-      const { error } = await client.DELETE(
+      const { data, error } = await client.DELETE(
         '/api/store/product-in-aisle/{productId}/{aisleId}',
         {
           params: { path: { productId, aisleId } },
+          body: {
+            aisleId,
+            productId,
+          },
         },
       )
       if (error) throw error
+      if (!data) throw new Error('Product not added to aisle')
+      return data
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries(getStoresOptions())
+    onSuccess: (data) => {
+      queryClient.invalidateQueries(
+        getAislesWithProductsOptions(data.storeSlug),
+      )
+    },
+  })
+}
+
+export function getAislesWithProductsOptions(slug: string) {
+  return queryOptions({
+    queryKey: ['ailes-with-products', slug],
+    queryFn: async () => {
+      const { data, error } = await client.GET(
+        '/api/store/{slug}/aisles-products',
+        { params: { path: { slug } } },
+      )
+
+      if (error) throw error
+      if (!data) throw new Error('Aisles with products not found')
+      return data
     },
   })
 }

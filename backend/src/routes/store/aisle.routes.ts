@@ -2,7 +2,10 @@ import { describeRoute, resolver } from "hono-openapi";
 import { route } from "~/lib/route";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
-import { AisleSchema } from "~/generated/zod/schemas/models";
+import {
+  AisleSchema,
+  ProductInAisleSchema,
+} from "~/generated/zod/schemas/models";
 import { AisleTypeSchema } from "~/generated/zod/schemas/enums/AisleType.schema";
 
 const aisleSchema = AisleSchema;
@@ -256,5 +259,42 @@ export const deleteAisleRoute = route().delete(
     } catch (error) {
       return c.json({ error: "Failed to delete aisle" }, 400);
     }
+  }
+);
+
+export const getAislesWithProductsRoute = route().get(
+  "/:slug/aisles-products",
+  describeRoute({
+    tags: ["aisle"],
+    summary: "Get all aisles with products",
+    responses: {
+      200: {
+        description: "Success",
+        content: {
+          "application/json": {
+            schema: resolver(
+              z.array(
+                aisleSchema.extend({
+                  ProductInAisle: z.array(ProductInAisleSchema),
+                })
+              )
+            ),
+          },
+        },
+      },
+    },
+  }),
+  async (c) => {
+    const { slug } = c.req.param();
+    const aisles = await c.get("db").aisle.findMany({
+      where: {
+        storeSlug: slug,
+      },
+      include: {
+        ProductInAisle: true,
+      },
+    });
+
+    return c.json(aisles);
   }
 );

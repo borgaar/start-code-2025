@@ -20,7 +20,7 @@ const productInAisleWithProductSchema = ProductInAisleSchema.extend({
 
 const addProductToAisleBodySchema = ProductInAisleSchema;
 
-const addProductToAisleRequestBodyOpenAPI = await resolver(
+const addRemoveProductToAisleRequestBodyOpenAPI = await resolver(
   addProductToAisleBodySchema
 ).toOpenAPISchema();
 
@@ -34,16 +34,20 @@ export const addProductToAisleRoute = route().post(
     requestBody: {
       content: {
         "application/json": {
-          schema: addProductToAisleRequestBodyOpenAPI.schema,
+          schema: addRemoveProductToAisleRequestBodyOpenAPI.schema,
         },
       },
     },
     responses: {
-      201: {
+      200: {
         description: "Product added to aisle",
         content: {
           "application/json": {
-            schema: resolver(productInAisleSchema),
+            schema: resolver(
+              productInAisleSchema.extend({
+                storeSlug: z.string(),
+              })
+            ),
           },
         },
       },
@@ -87,7 +91,7 @@ export const addProductToAisleRoute = route().post(
         },
       });
 
-      return c.json(productInAisle, 201);
+      return c.json({ ...productInAisle, storeSlug: aisle.storeSlug }, 200);
     } catch (error) {
       const errorMessage = String(error);
       if (errorMessage.includes("Unique constraint")) {
@@ -104,9 +108,27 @@ export const removeProductFromAisleRoute = route().delete(
   describeRoute({
     tags: ["aisle"],
     summary: "Remove a product from an aisle",
+    requestBody: {
+      content: {
+        "application/json": {
+          schema: addRemoveProductToAisleRequestBodyOpenAPI.schema,
+        },
+      },
+    },
     responses: {
-      204: {
+      200: {
         description: "Product removed from aisle",
+        content: {
+          "application/json": {
+            schema: resolver(
+              z.object({
+                storeSlug: z.string(),
+                aisleId: z.string(),
+                productId: z.string(),
+              })
+            ),
+          },
+        },
       },
       404: {
         description: "Product-aisle association not found",
@@ -117,6 +139,25 @@ export const removeProductFromAisleRoute = route().delete(
     const { productId, aisleId } = c.req.param();
 
     try {
+      const productInAisle = await c.get("db").productInAisle.findUnique({
+        where: {
+          productId_aisleId: {
+            aisleId,
+            productId,
+          },
+        },
+        include: {
+          aisle: {
+            select: {
+              storeSlug: true,
+            },
+          },
+        },
+      });
+
+      if (!productInAisle) {
+        return c.json({ error: "Product-aisle association not found" }, 404);
+      }
       const result = await c.get("db").productInAisle.deleteMany({
         where: {
           productId,
@@ -128,7 +169,14 @@ export const removeProductFromAisleRoute = route().delete(
         return c.json({ error: "Product-aisle association not found" }, 404);
       }
 
-      return c.body(null, 204);
+      return c.json(
+        {
+          storeSlug: productInAisle.aisle.storeSlug,
+          aisleId: productInAisle.aisleId,
+          productId: productInAisle.productId,
+        },
+        200
+      );
     } catch (error) {
       return c.json({ error: "Failed to remove product from aisle" }, 400);
     }

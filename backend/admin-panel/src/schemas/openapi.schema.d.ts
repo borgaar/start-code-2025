@@ -196,6 +196,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/store/{slug}/aisles-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all aisles with products */
+        get: operations["getApiStore:slugAisles-products"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/store/product-in-aisle": {
         parameters: {
             query?: never;
@@ -1206,6 +1223,41 @@ export interface operations {
             };
         };
     };
+    "getApiStore:slugAisles-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        id: string;
+                        storeSlug: string;
+                        /** @enum {string} */
+                        type: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
+                        gridX: number;
+                        gridY: number;
+                        width: number;
+                        height: number;
+                        ProductInAisle: {
+                            productId: string;
+                            aisleId: string;
+                        }[];
+                    }[];
+                };
+            };
+        };
+    };
     "postApiStoreProduct-in-aisle": {
         parameters: {
             query?: never;
@@ -1223,7 +1275,7 @@ export interface operations {
         };
         responses: {
             /** @description Product added to aisle */
-            201: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1231,6 +1283,7 @@ export interface operations {
                     "application/json": {
                         productId: string;
                         aisleId: string;
+                        storeSlug: string;
                     };
                 };
             };
@@ -1267,14 +1320,27 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        requestBody?: {
+            content: {
+                "application/json": {
+                    productId: string;
+                    aisleId: string;
+                };
+            };
+        };
         responses: {
             /** @description Product removed from aisle */
-            204: {
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        storeSlug: string;
+                        aisleId: string;
+                        productId: string;
+                    };
+                };
             };
             /** @description Product-aisle association not found */
             404: {

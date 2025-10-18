@@ -7,6 +7,9 @@ import {
   useUpdateAisle,
   getAisleTypesOptions,
   useUpdateStore,
+  getAislesWithProductsOptions,
+  useAddProductToAisle,
+  useRemoveProductFromAisle,
 } from '@/hooks/use-stores'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,13 +20,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { ArrowLeft, Trash2, Move, Maximize2, Pencil, Save } from 'lucide-react'
+import {
+  ArrowLeft,
+  Trash2,
+  Move,
+  Maximize2,
+  Pencil,
+  Save,
+  PlusCircleIcon,
+  Loader2Icon,
+  PlusIcon,
+  TrashIcon,
+} from 'lucide-react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, Suspense, useMemo } from 'react'
 import type { ResponseType } from '@/lib/api'
+import { Input } from '@/components/ui/input'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { getProductsOptions } from '@/hooks/use-products'
 
-type Tool = 'draw' | 'move' | 'resize' | 'delete'
+type Tool = 'draw' | 'move' | 'resize' | 'delete' | 'addItems'
 
 type AisleType = ResponseType<'/api/resources/aisle-types', 'get', 200>[number]
 
@@ -141,7 +164,11 @@ function AislesPage() {
 
   // Sync local aisles with server data
   useEffect(() => {
-    setLocalAisles(aisles as Aisle[])
+    const sortedAisles = [...aisles]
+    sortedAisles.sort((a, b) =>
+      a.type === 'OBSTACLE' ? -1 : b.type === 'OBSTACLE' ? 1 : 0,
+    )
+    setLocalAisles(sortedAisles as Aisle[])
   }, [aisles])
 
   const hasModifications =
@@ -190,6 +217,10 @@ function AislesPage() {
 
   const findAisleAtPosition = (x: number, y: number): Aisle | null => {
     const visibleAisles = localAisles.filter((a) => !deletedAisles.has(a.id))
+    // De-prioritize obstacles
+    visibleAisles.sort((a, b) =>
+      a.type === 'OBSTACLE' ? 1 : b.type === 'OBSTACLE' ? -1 : 0,
+    )
     return (
       visibleAisles.find(
         (aisle) =>
@@ -252,6 +283,12 @@ function AislesPage() {
           setResizeHandle(handle)
           setDragStart(coords)
         }
+      }
+    } else if (activeTool === 'addItems') {
+      const aisle = findAisleAtPosition(coords.x, coords.y)
+
+      if (aisle && aisle.type !== 'OBSTACLE') {
+        setSelectedAisleId(aisle.id)
       }
     }
   }
@@ -351,6 +388,16 @@ function AislesPage() {
     }
   }
 
+  const resetToolState = () => {
+    setIsDrawing(false)
+    setDrawStart(null)
+    setDrawEnd(null)
+    setSelectedAisleId(null)
+    setDragStart(null)
+    setResizeHandle(null)
+    setSelectedPoint(null)
+  }
+
   const handleGridMouseUp = () => {
     if (activeTool === 'draw' && isDrawing && drawStart && drawEnd) {
       const x = Math.min(drawStart.x, drawEnd.x)
@@ -395,14 +442,19 @@ function AislesPage() {
         }
       }
     }
+    if (activeTool !== 'addItems') {
+      resetToolState()
+    }
+  }
 
-    setIsDrawing(false)
-    setDrawStart(null)
-    setDrawEnd(null)
-    setSelectedAisleId(null)
-    setDragStart(null)
-    setResizeHandle(null)
-    setSelectedPoint(null)
+  const handleChangeClickTool = (tool: Tool) => {
+    if (tool === activeTool) {
+      setActiveTool(null)
+    } else {
+      setActiveTool(tool)
+    }
+
+    resetToolState()
   }
 
   const handleSaveChanges = async () => {
@@ -529,11 +581,18 @@ function AislesPage() {
           <div className="mb-4 flex items-center gap-4 flex-wrap">
             <div className="flex gap-2">
               <Button
+                variant={activeTool === 'addItems' ? 'default' : 'outline'}
+                size="sm"
+                disabled={hasModifications}
+                onClick={() => handleChangeClickTool('addItems')}
+              >
+                <PlusCircleIcon className="mr-2 h-4 w-4" />
+                Manage Products
+              </Button>
+              <Button
                 variant={activeTool === 'draw' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() =>
-                  setActiveTool(activeTool === 'draw' ? null : 'draw')
-                }
+                onClick={() => handleChangeClickTool('draw')}
               >
                 <Pencil className="mr-2 h-4 w-4" />
                 Draw
@@ -541,9 +600,7 @@ function AislesPage() {
               <Button
                 variant={activeTool === 'move' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() =>
-                  setActiveTool(activeTool === 'move' ? null : 'move')
-                }
+                onClick={() => handleChangeClickTool('move')}
               >
                 <Move className="mr-2 h-4 w-4" />
                 Move
@@ -551,9 +608,7 @@ function AislesPage() {
               <Button
                 variant={activeTool === 'resize' ? 'default' : 'outline'}
                 size="sm"
-                onClick={() =>
-                  setActiveTool(activeTool === 'resize' ? null : 'resize')
-                }
+                onClick={() => handleChangeClickTool('resize')}
               >
                 <Maximize2 className="mr-2 h-4 w-4" />
                 Resize
@@ -561,9 +616,7 @@ function AislesPage() {
               <Button
                 variant={activeTool === 'delete' ? 'destructive' : 'outline'}
                 size="sm"
-                onClick={() =>
-                  setActiveTool(activeTool === 'delete' ? null : 'delete')
-                }
+                onClick={() => handleChangeClickTool('delete')}
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
@@ -595,7 +648,7 @@ function AislesPage() {
           </div>
 
           {/* Grid */}
-          <div className="relative bg-gray-100 p-4 rounded-lg overflow-auto">
+          <div className="relative p-4 rounded-lg overflow-auto grid grid-cols-2">
             <div
               ref={gridRef}
               className="grid bg-[#434343] cursor-crosshair w-fit"
@@ -614,14 +667,17 @@ function AislesPage() {
                   <div
                     key={aisle.id}
                     className={cn(
-                      'text-center relative border-2',
+                      'text-center relative border-2 border-transparent',
                       activeTool === 'move' && 'cursor-move',
                       activeTool === 'resize' && 'cursor-nwse-resize',
                       activeTool === 'delete' &&
                         'cursor-pointer hover:opacity-70',
-                      modifiedAisles.has(aisle.id) && 'border-blue-500',
-                      newAisles.some((a) => a.id === aisle.id) &&
-                        'border-green-500',
+                      activeTool === 'addItems' &&
+                        aisle.type !== 'OBSTACLE' &&
+                        'cursor-pointer',
+                      activeTool === 'addItems' &&
+                        selectedAisleId === aisle.id &&
+                        'border-red-500',
                     )}
                     style={{
                       gridColumnStart: aisle.gridX + 1,
@@ -630,7 +686,6 @@ function AislesPage() {
                       gridRowEnd: aisle.gridY + aisle.height + 1,
                       backgroundColor:
                         aisle.type === 'OBSTACLE' ? '#2c2c2c' : '#6B6B6B',
-                      borderColor: 'transparent',
                     }}
                   >
                     {aisle.type !== 'OBSTACLE' && (
@@ -697,9 +752,135 @@ function AislesPage() {
                 />
               )}
             </div>
+            <div>
+              {activeTool === 'addItems' && selectedAisleId && (
+                <Card className="w-full h-full">
+                  <CardHeader>
+                    <CardTitle>Add Products to this Aisle</CardTitle>
+                  </CardHeader>
+                  <CardContent className="h-full">
+                    <Suspense
+                      fallback={
+                        <div className="flex justify-center items-center w-full">
+                          <Loader2Icon className="animate-spin" />
+                        </div>
+                      }
+                    >
+                      <AddProductsToAisleView
+                        aisleId={selectedAisleId}
+                        storeSlug={store.slug}
+                      />
+                    </Suspense>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
+    </div>
+  )
+}
+
+function AddProductsToAisleView({
+  aisleId,
+  storeSlug,
+}: {
+  aisleId: string
+  storeSlug: string
+}) {
+  const { data: products } = useSuspenseQuery(getProductsOptions())
+  const { data: aislesWithProducts } = useSuspenseQuery(
+    getAislesWithProductsOptions(storeSlug),
+  )
+
+  const addProductToAisle = useAddProductToAisle()
+  const removeProductFromAisle = useRemoveProductFromAisle()
+
+  const productsInThisAisle = useMemo(() => {
+    return products.filter((product) =>
+      aislesWithProducts.some((aisle) =>
+        aisle.ProductInAisle.some(
+          (productInAisle) =>
+            productInAisle.productId === product.productId &&
+            productInAisle.aisleId === aisleId,
+        ),
+      ),
+    )
+  }, [aisleId, products, aislesWithProducts])
+
+  const availableProducts = useMemo(() => {
+    return products.filter(
+      (product) =>
+        !aislesWithProducts.some((aisles) =>
+          aisles.ProductInAisle.some(
+            (productInAisle) => productInAisle.productId === product.productId,
+          ),
+        ),
+    )
+  }, [products, aislesWithProducts])
+
+  function handleAddProduct(productId: string) {
+    addProductToAisle.mutate({
+      productId,
+      aisleId,
+    })
+  }
+
+  function handleRemoveProduct(productId: string) {
+    removeProductFromAisle.mutate({
+      productId,
+      aisleId,
+    })
+  }
+
+  return (
+    <div className="h-full contain-size overflow-y-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableCell>Product</TableCell>
+            <TableCell>Price</TableCell>
+            <TableCell>Added?</TableCell>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {availableProducts.map((product) => (
+            <TableRow key={product.productId}>
+              <TableCell>{product.name}</TableCell>
+              <TableCell>
+                {product.price} kr / {product.unit}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleAddProduct(product.productId)}
+                >
+                  <PlusIcon className="mr-2 h-4 w-4" /> Add
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+          {productsInThisAisle.map((product) => (
+            <TableRow key={product.productId}>
+              <TableCell>{product.name}</TableCell>
+              <TableCell>
+                {product.price} kr / {product.unit}
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => handleRemoveProduct(product.productId)}
+                >
+                  <TrashIcon className="mr-2 h-4 w-4" /> Remove
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   )
 }
