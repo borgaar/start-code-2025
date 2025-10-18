@@ -772,6 +772,86 @@ List<Waypoint> calculatePath({
     return result;
   }
 
+  /// Move any waypoint that is 2 or fewer tiles above an aisle's top edge
+  /// to be exactly 3 tiles above that top edge.
+  ///
+  /// Assumes aisle rectangles occupy [left, right) × [top, bottom) in grid coords.
+  List<Offset> raiseWaypointsAboveAisles(
+    List<Offset> path,
+    List<PathfindingAisle> aisles,
+  ) {
+    if (path.isEmpty) return path;
+    int minAisleDistance = 3;
+    // Helper: pick the aisle directly "below" the point within the 0..2 band
+    PathfindingAisle? closestTopBelow(Offset p) {
+      PathfindingAisle? best;
+      double bestDy = double.infinity;
+
+      for (final a in aisles) {
+        final left = a.topLeft.dx;
+        final right = left + a.width; // half-open span
+        final top = a.topLeft.dy;
+
+        if (p.dx >= left && p.dx < right && p.dy < top) {
+          final dyAbove = top - p.dy; // how many tiles above the top edge
+          if (dyAbove >= 0 && dyAbove <= minAisleDistance - 1) {
+            if (dyAbove < bestDy) {
+              bestDy = dyAbove;
+              best = a;
+            }
+          }
+        }
+      }
+      return best;
+    }
+
+    final adjusted = <Offset>[];
+
+    for (final p in path) {
+      final targetAisle = closestTopBelow(p);
+
+      if (targetAisle == null) {
+        adjusted.add(p);
+        continue;
+      }
+
+      final top = targetAisle.topLeft.dy;
+      final targetY = (top - minAisleDistance).roundToDouble();
+
+      // Primary candidate: keep X, set Y to top-3
+      final main = Offset(p.dx.roundToDouble(), targetY);
+
+      Offset? pick;
+      if (_isInBounds(main) && !_collidesWithAisle(main, aisles)) {
+        pick = main;
+      } else {
+        // Try small horizontal nudges (±1) on the same Y
+        final alternatives = <Offset>[
+          Offset(p.dx - 1, targetY),
+          Offset(p.dx + 1, targetY),
+        ];
+
+        for (final alt in alternatives) {
+          if (_isInBounds(alt) && !_collidesWithAisle(alt, aisles)) {
+            pick = Offset(alt.dx.roundToDouble(), alt.dy.roundToDouble());
+            break;
+          }
+        }
+      }
+
+      adjusted.add(pick ?? p);
+    }
+
+    // Remove consecutive duplicates introduced by snapping
+    final cleaned = <Offset>[];
+    for (final q in adjusted) {
+      if (cleaned.isEmpty || _distance(cleaned.last, q) >= 0.1) {
+        cleaned.add(q);
+      }
+    }
+    return cleaned;
+  }
+
   // ========================================================================
   // BUILD COMPLETE PATH WITH INTERMEDIATE WAYPOINTS
   // ========================================================================
@@ -808,6 +888,7 @@ List<Waypoint> calculatePath({
     // Simplify the path to reduce waypoints
     pathSegment = _simplifyPath(pathSegment, aisles);
     pathSegment = mergeTightAdjacentPoints(pathSegment, aisles);
+    pathSegment = raiseWaypointsAboveAisles(pathSegment, aisles);
 
     // Add waypoints (skip first if it duplicates last added)
     for (int i = 0; i < pathSegment.length; i++) {
@@ -840,6 +921,7 @@ List<Waypoint> calculatePath({
   // Simplify final segment
   finalSegment = _simplifyPath(finalSegment, aisles);
   finalSegment = mergeTightAdjacentPoints(finalSegment, aisles);
+  finalSegment = raiseWaypointsAboveAisles(finalSegment, aisles);
 
   for (int i = 0; i < finalSegment.length; i++) {
     if (waypoints.isNotEmpty &&
