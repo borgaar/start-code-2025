@@ -156,11 +156,13 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   Future<ShoppingListItem> updateShoppingListItem({
     required String shoppingListId,
     required String itemId,
+    String? productId,
     int? quantity,
     bool? checked,
   }) async {
     try {
       final body = <String, dynamic>{};
+      if (productId != null) body['productId'] = productId;
       if (quantity != null) body['quantity'] = quantity;
       if (checked != null) body['checked'] = checked;
 

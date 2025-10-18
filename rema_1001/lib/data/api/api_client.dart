@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class ApiClient {
@@ -8,9 +10,14 @@ class ApiClient {
   ApiClient({http.Client? client}) : _client = client ?? http.Client();
 
   /// Get the base URL based on debug mode
+  /// In debug mode, uses the API_HOST from .env file, defaulting to http://localhost:3000
   static String get baseUrl {
-    if (true) {
-      return 'http://localhost:3000';
+    if (kDebugMode) {
+      final host = dotenv.env['API_HOST'] ?? 'http://localhost:3000';
+      if (!host.startsWith('http://') && !host.startsWith('https://')) {
+        return 'http://$host';
+      }
+      return host;
     } else {
       return 'https://rema.tihlde.org';
     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rema_1001/constants/theme.dart';
 import 'package:rema_1001/data/api/api_client.dart';
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
@@ -18,7 +19,9 @@ import 'package:rema_1001/page/profile/settings/allergies/bloc/allergies_cubit.d
 import 'package:rema_1001/page/profile/settings/cubit/settings_cubit.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
-void main() {
+Future<void> main() async {
+  // Load environment variables from .env file
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

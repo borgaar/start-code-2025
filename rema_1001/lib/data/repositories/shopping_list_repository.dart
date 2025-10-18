@@ -35,6 +35,7 @@ abstract class ShoppingListRepository {
   Future<ShoppingListItem> updateShoppingListItem({
     required String shoppingListId,
     required String itemId,
+    String? productId,
     int? quantity,
     bool? checked,
   });

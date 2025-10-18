@@ -45,7 +45,7 @@ class ShoppingListItem extends Equatable {
       id: json['id'] as String,
       shoppingListId: json['shoppingListId'] as String,
       productId: json['productId'] as String,
-      quantity: json['quantity'] as int,
+      quantity: (json['quantity'] as int?) ?? 1, // Default to 1 if not provided
       checked: json['checked'] as bool,
       // Handle both 'product' and 'products' (API inconsistency)
       product: Product.fromJson(

@@ -26,11 +26,11 @@ abstract class AisleRepository {
   Future<Aisle> updateAisle({
     required String storeSlug,
     required String aisleId,
-    required AisleType type,
-    required int gridX,
-    required int gridY,
-    required int width,
-    required int height,
+    AisleType? type,
+    int? gridX,
+    int? gridY,
+    int? width,
+    int? height,
   });
 
   /// Delete an aisle
