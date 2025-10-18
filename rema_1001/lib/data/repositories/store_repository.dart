@@ -21,13 +21,15 @@ abstract class StoreRepository {
   /// Get all aisles for a store
   Future<List<Aisle>> getAisles(String storeSlug);
 
+  /// Get all aisles with products for a store
+  Future<List<Map<String, dynamic>>> getAislesWithProducts(String storeSlug);
+
   /// Get a specific aisle
   Future<Aisle> getAisle(String storeSlug, String aisleId);
 
   /// Create a new aisle for a store
   Future<Aisle> createAisle({
     required String storeSlug,
-    required String name,
     required AisleType type,
     required int gridX,
     required int gridY,
@@ -39,12 +41,11 @@ abstract class StoreRepository {
   Future<Aisle> updateAisle({
     required String storeSlug,
     required String aisleId,
-    required String name,
-    required AisleType type,
-    required int gridX,
-    required int gridY,
-    required int width,
-    required int height,
+    AisleType? type,
+    int? gridX,
+    int? gridY,
+    int? width,
+    int? height,
   });
 
   /// Delete an aisle
