@@ -13,102 +13,123 @@ class ShoppingListItemTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final product = item.product;
 
-    return Dismissible(
-      key: Key(item.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        color: Colors.red,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      onDismissed: (direction) {
-        context.read<ShoppingListDetailCubit>().removeItem(item.id);
-      },
-      child: ListTile(
-        leading: Checkbox(
-          value: item.checked,
-          onChanged: (value) {
-            context.read<ShoppingListDetailCubit>().toggleItemChecked(
-              item.id,
-              item.checked,
-            );
-          },
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Dismissible(
+        key: Key(item.id),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          color: Colors.red,
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 16),
+          child: const Icon(Icons.delete, color: Colors.white),
         ),
-        title: Text(
-          product.name,
-          style: TextStyle(
-            decoration: item.checked ? TextDecoration.lineThrough : null,
-            color: item.checked ? Colors.grey[600] : null,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${product.price.toStringAsFixed(2)} kr',
-              style: TextStyle(
-                color: item.checked ? Colors.grey[600] : Colors.grey[400],
-                fontWeight: FontWeight.w500,
-              ),
+        onDismissed: (direction) {
+          context.read<ShoppingListDetailCubit>().removeItem(item.id);
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: ListTile(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
             ),
-            if (product.allergens.isNotEmpty)
-              Text(
-                'Allergens: ${product.allergens.join(", ")}',
-                style: TextStyle(color: Colors.orange[400], fontSize: 12),
-              ),
-          ],
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.remove_circle_outline),
-              onPressed: item.quantity > 1
-                  ? () {
-                      context
-                          .read<ShoppingListDetailCubit>()
-                          .updateItemQuantity(item.id, item.quantity - 1);
-                    }
-                  : null,
-              iconSize: 20,
-            ),
-            BlocBuilder<ShoppingListDetailCubit, ShoppingListDetailState>(
-              builder: (context, state) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: state is ShoppingListDetailLoading
-                        ? Colors.grey
-                        : Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${item.quantity}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                );
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.add_circle_outline),
-              onPressed: () {
-                context.read<ShoppingListDetailCubit>().updateItemQuantity(
+            leading: Checkbox(
+              value: item.checked,
+              onChanged: (value) {
+                context.read<ShoppingListDetailCubit>().toggleItemChecked(
                   item.id,
-                  item.quantity + 1,
+                  item.checked,
                 );
               },
-              iconSize: 20,
             ),
-          ],
+            title: Text(
+              _formatTitle(item.product.name),
+              style: TextStyle(
+                decoration: item.checked ? TextDecoration.lineThrough : null,
+                color: item.checked ? Colors.grey[600] : null,
+              ),
+            ),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${product.price.round()} kr',
+                  style: TextStyle(
+                    color: item.checked ? Colors.grey[600] : Colors.grey[400],
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                if (product.allergens.isNotEmpty)
+                  Text(
+                    'Allergens: ${product.allergens.join(", ")}',
+                    style: TextStyle(color: Colors.orange[400], fontSize: 12),
+                  ),
+              ],
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove_circle_outline),
+                  onPressed: item.quantity > 1
+                      ? () {
+                          context
+                              .read<ShoppingListDetailCubit>()
+                              .updateItemQuantity(item.id, item.quantity - 1);
+                        }
+                      : null,
+                  iconSize: 20,
+                ),
+                BlocBuilder<ShoppingListDetailCubit, ShoppingListDetailState>(
+                  builder: (context, state) {
+                    return Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: state is ShoppingListDetailLoading
+                            ? Colors.grey
+                            : Theme.of(context).colorScheme.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${item.quantity}',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.onPrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.add_circle_outline),
+                  onPressed: () {
+                    context.read<ShoppingListDetailCubit>().updateItemQuantity(
+                      item.id,
+                      item.quantity + 1,
+                    );
+                  },
+                  iconSize: 20,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+String _formatTitle(String name) {
+  final regex = RegExp(r'^(.*?)(\s*\d.*)?$');
+  final match = regex.firstMatch(name);
+  String result = "";
+  if (match != null) {
+    result = match.group(1)!.trim();
+  } else {
+    result = name;
+  }
+  return result;
 }

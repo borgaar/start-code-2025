@@ -17,6 +17,7 @@ final themeData = ThemeData(
   appBarTheme: AppBarTheme(
     backgroundColor: Color(0xFF1D1D1D),
     foregroundColor: Colors.white,
+    surfaceTintColor: Colors.transparent,
     elevation: 0,
   ),
   cardTheme: CardThemeData(

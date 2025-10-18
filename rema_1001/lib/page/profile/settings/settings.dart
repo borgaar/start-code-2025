@@ -41,7 +41,7 @@ class Settings extends StatelessWidget {
               return SwitchListTile(
                 title: const Text('Dark Mode'),
                 subtitle: const Text('Use dark theme'),
-                value: state.darkModeEnabled,
+                value: true,
                 onChanged: (value) {
                   context.read<SettingsCubit>().toggleDarkMode(value);
                 },
@@ -115,12 +115,7 @@ class Settings extends StatelessWidget {
             subtitle: const Text('Set your dietary preferences'),
             leading: const Icon(Icons.restaurant),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: Navigate to dietary preferences page
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(const SnackBar(content: Text('Coming soon!')));
-            },
+            onTap: () {},
           ),
 
           // Privacy & Security Section
@@ -149,12 +144,7 @@ class Settings extends StatelessWidget {
             title: const Text('Privacy Policy'),
             leading: const Icon(Icons.policy),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: Navigate to privacy policy
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Opening privacy policy...')),
-              );
-            },
+            onTap: () {},
           ),
 
           // About Section
@@ -175,12 +165,7 @@ class Settings extends StatelessWidget {
             title: const Text('Terms of Service'),
             leading: const Icon(Icons.description),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              // TODO: Navigate to terms of service
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Opening terms of service...')),
-              );
-            },
+            onTap: () {},
           ),
         ],
       ),

@@ -135,6 +135,7 @@ class _ShoppingListDetailView extends StatelessWidget {
           return const Center(child: Text('Something went wrong'));
         },
       ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
           final cubit = context.read<ShoppingListDetailCubit>();
@@ -151,7 +152,10 @@ class _ShoppingListDetailView extends StatelessWidget {
           }
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add Item'),
+        label: SizedBox(
+          width: MediaQuery.of(context).size.width * 0.8,
+          child: const Text('Add Item'),
+        ),
       ),
     );
   }

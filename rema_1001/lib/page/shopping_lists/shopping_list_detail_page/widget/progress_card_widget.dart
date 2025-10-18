@@ -80,6 +80,7 @@ class _ProgressCardState extends State<ProgressCard>
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).listTileTheme.tileColor,
       margin: const EdgeInsets.all(16),
       child: Padding(
         padding: const EdgeInsets.all(16),
