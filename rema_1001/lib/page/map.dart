@@ -36,39 +36,31 @@ class MapScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Your Shopping Lists',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              MapWidget(),
-              const SizedBox(height: 16),
-              // Center(
-              //   child: Builder(
-              //     builder: (context) {
-              //       return Row(
-              //         children: [
-              //           ElevatedButton(
-              //             onPressed: context.read<MapCubit>().next,
-              //             child: const Text('Next'),
-              //           ),
-              //           ElevatedButton(
-              //             onPressed: context.read<MapCubit>().intialize,
-              //             child: const Text('Refresh'),
-              //           ),
-              //         ],
-              //       );
-              //     },
-              //   ),
-              // ),
-              ProductList(),
-            ],
-          ),
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(padding: const EdgeInsets.all(16.0), child: MapWidget()),
+            // Center(
+            //   child: Builder(
+            //     builder: (context) {
+            //       return Row(
+            //         children: [
+            //           ElevatedButton(
+            //             onPressed: context.read<MapCubit>().next,
+            //             child: const Text('Next'),
+            //           ),
+            //           ElevatedButton(
+            //             onPressed: context.read<MapCubit>().intialize,
+            //             child: const Text('Refresh'),
+            //           ),
+            //         ],
+            //       );
+            //     },
+            //   ),
+            // ),
+            Expanded(child: ProductList()),
+          ],
         ),
       ),
     );

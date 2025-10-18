@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rema_1001/map/cubit/map_cubit.dart';
 import 'package:rema_1001/map/product_list/product_list_tile.dart';
 
@@ -11,7 +10,7 @@ class AisleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       child: Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16, top: 16),
         child: Column(
