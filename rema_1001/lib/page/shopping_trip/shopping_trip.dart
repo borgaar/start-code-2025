@@ -35,7 +35,10 @@ class _TripsScreenState extends State<TripsScreen> {
   void _onShoppingListSelected(String storeSlug, String shoppingListId) {
     context.pushNamed(
       RouteNames.map,
-      pathParameters: {'storeSlug': storeSlug, 'shoppingListId': shoppingListId},
+      pathParameters: {
+        'storeSlug': storeSlug,
+        'shoppingListId': shoppingListId,
+      },
     );
   }
 

@@ -90,7 +90,7 @@ class MapScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(padding: const EdgeInsets.all(16.0), child: MapWidget()),
+              Padding(padding: const EdgeInsets.all(24.0), child: MapWidget()),
               BlocBuilder<MapCubit, MapState>(
                 builder: (context, state) {
                   if (state is! MapPathfindingLoaded) {

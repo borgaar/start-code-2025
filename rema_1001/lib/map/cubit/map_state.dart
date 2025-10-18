@@ -30,6 +30,7 @@ final class ShoppingListAisleGroup extends Equatable {
   final String aisleId;
   final String aisleType;
   final List<ShoppingListAisleItem> items;
+  final List<DiscountedAisleItem> discountedItems;
 
   String get aisleName {
     return switch (aisleType) {
@@ -54,22 +55,47 @@ final class ShoppingListAisleGroup extends Equatable {
     required this.aisleId,
     required this.aisleType,
     required this.items,
+    required this.discountedItems,
   });
 
   @override
-  List<Object?> get props => [aisleId, items];
+  List<Object?> get props => [aisleId, items, discountedItems];
 
   ShoppingListAisleGroup copyWith({
     String? aisleId,
     String? aisleType,
     List<ShoppingListAisleItem>? items,
+    List<DiscountedAisleItem>? discountedItems,
   }) {
     return ShoppingListAisleGroup(
       items: items ?? this.items,
       aisleId: aisleId ?? this.aisleId,
       aisleType: aisleType ?? this.aisleType,
+      discountedItems: discountedItems ?? this.discountedItems,
     );
   }
+}
+
+final class DiscountedAisleItem extends Equatable {
+  final String productId;
+  final double discountPercentage;
+  final String productName;
+  final double price;
+
+  const DiscountedAisleItem({
+    required this.productId,
+    required this.discountPercentage,
+    required this.productName,
+    required this.price,
+  });
+
+  @override
+  List<Object?> get props => [
+    productId,
+    discountPercentage,
+    productName,
+    price,
+  ];
 }
 
 final class ShoppingListAisleItem extends Equatable {

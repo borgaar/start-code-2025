@@ -2,8 +2,10 @@ import 'package:bloc/bloc.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:collection/collection.dart';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/foundation.dart';
 import 'package:rema_1001/data/models/aisle.dart' as aisle_model;
 import 'package:rema_1001/data/models/product.dart';
+import 'package:rema_1001/data/models/product_in_aisle.dart';
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
 import 'package:rema_1001/data/repositories/store_repository.dart';
@@ -85,11 +87,25 @@ class MapCubit extends Cubit<MapState> {
         ),
       );
 
-      final path = await calculatePathInIsolate(
+      final pathFuture = calculatePathInIsolate(
         aisles: pathfindingAisles,
         start: store.entrance,
         end: store.exit,
       );
+
+      final discountedProductsFuture = Future.wait(
+        aisleGroups.map(
+          (group) async => (
+            group.aisleId,
+            await _aisleRepository.getProductsInAisle(storeSlug, group.aisleId),
+          ),
+        ),
+      );
+
+      final result = await Future.wait([pathFuture, discountedProductsFuture]);
+      final path = result[0] as List<Waypoint>;
+      final discountedProductsPerAisle =
+          result[1] as List<(String, List<ProductInAisle>)>;
 
       // reorder aisleGroups based on path
       final orderedAisleGroups = path
@@ -142,12 +158,43 @@ class MapCubit extends Cubit<MapState> {
 
       final updatedMap = MapModel(aisles: updatedAisles);
 
+      // reorder aisleGroups based on path
+      final orderedAisleGroupDiscountedProducts = path
+          .where((w) => w.targetAisleIndex != null)
+          .map(
+            (waypoint) => discountedProductsPerAisle
+                .firstWhereOrNull(
+                  (group) => group.$1 == aisles[waypoint.targetAisleIndex!].id,
+                )
+                ?.$2,
+          )
+          .whereType<List<ProductInAisle>>()
+          .toList();
+
+      final finishedAisleGroups = orderedAisleGroups
+          .mapIndexed(
+            (index, group) => group.copyWith(
+              discountedItems: orderedAisleGroupDiscountedProducts[index]
+                  .where((pia) => pia.product.discount != null)
+                  .map(
+                    (pia) => DiscountedAisleItem(
+                      productId: pia.productId,
+                      productName: pia.product.name,
+                      discountPercentage: pia.product.discount ?? 0,
+                      price: pia.product.price,
+                    ),
+                  )
+                  .toList(),
+            ),
+          )
+          .toList();
+
       emit(
         MapPathfindingLoaded(
           map: updatedMap,
           path: path,
           currentStep: 0,
-          aisleGroups: orderedAisleGroups,
+          aisleGroups: finishedAisleGroups,
           currentWaypointIndex: targetWaypointIdx,
           storeName: store.name,
         ),

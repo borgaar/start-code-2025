@@ -1,6 +1,8 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rema_1001/map/cubit/map_cubit.dart';
+import 'package:rema_1001/map/product_list/product_list_discounted_tile.dart';
 import 'package:rema_1001/map/product_list/product_list_tile.dart';
 
 class AisleCard extends StatelessWidget {
@@ -42,24 +44,63 @@ class AisleCard extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 4),
                 Expanded(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: aisle.items.length,
-                    itemBuilder: (context, index) {
-                      final item = aisle.items[index];
-                      return Padding(
-                        padding: index == aisle.items.length - 1
-                            ? const EdgeInsets.only(bottom: 64.0)
-                            : EdgeInsets.zero,
-                        child: ProductListTile(item, aisle),
-                      );
-                    },
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        ...aisle.items.mapIndexed((index, item) {
+                          return ProductListTile(item, aisle);
+                        }),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            children: [
+                              SizedBox(width: 16),
+                              Expanded(
+                                child: Divider(
+                                  height: 2,
+                                  color: Color(0xff2A2A2A),
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                "Andre tilbud i hyllen",
+                                style: TextStyle(
+                                  color: Color(0xFF898989),
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 11,
+                                  fontFamily: "REMA",
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Divider(
+                                  height: 2,
+                                  color: Color(0xff2A2A2A),
+                                ),
+                              ),
+                              SizedBox(width: 16),
+                            ],
+                          ),
+                        ),
+                        ...aisle.discountedItems.mapIndexed((index, item) {
+                          return ProductListDiscountedTile(
+                            item,
+                            aisle,
+                            index: index,
+                          );
+                        }),
+                        SizedBox(height: 16),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
+
             if (aisle.items.every((item) => item.isChecked))
               Align(
                 alignment: Alignment.bottomCenter,

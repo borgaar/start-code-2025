@@ -35,8 +35,6 @@ class ProductListTile extends StatelessWidget {
               ),
             ],
           ),
-          if (item.product.discount != null)
-            Expanded(child: Image.asset(Assets.discount, height: 50)),
           Checkbox(
             value: false,
             onChanged: (value) {

@@ -47,6 +47,7 @@ List<ShoppingListAisleGroup> resolveProductIsles({
       aisleId: aisleId,
       aisleType: aisle?.type.name ?? 'OTHER',
       items: items,
+      discountedItems: [],
     );
   }).toList();
 }
