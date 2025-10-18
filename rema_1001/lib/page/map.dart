@@ -28,10 +28,14 @@ class MapScreen extends StatelessWidget {
         appBar: AppBar(
           title: const Text('Shopping Lists'),
           actions: [
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () {
-                // Add new list functionality
+            Builder(
+              builder: (context) {
+                return IconButton(
+                  icon: const Icon(Icons.refresh),
+                  onPressed: () {
+                    context.read<MapCubit>().intialize();
+                  },
+                );
               },
             ),
           ],
@@ -41,24 +45,6 @@ class MapScreen extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Padding(padding: const EdgeInsets.all(16.0), child: MapWidget()),
-            // Center(
-            //   child: Builder(
-            //     builder: (context) {
-            //       return Row(
-            //         children: [
-            //           ElevatedButton(
-            //             onPressed: context.read<MapCubit>().next,
-            //             child: const Text('Next'),
-            //           ),
-            //           ElevatedButton(
-            //             onPressed: context.read<MapCubit>().intialize,
-            //             child: const Text('Refresh'),
-            //           ),
-            //         ],
-            //       );
-            //     },
-            //   ),
-            // ),
             Expanded(child: ProductList()),
           ],
         ),
