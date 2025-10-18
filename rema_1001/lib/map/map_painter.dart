@@ -62,16 +62,8 @@ final class MapPainter implements CustomPainter {
     final scaleX = size.width / dimension;
     final scaleY = size.height / dimension;
 
-    // Create the full path
-    final fullPath = Path();
-    fullPath.moveTo(path[0].position.dx * scaleX, path[0].position.dy * scaleY);
-
-    for (int i = 1; i < path.length; i++) {
-      fullPath.lineTo(
-        path[i].position.dx * scaleX,
-        path[i].position.dy * scaleY,
-      );
-    }
+    // Create the full path with curved segments
+    final fullPath = _createCurvedPath(path, scaleX, scaleY, path.length - 1);
 
     // Paint the full path in gray
     final grayPathPaint = Paint()
@@ -85,19 +77,25 @@ final class MapPainter implements CustomPainter {
 
     // Paint the active path (up to current step) in white
     if (currentPathStep > 0 && currentPathStep < path.length) {
-      final activePath = Path();
-      activePath.moveTo(
-        path[0].position.dx * scaleX,
-        path[0].position.dy * scaleY,
+      final activePath = _createCurvedPath(
+        path,
+        scaleX,
+        scaleY,
+        currentPathStep,
       );
 
-      for (int i = 1; i <= currentPathStep && i < path.length; i++) {
-        activePath.lineTo(
-          path[i].position.dx * scaleX,
-          path[i].position.dy * scaleY,
-        );
-      }
+      // Draw glow effect
+      final glowPaint = Paint()
+        ..color = const Color(0xFFFFFFFF)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
 
+      canvas.drawPath(activePath, glowPaint);
+
+      // Draw solid white path on top
       final whitePathPaint = Paint()
         ..color = const Color(0xFFFFFFFF)
         ..style = PaintingStyle.stroke
@@ -116,11 +114,98 @@ final class MapPainter implements CustomPainter {
       );
 
       final dotPaint = Paint()..color = const Color(0xFFFFFFFF);
-      canvas.drawCircle(currentPosition, 6, dotPaint);
+      // Draw glow effect
+      final glowPaint = Paint()
+        ..color = const Color(0xFFFFFFFF)
+        ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 4);
+      canvas.drawCircle(currentPosition, 8, dotPaint);
+      canvas.drawCircle(currentPosition, 8, glowPaint);
     }
 
     // Draw arrow at the end of the path
     _paintArrow(canvas, size, path);
+  }
+
+  Path _createCurvedPath(
+    List<Waypoint> path,
+    double scaleX,
+    double scaleY,
+    int endIndex,
+  ) {
+    final curvedPath = Path();
+
+    if (path.isEmpty) return curvedPath;
+
+    // How much of each segment near waypoints should be curved (0.0 - 0.5)
+    // 0.2 means 20% before and 20% after each waypoint is curved
+    final curveRatio = 0.2;
+
+    // Start at the first point
+    final startPoint = Offset(
+      path[0].position.dx * scaleX,
+      path[0].position.dy * scaleY,
+    );
+    curvedPath.moveTo(startPoint.dx, startPoint.dy);
+
+    // Process each segment
+    for (int i = 0; i < endIndex && i < path.length - 1; i++) {
+      final current = Offset(
+        path[i].position.dx * scaleX,
+        path[i].position.dy * scaleY,
+      );
+      final next = Offset(
+        path[i + 1].position.dx * scaleX,
+        path[i + 1].position.dy * scaleY,
+      );
+
+      // Calculate segment vector
+      final segmentVector = next - current;
+
+      // For very short segments, just draw a line
+      if (segmentVector.distance < 10) {
+        curvedPath.lineTo(next.dx, next.dy);
+        continue;
+      }
+
+      // Point where we start curving (before the next waypoint)
+      final straightRatio = 1 - curveRatio;
+      final beforeCurve = Offset(
+        current.dx + segmentVector.dx * straightRatio,
+        current.dy + segmentVector.dy * straightRatio,
+      );
+
+      // Draw straight line to the curve start point
+      curvedPath.lineTo(beforeCurve.dx, beforeCurve.dy);
+
+      // If there's a next segment, curve around the waypoint
+      if (i + 1 < endIndex && i + 2 < path.length) {
+        final afterNext = Offset(
+          path[i + 2].position.dx * scaleX,
+          path[i + 2].position.dy * scaleY,
+        );
+
+        final nextSegmentVector = afterNext - next;
+
+        // Point where curve ends (after the waypoint, into next segment)
+        final afterCurve = Offset(
+          next.dx + nextSegmentVector.dx * curveRatio,
+          next.dy + nextSegmentVector.dy * curveRatio,
+        );
+
+        // Draw curve around the waypoint
+        curvedPath.quadraticBezierTo(
+          next.dx,
+          next.dy,
+          afterCurve.dx,
+          afterCurve.dy,
+        );
+      } else {
+        // Last segment - draw straight to the endpoint
+        curvedPath.lineTo(next.dx, next.dy);
+      }
+    }
+
+    return curvedPath;
   }
 
   void _paintArrow(Canvas canvas, Size size, List<Waypoint> path) {
