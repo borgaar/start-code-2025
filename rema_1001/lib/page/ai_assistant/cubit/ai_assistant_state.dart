@@ -1,12 +1,15 @@
 import 'package:equatable/equatable.dart';
+import 'package:rema_1001/data/models/llm_shopping_list_item.dart';
 
 class RecipeGroup extends Equatable {
   final String title;
   final List<String> items;
-  const RecipeGroup(this.title, this.items);
+  final List<LlmShoppingListItem> itemsData;
+
+  const RecipeGroup(this.title, this.items, [this.itemsData = const []]);
 
   @override
-  List<Object?> get props => [title, items];
+  List<Object?> get props => [title, items, itemsData];
 }
 
 abstract class AiAssistantState extends Equatable {
@@ -25,9 +28,22 @@ class AiAssistantLoading extends AiAssistantState {
 
 class AiAssistantSuccess extends AiAssistantState {
   final List<RecipeGroup> groups;
-  const AiAssistantSuccess(this.groups);
+  final Set<String> selectedProductIds;
+
+  const AiAssistantSuccess(this.groups, {this.selectedProductIds = const {}});
+
+  AiAssistantSuccess copyWith({
+    List<RecipeGroup>? groups,
+    Set<String>? selectedProductIds,
+  }) {
+    return AiAssistantSuccess(
+      groups ?? this.groups,
+      selectedProductIds: selectedProductIds ?? this.selectedProductIds,
+    );
+  }
+
   @override
-  List<Object?> get props => [groups];
+  List<Object?> get props => [groups, selectedProductIds];
 }
 
 class AiAssistantFailure extends AiAssistantState {

@@ -1,9 +1,13 @@
 import 'package:rema_1001/data/models/aisle.dart';
+import 'package:rema_1001/data/models/aisle_with_products.dart';
 import 'package:rema_1001/data/models/product_in_aisle.dart';
 
 abstract class AisleRepository {
   /// Get all aisles for a store
   Future<List<Aisle>> getAislesForStore(String storeSlug);
+
+  /// Get all aisles with their products for a store
+  Future<List<AisleWithProducts>> getAislesWithProducts(String storeSlug);
 
   /// Get a specific aisle
   Future<Aisle> getAisle(String storeSlug, String aisleId);

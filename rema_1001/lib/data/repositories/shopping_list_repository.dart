@@ -27,7 +27,8 @@ abstract class ShoppingListRepository {
   Future<ShoppingListItem> addItemToShoppingList({
     required String shoppingListId,
     required String productId,
-    required int quantity,
+    required bool checked,
+    int? quantity,
   });
 
   /// Update an item in a shopping list

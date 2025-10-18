@@ -1,5 +1,6 @@
 import 'package:rema_1001/data/api/api_client.dart';
 import 'package:rema_1001/data/models/aisle.dart';
+import 'package:rema_1001/data/models/aisle_with_products.dart';
 import 'package:rema_1001/data/models/product_in_aisle.dart';
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 
@@ -17,6 +18,18 @@ class AisleRepositoryImpl implements AisleRepository {
           .toList();
     } catch (e) {
       throw Exception('Failed to load aisles for store: $e');
+    }
+  }
+
+  @override
+  Future<List<AisleWithProducts>> getAislesWithProducts(String storeSlug) async {
+    try {
+      final response = await apiClient.get('/api/store/$storeSlug/aisles-products');
+      return (response as List)
+          .map((json) => AisleWithProducts.fromJson(json as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw Exception('Failed to load aisles with products: $e');
     }
   }
 
@@ -97,7 +110,7 @@ class AisleRepositoryImpl implements AisleRepository {
   @override
   Future<List<String>> getAisleTypes() async {
     try {
-      final response = await apiClient.get('/api/store/aisle-types');
+      final response = await apiClient.get('/api/resources/aisle-types');
       return (response as List).map((type) => type as String).toList();
     } catch (e) {
       throw Exception('Failed to load aisle types: $e');

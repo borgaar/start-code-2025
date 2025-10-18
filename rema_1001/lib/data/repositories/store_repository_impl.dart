@@ -49,11 +49,11 @@ class StoreRepositoryImpl implements StoreRepository {
   }
 
   @override
-  Future<Store> createStore(String name) async {
+  Future<Store> createStore({required String name, required String slug}) async {
     try {
       final response = await _apiClient.post(
         '/api/store',
-        body: {'name': name},
+        body: {'name': name, 'slug': slug},
       );
       return Store.fromJson(response as Map<String, dynamic>);
     } catch (e, stackTrace) {
@@ -70,7 +70,7 @@ class StoreRepositoryImpl implements StoreRepository {
   @override
   Future<Store> updateStore(String slug, String name) async {
     try {
-      final response = await _apiClient.patch(
+      final response = await _apiClient.put(
         '/api/store/$slug',
         body: {'name': name},
       );
@@ -227,7 +227,7 @@ class StoreRepositoryImpl implements StoreRepository {
   @override
   Future<List<String>> getAisleTypes() async {
     try {
-      final response = await _apiClient.get('/api/store/aisle-types');
+      final response = await _apiClient.get('/api/resources/aisle-types');
       if (response is List) {
         return response.map((type) => type as String).toList();
       }

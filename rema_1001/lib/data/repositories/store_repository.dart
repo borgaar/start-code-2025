@@ -10,7 +10,7 @@ abstract class StoreRepository {
   Future<Store> getStoreBySlug(String slug);
 
   /// Create a new store
-  Future<Store> createStore(String name);
+  Future<Store> createStore({required String name, required String slug});
 
   /// Update a store
   Future<Store> updateStore(String slug, String name);

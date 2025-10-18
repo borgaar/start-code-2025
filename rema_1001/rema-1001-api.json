@@ -1201,40 +1201,16 @@
               "schema": {
                 "type": "object",
                 "properties": {
-                  "slug": {
-                    "type": "string"
-                  },
                   "name": {
                     "type": "string"
                   },
-                  "entranceX": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  "entranceY": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  "exitX": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
-                  },
-                  "exitY": {
-                    "type": "integer",
-                    "minimum": -9007199254740991,
-                    "maximum": 9007199254740991
+                  "slug": {
+                    "type": "string"
                   }
                 },
                 "required": [
-                  "slug",
                   "name",
-                  "entranceX",
-                  "entranceY",
-                  "exitX",
-                  "exitY"
+                  "slug"
                 ]
               }
             }
@@ -2038,6 +2014,114 @@
         ]
       }
     },
+    "/api/store/{slug}/aisles-products": {
+      "get": {
+        "operationId": "getApiStore:slugAisles-products",
+        "tags": [
+          "aisle"
+        ],
+        "summary": "Get all aisles with products",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string"
+                      },
+                      "storeSlug": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "OBSTACLE",
+                          "FREEZER",
+                          "DRINKS",
+                          "PANTRY",
+                          "SWEETS",
+                          "CHEESE",
+                          "MEAT",
+                          "DAIRY",
+                          "FRIDGE",
+                          "FRUIT",
+                          "VEGETABLES",
+                          "BAKERY",
+                          "OTHER"
+                        ]
+                      },
+                      "gridX": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "gridY": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "width": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "height": {
+                        "type": "integer",
+                        "minimum": -9007199254740991,
+                        "maximum": 9007199254740991
+                      },
+                      "ProductInAisle": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "productId": {
+                              "type": "string"
+                            },
+                            "aisleId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "productId",
+                            "aisleId"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "storeSlug",
+                      "type",
+                      "gridX",
+                      "gridY",
+                      "width",
+                      "height",
+                      "ProductInAisle"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string"
+            },
+            "in": "path",
+            "name": "slug",
+            "required": true
+          }
+        ]
+      }
+    },
     "/api/store/product-in-aisle": {
       "post": {
         "operationId": "postApiStoreProduct-in-aisle",
@@ -2067,7 +2151,7 @@
           }
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "Product added to aisle",
             "content": {
               "application/json": {
@@ -2079,11 +2163,15 @@
                     },
                     "aisleId": {
                       "type": "string"
+                    },
+                    "storeSlug": {
+                      "type": "string"
                     }
                   },
                   "required": [
                     "productId",
-                    "aisleId"
+                    "aisleId",
+                    "storeSlug"
                   ]
                 }
               }
@@ -2108,9 +2196,53 @@
           "aisle"
         ],
         "summary": "Remove a product from an aisle",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "productId": {
+                    "type": "string"
+                  },
+                  "aisleId": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "productId",
+                  "aisleId"
+                ]
+              }
+            }
+          }
+        },
         "responses": {
-          "204": {
-            "description": "Product removed from aisle"
+          "200": {
+            "description": "Product removed from aisle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "storeSlug": {
+                      "type": "string"
+                    },
+                    "aisleId": {
+                      "type": "string"
+                    },
+                    "productId": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "storeSlug",
+                    "aisleId",
+                    "productId"
+                  ]
+                }
+              }
+            }
           },
           "404": {
             "description": "Product-aisle association not found"
@@ -2297,6 +2429,97 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/llm/shopping-list": {
+      "post": {
+        "operationId": "postApiLlmShopping-list",
+        "tags": [
+          "llm"
+        ],
+        "summary": "Generate multiple shopping list options based on a recipe query (e.g., 3 different cake recipes)",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "query": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "query"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "lists": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "title": {
+                            "type": "string"
+                          },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "productId": {
+                                  "type": "string"
+                                },
+                                "name": {
+                                  "type": "string"
+                                },
+                                "quantity": {
+                                  "type": "number"
+                                },
+                                "unit": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "productId",
+                                "name",
+                                "quantity",
+                                "unit"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "title",
+                          "items"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "lists"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request body"
+          },
+          "500": {
+            "description": "LLM API error"
           }
         }
       }

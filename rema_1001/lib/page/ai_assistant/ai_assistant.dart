@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:rema_1001/router/route_names.dart';
 
 import 'cubit/ai_assistant_cubit.dart';
 import 'cubit/ai_assistant_state.dart';
@@ -7,6 +9,7 @@ import 'widgets/cta_button.dart';
 import 'widgets/decor.dart';
 import 'widgets/prompt_field.dart';
 import 'widgets/recipe_group_card.dart';
+import 'widgets/store_selection_dialog.dart';
 
 class AiAssistantPage extends StatelessWidget {
   const AiAssistantPage({super.key});
@@ -14,7 +17,7 @@ class AiAssistantPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => AiAssistantCubit(), // no repo needed
+      create: (_) => AiAssistantCubit(context.read(), context.read()),
       child: const _AiAssistantView(),
     );
   }
@@ -121,14 +124,43 @@ class _AiAssistantView extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 24),
-                                RemaCtaButton(
-                                  label: 'Gå til butikkart',
-                                  onPressed: () {
-                                    // TODO: navigate to your store map
-                                    // Navigator.of(context).pushNamed('/store-map');
-                                  },
-                                ),
-                                const SizedBox(height: 12),
+                                if (state is AiAssistantSuccess &&
+                                    state.selectedProductIds.isNotEmpty)
+                                  RemaCtaButton(
+                                    label: 'Gå til butikkart',
+                                    onPressed: () async {
+                                      // Create shopping list from selected items
+                                      final cubit = context.read<AiAssistantCubit>();
+                                      final shoppingListId =
+                                          await cubit.createShoppingListFromSelected();
+
+                                      if (shoppingListId == null || !context.mounted) {
+                                        return;
+                                      }
+
+                                      // Show store selection dialog
+                                      final storeSlug = await showDialog<String>(
+                                        context: context,
+                                        builder: (context) => const StoreSelectionDialog(),
+                                      );
+
+                                      if (storeSlug == null || !context.mounted) {
+                                        return;
+                                      }
+
+                                      // Navigate to map page
+                                      context.pushNamed(
+                                        RouteNames.map,
+                                        extra: {
+                                          'storeSlug': storeSlug,
+                                          'shoppingListId': shoppingListId,
+                                        },
+                                      );
+                                    },
+                                  ),
+                                if (state is AiAssistantSuccess &&
+                                    state.selectedProductIds.isNotEmpty)
+                                  const SizedBox(height: 12),
                                 if (!isResult)
                                   RemaSecondaryButton(
                                     label: 'Få handleliste fra AI',

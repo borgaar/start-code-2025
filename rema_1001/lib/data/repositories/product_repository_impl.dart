@@ -34,7 +34,7 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<Product> getProductById(String id) async {
     try {
-      final response = await _apiClient.get('/api/products/$id/$id');
+      final response = await _apiClient.get('/api/products/$id');
       return Product.fromJson(response as Map<String, dynamic>);
     } catch (e, stackTrace) {
       developer.log(

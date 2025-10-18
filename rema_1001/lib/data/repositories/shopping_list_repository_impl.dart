@@ -126,12 +126,19 @@ class ShoppingListRepositoryImpl implements ShoppingListRepository {
   Future<ShoppingListItem> addItemToShoppingList({
     required String shoppingListId,
     required String productId,
-    required int quantity,
+    required bool checked,
+    int? quantity,
   }) async {
     try {
+      final body = <String, dynamic>{
+        'productId': productId,
+        'checked': checked,
+      };
+      if (quantity != null) body['quantity'] = quantity;
+
       final response = await _apiClient.post(
         '/api/shopping-lists/$shoppingListId/items',
-        body: {'productId': productId, 'quantity': quantity},
+        body: body,
       );
       return ShoppingListItem.fromJson(response as Map<String, dynamic>);
     } catch (e, stackTrace) {

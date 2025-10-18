@@ -8,6 +8,7 @@ import productRoute from "./routes/products";
 import resourceRoutes from "./routes/resources";
 import shoppingListRoute from "./routes/shopping-lists";
 import storeRoute from "./routes/store";
+import llmRoute from "./routes/llm";
 import { serveStatic } from "@hono/node-server/serve-static";
 import path from "node:path";
 import { cors } from "hono/cors";
@@ -23,7 +24,8 @@ export const createApp = async (variables?: AppVariables) => {
     .route("/products", productRoute)
     .route("/shopping-lists", shoppingListRoute)
     .route("/store", storeRoute)
-    .route("/resources", resourceRoutes);
+    .route("/resources", resourceRoutes)
+    .route("/llm", llmRoute);
 
   const app = route()
     .use(cors())

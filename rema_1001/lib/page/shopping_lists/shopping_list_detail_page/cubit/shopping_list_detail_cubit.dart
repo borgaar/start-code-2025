@@ -130,6 +130,7 @@ class ShoppingListDetailCubit extends Cubit<ShoppingListDetailState> {
         shoppingListId: listId,
         productId: productId,
         quantity: quantity,
+        checked: false,
       );
       loadShoppingList();
     } catch (e) {

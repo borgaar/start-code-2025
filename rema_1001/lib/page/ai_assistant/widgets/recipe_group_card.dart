@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../cubit/ai_assistant_cubit.dart';
 import '../cubit/ai_assistant_state.dart';
 
 class RecipeGroupCard extends StatefulWidget {
@@ -51,15 +53,56 @@ class _RecipeGroupCardState extends State<RecipeGroupCard> {
                     ),
                   ),
                 ]
-              : widget.group.items
+              : widget.group.itemsData
+                    .asMap()
+                    .entries
                     .map(
-                      (t) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Text(
-                          t,
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ),
+                      (entry) {
+                        final index = entry.key;
+                        final item = entry.value;
+                        final displayText = widget.group.items[index];
+
+                        return BlocBuilder<AiAssistantCubit, AiAssistantState>(
+                          builder: (context, state) {
+                            final isSelected = state is AiAssistantSuccess &&
+                                state.selectedProductIds.contains(item.productId);
+
+                            return InkWell(
+                              onTap: () => context
+                                  .read<AiAssistantCubit>()
+                                  .toggleItemSelection(item.productId),
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Checkbox(
+                                      value: isSelected,
+                                      onChanged: (_) => context
+                                          .read<AiAssistantCubit>()
+                                          .toggleItemSelection(item.productId),
+                                      fillColor: WidgetStateProperty.resolveWith(
+                                        (states) {
+                                          if (states.contains(WidgetState.selected)) {
+                                            return const Color.fromARGB(255, 94, 155, 245);
+                                          }
+                                          return Colors.white30;
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        displayText,
+                                        style: const TextStyle(color: Colors.white70),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
                     )
                     .toList(),
         ),

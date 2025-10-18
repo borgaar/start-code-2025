@@ -4,6 +4,8 @@ import 'package:rema_1001/constants/theme.dart';
 import 'package:rema_1001/data/api/api_client.dart';
 import 'package:rema_1001/data/repositories/aisle_repository.dart';
 import 'package:rema_1001/data/repositories/aisle_repository_impl.dart';
+import 'package:rema_1001/data/repositories/llm_repository.dart';
+import 'package:rema_1001/data/repositories/llm_repository_impl.dart';
 import 'package:rema_1001/data/repositories/product_repository.dart';
 import 'package:rema_1001/data/repositories/product_repository_impl.dart';
 import 'package:rema_1001/data/repositories/shopping_list_repository.dart';
@@ -41,6 +43,9 @@ class MyApp extends StatelessWidget {
         ),
         RepositoryProvider<AisleRepository>(
           create: (context) => AisleRepositoryImpl(apiClient: apiClient),
+        ),
+        RepositoryProvider<LlmRepository>(
+          create: (context) => LlmRepositoryImpl(apiClient: apiClient),
         ),
       ],
       child: MultiBlocProvider(
