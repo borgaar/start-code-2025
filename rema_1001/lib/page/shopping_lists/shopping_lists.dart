@@ -26,7 +26,7 @@ class _ShoppingListsState extends State<ShoppingLists> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Shopping Lists')),
+      appBar: AppBar(title: const Text('Handlelister')),
       body: BlocConsumer<ShoppingListsCubit, ShoppingListsState>(
         listener: (context, state) {
           if (state is ShoppingListsError) {
@@ -35,7 +35,7 @@ class _ShoppingListsState extends State<ShoppingLists> {
                 content: Text(state.message),
                 backgroundColor: Colors.red,
                 action: SnackBarAction(
-                  label: 'Retry',
+                  label: 'Prøv igjen',
                   textColor: Colors.white,
                   onPressed: () {
                     context.read<ShoppingListsCubit>().loadShoppingLists();
@@ -77,13 +77,13 @@ class _ShoppingListsState extends State<ShoppingLists> {
             return const Center(child: CircularProgressIndicator());
           }
 
-          return const Center(child: Text('Something went wrong'));
+          return const Center(child: Text('Noe gikk galt'));
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showCreateDialog,
         icon: const Icon(Icons.add),
-        label: const Text('New List'),
+        label: const Text('Ny liste'),
       ),
     );
   }

@@ -10,7 +10,7 @@ class AllergiesPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Allergies'),
+        title: const Text('Allergener'),
         actions: [
           BlocBuilder<AllergiesCubit, AllergiesState>(
             builder: (context, state) {
@@ -19,7 +19,7 @@ class AllergiesPage extends StatelessWidget {
               }
               return TextButton(
                 onPressed: () => _showClearConfirmation(context),
-                child: const Text('Clear All'),
+                child: const Text('Fjern alle'),
               );
             },
           ),
@@ -75,7 +75,7 @@ class AllergiesPage extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Selected Allergies',
+                        'Valgte allergener',
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(
                               color: Theme.of(
@@ -121,21 +121,21 @@ class AllergiesPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Clear All Allergies'),
+        title: const Text('Fjern alle allergener'),
         content: const Text(
-          'Are you sure you want to remove all selected allergies?',
+          'Er du sikker på at du vil fjerne alle valgte allergener?',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: const Text('Cancel'),
+            child: const Text('Avbryt'),
           ),
           TextButton(
             onPressed: () {
               context.read<AllergiesCubit>().clearAllAllergies();
               Navigator.of(dialogContext).pop();
             },
-            child: const Text('Clear All'),
+            child: const Text('Fjern alle'),
           ),
         ],
       ),

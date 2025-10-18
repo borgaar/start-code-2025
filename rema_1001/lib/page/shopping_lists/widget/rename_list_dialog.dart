@@ -17,11 +17,11 @@ class RenameListDialog extends StatelessWidget {
     final controller = TextEditingController(text: currentName);
 
     return AlertDialog(
-      title: const Text('Rename Shopping List'),
+      title: const Text('Gi nytt navn til handleliste'),
       content: TextField(
         controller: controller,
         decoration: const InputDecoration(
-          labelText: 'List Name',
+          labelText: 'Listenavn',
           border: OutlineInputBorder(),
         ),
         autofocus: true,
@@ -39,7 +39,7 @@ class RenameListDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: const Text('Avbryt'),
         ),
         FilledButton(
           onPressed: () {
@@ -52,7 +52,7 @@ class RenameListDialog extends StatelessWidget {
               Navigator.of(context).pop();
             }
           },
-          child: const Text('Rename'),
+          child: const Text('Gi nytt navn'),
         ),
       ],
     );

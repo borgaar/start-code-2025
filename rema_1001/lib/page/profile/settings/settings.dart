@@ -13,20 +13,20 @@ class Settings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      appBar: AppBar(title: const Text('Innstillinger')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // General Settings Section
-          _buildSectionHeader(context, 'General'),
+          _buildSectionHeader(context, 'Generelt'),
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {
               return SwitchListTile(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                title: const Text('Notifications'),
-                subtitle: const Text('Enable push notifications'),
+                title: const Text('Varsler'),
+                subtitle: const Text('Aktiver push-varsler'),
                 value: state.notificationsEnabled,
                 onChanged: (value) {
                   context.read<SettingsCubit>().toggleNotifications(value);
@@ -39,8 +39,8 @@ class Settings extends StatelessWidget {
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {
               return SwitchListTile(
-                title: const Text('Dark Mode'),
-                subtitle: const Text('Use dark theme'),
+                title: const Text('Mørk modus'),
+                subtitle: const Text('Bruk mørkt tema'),
                 value: true,
                 onChanged: (value) {
                   context.read<SettingsCubit>().toggleDarkMode(value);
@@ -59,7 +59,7 @@ class Settings extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                title: const Text('Language'),
+                title: const Text('Språk'),
                 subtitle: Text(state.language),
                 leading: const Icon(Icons.language),
                 trailing: const Icon(Icons.chevron_right),
@@ -74,9 +74,9 @@ class Settings extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                title: const Text('Household Size'),
+                title: const Text('Husholdningsstørrelse'),
                 subtitle: Text(
-                  '${state.householdSize} ${state.householdSize == 1 ? 'person' : 'people'}',
+                  '${state.householdSize} ${state.householdSize == 1 ? 'person' : 'personer'}',
                 ),
                 leading: const Icon(Icons.people),
                 trailing: const Icon(Icons.chevron_right),
@@ -86,7 +86,7 @@ class Settings extends StatelessWidget {
           ),
 
           // Health & Dietary Section
-          _buildSectionHeader(context, 'Health & Dietary'),
+          _buildSectionHeader(context, 'Helse og kosthold'),
           BlocBuilder<AllergiesCubit, AllergiesState>(
             builder: (context, state) {
               final allergyCount = state.selectedAllergies.length;
@@ -94,12 +94,12 @@ class Settings extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                title: const Text('Allergies'),
+                title: const Text('Allergener'),
                 subtitle: allergyCount > 0
                     ? Text(
-                        '$allergyCount ${allergyCount == 1 ? 'allergy' : 'allergies'} selected',
+                        '$allergyCount ${allergyCount == 1 ? 'allergen' : 'allergener'} valgt',
                       )
-                    : const Text('Manage your allergies'),
+                    : const Text('Administrer dine allergener'),
                 leading: const Icon(Icons.medical_information),
                 trailing: const Icon(Icons.chevron_right),
                 onTap: () => context.pushNamed(RouteNames.allergies),
@@ -111,23 +111,23 @@ class Settings extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            title: const Text('Dietary Preferences'),
-            subtitle: const Text('Set your dietary preferences'),
+            title: const Text('Kostpreferanser'),
+            subtitle: const Text('Angi dine kostpreferanser'),
             leading: const Icon(Icons.restaurant),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {},
           ),
 
           // Privacy & Security Section
-          _buildSectionHeader(context, 'Privacy & Security'),
+          _buildSectionHeader(context, 'Personvern og sikkerhet'),
           BlocBuilder<SettingsCubit, SettingsState>(
             builder: (context, state) {
               return SwitchListTile(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
                 ),
-                title: const Text('Biometric Authentication'),
-                subtitle: const Text('Use fingerprint or face ID'),
+                title: const Text('Biometrisk autentisering'),
+                subtitle: const Text('Bruk fingeravtrykk eller ansikts-ID'),
                 value: state.biometricsEnabled,
                 onChanged: (value) {
                   context.read<SettingsCubit>().toggleBiometrics(value);
@@ -141,19 +141,19 @@ class Settings extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            title: const Text('Privacy Policy'),
+            title: const Text('Personvernerklæring'),
             leading: const Icon(Icons.policy),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {},
           ),
 
           // About Section
-          _buildSectionHeader(context, 'About'),
+          _buildSectionHeader(context, 'Om'),
           ListTile(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            title: const Text('App Version'),
+            title: const Text('Appversjon'),
             subtitle: const Text('1.0.0'),
             leading: const Icon(Icons.info),
           ),
@@ -162,7 +162,7 @@ class Settings extends StatelessWidget {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
-            title: const Text('Terms of Service'),
+            title: const Text('Vilkår for bruk'),
             leading: const Icon(Icons.description),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {},
@@ -191,7 +191,7 @@ class Settings extends StatelessWidget {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Select Language'),
+        title: const Text('Velg språk'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: languages.map((language) {
@@ -225,11 +225,11 @@ class Settings extends StatelessWidget {
       builder: (dialogContext) => BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
           return AlertDialog(
-            title: const Text('Household Size'),
+            title: const Text('Husholdningsstørrelse'),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text('How many people live in your household?'),
+                const Text('Hvor mange personer bor i husholdningen din?'),
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -280,7 +280,7 @@ class Settings extends StatelessWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(),
-                child: const Text('Done'),
+                child: const Text('Ferdig'),
               ),
             ],
           );

@@ -12,14 +12,14 @@ class ShoppingListsEmptyState extends StatelessWidget {
           Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey[500]),
           const SizedBox(height: 16),
           Text(
-            'No shopping lists yet',
+            'Ingen handlelister ennå',
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(color: Colors.grey[400]),
           ),
           const SizedBox(height: 8),
           Text(
-            'Create your first list to get started',
+            'Opprett din første liste for å komme i gang',
             style: Theme.of(
               context,
             ).textTheme.bodyMedium?.copyWith(color: Colors.grey[500]),

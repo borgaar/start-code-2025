@@ -37,17 +37,17 @@ class ShoppingListTile extends StatelessWidget {
           return await showDialog<bool>(
             context: context,
             builder: (dialogContext) => AlertDialog(
-              title: const Text('Delete Shopping List'),
-              content: Text('Are you sure you want to delete "${list.name}"?'),
+              title: const Text('Slett handleliste'),
+              content: Text('Er du sikker på at du vil slette "${list.name}"?'),
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(false),
-                  child: const Text('Cancel'),
+                  child: const Text('Avbryt'),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(true),
                   child: const Text(
-                    'Delete',
+                    'Slett',
                     style: TextStyle(color: Colors.red),
                   ),
                 ),
@@ -59,7 +59,7 @@ class ShoppingListTile extends StatelessWidget {
           context.read<ShoppingListsCubit>().deleteShoppingList(list.id);
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('${list.name} deleted')));
+          ).showSnackBar(SnackBar(content: Text('${list.name} slettet')));
         },
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -77,11 +77,11 @@ class ShoppingListTile extends StatelessWidget {
             title: Text(list.name),
             subtitle: itemCount > 0
                 ? Text(
-                    '$checkedCount/$itemCount items checked',
+                    '$checkedCount/$itemCount varer avkrysset',
                     style: TextStyle(color: Colors.grey[400]),
                   )
                 : Text(
-                    'Empty list',
+                    'Tom liste',
                     style: TextStyle(
                       color: Colors.grey[500],
                       fontStyle: FontStyle.italic,

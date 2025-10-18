@@ -9,7 +9,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Profile')),
+      appBar: AppBar(title: const Text('Profil')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -58,29 +58,29 @@ class ProfileScreen extends StatelessWidget {
                 children: [
                   _buildProfileOption(
                     Icons.shopping_bag,
-                    'My Orders',
-                    'View your order history',
+                    'Mine bestillinger',
+                    'Se bestillingshistorikken din',
                   ),
                   _buildProfileOption(
                     Icons.favorite,
-                    'Favorites',
-                    'View your favorite items',
+                    'Favoritter',
+                    'Se favorittvarene dine',
                   ),
                   _buildProfileOption(
                     Icons.payment,
-                    'Payment Methods',
-                    'Manage your payment options',
+                    'Betalingsmetoder',
+                    'Administrer betalingsalternativene dine',
                   ),
                   _buildProfileOption(
                     Icons.settings,
-                    'Settings',
-                    'App preferences and settings',
+                    'Innstillinger',
+                    'Appinnstillinger og preferanser',
                     () => context.pushNamed(RouteNames.settings),
                   ),
                   _buildProfileOption(
                     Icons.help_outline,
-                    'Help & Support',
-                    'Get help with your account',
+                    'Hjelp og støtte',
+                    'Få hjelp med kontoen din',
                   ),
                 ],
               ),

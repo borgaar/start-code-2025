@@ -10,12 +10,12 @@ class CreateListDialog extends StatelessWidget {
     final controller = TextEditingController();
 
     return AlertDialog(
-      title: const Text('Create Shopping List'),
+      title: const Text('Opprett handleliste'),
       content: TextField(
         controller: controller,
         decoration: const InputDecoration(
-          labelText: 'List Name',
-          hintText: 'e.g., Weekly Groceries',
+          labelText: 'Listenavn',
+          hintText: 'f.eks., Ukeshandel',
           border: OutlineInputBorder(),
         ),
         autofocus: true,
@@ -30,7 +30,7 @@ class CreateListDialog extends StatelessWidget {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
+          child: const Text('Avbryt'),
         ),
         FilledButton(
           onPressed: () {
@@ -40,7 +40,7 @@ class CreateListDialog extends StatelessWidget {
               Navigator.of(context).pop();
             }
           },
-          child: const Text('Create'),
+          child: const Text('Opprett'),
         ),
       ],
     );
