@@ -2,6 +2,8 @@
   {
     "slug": "elgeseter",
     "name": "Elgeseter",
+    "entrance": [50, 62],
+    "exit": [10, 62],
     "aisles": [
       { "type": "OBSTACLE", "x": 0, "y": 0, "width": 64, "height": 8 },
       { "type": "OBSTACLE", "x": 0, "y": 0, "width": 8, "height": 64 },

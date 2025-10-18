@@ -56,6 +56,8 @@ type Aisle = {
 type StoreWithAisles = {
   slug: string;
   name: string;
+  entrance: number[];
+  exit: number[];
   aisles: Aisle[];
 };
 
@@ -91,7 +93,7 @@ async function main() {
       unit: product.unit,
       allergens: product.allergens,
       carbonFootprintGram: product.carbonFootprintGram,
-      ...(Math.random() < 0.1 ? { discount: Math.random() * 0.3} : {})
+      ...(Math.random() < 0.1 ? { discount: Math.random() * 0.3 } : {}),
     })),
   });
 
@@ -105,6 +107,10 @@ async function main() {
       data: {
         slug: store.slug,
         name: store.name,
+        entranceX: store.entrance[0]!,
+        entranceY: store.entrance[1]!,
+        exitX: store.exit[0]!,
+        exitY: store.exit[1]!,
       },
     });
 

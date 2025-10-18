@@ -12,6 +12,8 @@ interface Aisle {
 interface Store {
   slug: string;
   name: string;
+  entrance: number[];
+  exit: number[];
   aisles: Aisle[];
 }
 
@@ -70,6 +72,9 @@ function printStoreLayout() {
         }
       }
     });
+
+    grid[store.entrance[1]!]![store.entrance[0]!] = chalk.green("EE");
+    grid[store.exit[1]!]![store.exit[0]!] = chalk.red("XX");
 
     // Print the grid
     for (let y = 0; y < 64; y++) {
