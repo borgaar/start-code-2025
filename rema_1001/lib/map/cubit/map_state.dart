@@ -13,11 +13,13 @@ final class MapLoaded extends MapState {
   final MapModel map;
   final int currentStep;
   final List<ShoppingListAisleGroup> aisleGroups;
+  final String storeName;
 
   const MapLoaded({
     required this.map,
     required this.currentStep,
     required this.aisleGroups,
+    required this.storeName,
   });
 
   @override
@@ -115,6 +117,7 @@ final class MapPathfindingLoaded extends MapLoaded {
     required this.path,
     required super.currentStep,
     required super.aisleGroups,
+    required super.storeName,
   });
 
   @override

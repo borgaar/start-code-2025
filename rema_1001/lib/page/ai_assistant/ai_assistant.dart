@@ -97,15 +97,23 @@ class _AiAssistantView extends StatelessWidget {
                                   Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(
-                                      color: const Color.fromARGB(255, 60, 20, 20),
+                                      color: const Color.fromARGB(
+                                        255,
+                                        60,
+                                        20,
+                                        20,
+                                      ),
                                       borderRadius: BorderRadius.circular(12),
                                       border: Border.all(
-                                        color: Colors.redAccent.withValues(alpha: 0.5),
+                                        color: Colors.redAccent.withValues(
+                                          alpha: 0.5,
+                                        ),
                                         width: 1,
                                       ),
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           children: [
@@ -132,13 +140,24 @@ class _AiAssistantView extends StatelessWidget {
                                           Container(
                                             padding: const EdgeInsets.all(12),
                                             decoration: BoxDecoration(
-                                              color: const Color.fromARGB(255, 40, 15, 15),
-                                              borderRadius: BorderRadius.circular(8),
+                                              color: const Color.fromARGB(
+                                                255,
+                                                40,
+                                                15,
+                                                15,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
                                             ),
                                             child: Text(
                                               state.detailedReason!,
                                               style: const TextStyle(
-                                                color: Color.fromARGB(255, 255, 180, 180),
+                                                color: Color.fromARGB(
+                                                  255,
+                                                  255,
+                                                  180,
+                                                  180,
+                                                ),
                                                 fontSize: 13,
                                               ),
                                             ),
@@ -204,7 +223,7 @@ class _AiAssistantView extends StatelessWidget {
                                       // Navigate to map page
                                       context.pushNamed(
                                         RouteNames.map,
-                                        extra: {
+                                        pathParameters: {
                                           'storeSlug': storeSlug,
                                           'shoppingListId': shoppingListId,
                                         },

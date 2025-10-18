@@ -76,7 +76,14 @@ class MapCubit extends Cubit<MapState> {
         }).toList(),
       );
 
-      emit(MapLoaded(map: map, currentStep: 0, aisleGroups: aisleGroups));
+      emit(
+        MapLoaded(
+          map: map,
+          currentStep: 0,
+          aisleGroups: aisleGroups,
+          storeName: store.name,
+        ),
+      );
 
       final path = await calculatePathInIsolate(
         aisles: pathfindingAisles,
@@ -142,6 +149,7 @@ class MapCubit extends Cubit<MapState> {
           currentStep: 0,
           aisleGroups: orderedAisleGroups,
           currentWaypointIndex: targetWaypointIdx,
+          storeName: store.name,
         ),
       );
     } catch (e) {
@@ -190,6 +198,7 @@ class MapCubit extends Cubit<MapState> {
           currentStep: newStep,
           path: s.path,
           currentWaypointIndex: s.path.length - 1, // End of path
+          storeName: s.storeName,
         ),
       );
       return;
@@ -244,6 +253,7 @@ class MapCubit extends Cubit<MapState> {
         currentStep: newStep,
         path: s.path,
         currentWaypointIndex: targetWaypointIdx,
+        storeName: s.storeName,
       ),
     );
   }
@@ -291,6 +301,7 @@ class MapCubit extends Cubit<MapState> {
         currentStep: currentState.currentStep,
         path: currentState.path,
         currentWaypointIndex: currentState.currentWaypointIndex,
+        storeName: currentState.storeName,
       ),
     );
 
