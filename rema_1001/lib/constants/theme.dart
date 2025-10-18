@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 final themeData = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
+  fontFamily: 'REMA',
   colorScheme: ColorScheme.dark(
     primary: Colors.blueAccent,
     secondary: Color(0xFF6B7280), // Gray for secondary elements
@@ -68,12 +69,12 @@ final themeData = ThemeData(
     hintStyle: TextStyle(color: Colors.white38),
   ),
   textTheme: TextTheme(
-    bodyLarge: TextStyle(color: Colors.white),
-    bodyMedium: TextStyle(color: Colors.white),
-    bodySmall: TextStyle(color: Colors.white70),
-    titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+    bodyLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
+    bodyMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w400),
+    bodySmall: TextStyle(color: Colors.white70, fontWeight: FontWeight.w400),
+    titleLarge: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
     titleMedium: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-    titleSmall: TextStyle(color: Colors.white70),
+    titleSmall: TextStyle(color: Colors.white70, fontWeight: FontWeight.w600),
   ),
   iconTheme: IconThemeData(color: Colors.white70),
   dividerTheme: DividerThemeData(color: Color(0xFF2A2A2A), thickness: 1),
