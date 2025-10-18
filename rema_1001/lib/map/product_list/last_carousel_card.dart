@@ -24,7 +24,7 @@ class LastCarouselCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "Du er ferdig!",
+                    "You are done!",
                     style: const TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
