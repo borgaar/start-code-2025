@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rema_1001/constants/assets.dart';
 import 'package:rema_1001/map/cubit/map_cubit.dart';
 
 class ProductListTile extends StatelessWidget {

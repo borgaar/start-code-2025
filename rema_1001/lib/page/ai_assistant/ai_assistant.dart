@@ -65,7 +65,7 @@ class _AiAssistantView extends StatelessWidget {
                         children: [
                           const SizedBox(height: 40),
                           const LogoWordmark(),
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 24),
                           Text(
                             isResult
                                 ? 'Trenger du noe mer?'
@@ -77,7 +77,7 @@ class _AiAssistantView extends StatelessWidget {
                               letterSpacing: 0.2,
                             ),
                           ),
-                          const SizedBox(height: 40),
+                          const SizedBox(height: 50),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 42),
                             child: Column(

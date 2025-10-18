@@ -38,12 +38,7 @@ class LogoWordmark extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Image.asset(
-        'assets/images/rema-1000.png',
-        width: 170,
-        height: 40,
-        fit: BoxFit.contain,
-      ),
+      child: Image.asset('assets/images/rema-1000.png', height: 40),
     );
   }
 }
