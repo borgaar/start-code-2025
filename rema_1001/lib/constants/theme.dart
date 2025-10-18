@@ -29,6 +29,13 @@ final themeData = ThemeData(
     textColor: Colors.white,
     iconColor: Colors.white70,
   ),
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+    ),
+  ),
   floatingActionButtonTheme: FloatingActionButtonThemeData(
     backgroundColor: Colors.blueAccent,
     foregroundColor: Colors.white,

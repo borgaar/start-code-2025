@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rema_1001/map/cubit/map_cubit.dart';
 import 'package:rema_1001/map/product_list/aisle_card.dart';
+import 'package:rema_1001/map/product_list/last_carousel_card.dart';
 
 class ProductList extends StatelessWidget {
   const ProductList({super.key});
@@ -13,7 +14,11 @@ class ProductList extends StatelessWidget {
       builder: (context, state) {
         if (state is MapLoaded) {
           return CarouselSlider(
-            items: state.aisleGroups.map((aisle) => AisleCard(aisle)).toList(),
+            items:
+                state.aisleGroups
+                    .map<Widget>((aisle) => AisleCard(aisle))
+                    .toList()
+                  ..add(LastCarouselCard()),
             options: CarouselOptions(
               enableInfiniteScroll: false,
               onPageChanged: (index, reason) {
