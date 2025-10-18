@@ -33,7 +33,7 @@ class ProductList extends StatelessWidget {
                 .carouselSliderController,
           );
         }
-        return Text("Wrong state");
+        return SizedBox.shrink();
       },
     );
   }
