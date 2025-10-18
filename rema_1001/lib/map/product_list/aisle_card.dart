@@ -117,7 +117,13 @@ class AisleCard extends StatelessWidget {
                       mainAxisSize: MainAxisSize.max,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text("Next"),
+                        Text(
+                          "Next",
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontFamily: "REMA",
+                          ),
+                        ),
                         SizedBox(width: 8),
                         Icon(Icons.arrow_forward),
                       ],
