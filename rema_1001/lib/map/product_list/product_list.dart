@@ -42,7 +42,7 @@ class ProductList extends StatelessWidget {
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(state.aisleGroups.length, (idx) {
+                children: List.generate(state.aisleGroups.length + 1, (idx) {
                   return AnimatedContainer(
                     duration: 200.milliseconds,
                     width: 8,

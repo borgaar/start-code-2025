@@ -41,6 +41,7 @@ class MapCubit extends Cubit<MapState> {
   Store? _previousStore;
 
   void intialize() async {
+    print("INITIALIZING MAP CUBIT");
     try {
       emit(MapInitial());
       final aisles = await _aisleRepository.getAislesForStore(storeSlug);
@@ -215,6 +216,7 @@ class MapCubit extends Cubit<MapState> {
       // Start polling for aisle changes in the background
       _startPolling();
     } catch (e) {
+      print(e);
       emit(MapError('Failed to load map data: $e'));
     }
   }
@@ -382,6 +384,7 @@ class MapCubit extends Cubit<MapState> {
     _pollingTimer = Timer.periodic(const Duration(milliseconds: 500), (
       _,
     ) async {
+      print("POLLING");
       await _checkForAisleChanges();
     });
   }

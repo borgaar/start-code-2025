@@ -41,9 +41,7 @@ class _StoreSelectionDialogState extends State<StoreSelectionDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: const Color.fromARGB(255, 29, 29, 29),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
@@ -126,9 +124,7 @@ class _StoreSelectionDialogState extends State<StoreSelectionDialog> {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text(
                 'Avbryt',
-                style: TextStyle(
-                  color: Color.fromARGB(255, 94, 155, 245),
-                ),
+                style: TextStyle(color: Color.fromARGB(255, 94, 155, 245)),
               ),
             ),
           ],
