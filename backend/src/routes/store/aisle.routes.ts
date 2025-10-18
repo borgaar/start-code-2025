@@ -258,26 +258,3 @@ export const deleteAisleRoute = route().delete(
     }
   }
 );
-
-// Get all aisle types
-export const getAisleTypesRoute = route().get(
-  "/aisle-types",
-  describeRoute({
-    tags: ["aisle"],
-    summary: "Get all available aisle types",
-    responses: {
-      200: {
-        description: "Success",
-        content: {
-          "application/json": {
-            schema: resolver(z.array(z.string())),
-          },
-        },
-      },
-    },
-  }),
-  async (c) => {
-    const entries = Object.values(AisleTypeSchema.def.entries);
-    return c.json(entries);
-  }
-);

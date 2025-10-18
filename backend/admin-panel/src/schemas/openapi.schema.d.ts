@@ -196,23 +196,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/store/aisle-types": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Get all available aisle types */
-        get: operations["getApiStoreAisle-types"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/store/product-in-aisle": {
         parameters: {
             query?: never;
@@ -264,6 +247,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/resources/aisle-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get all available aisle types */
+        get: operations["getApiResourcesAisle-types"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -298,6 +298,7 @@ export interface operations {
                         description: string;
                         price: number;
                         pricePerUnit: number;
+                        discount?: number | null;
                         unit: string;
                         allergens: string[];
                         carbonFootprintGram: number;
@@ -333,6 +334,7 @@ export interface operations {
                         description: string;
                         price: number;
                         pricePerUnit: number;
+                        discount?: number | null;
                         unit: string;
                         allergens: string[];
                         carbonFootprintGram: number;
@@ -452,6 +454,7 @@ export interface operations {
                                 description: string;
                                 price: number;
                                 pricePerUnit: number;
+                                discount?: number | null;
                                 unit: string;
                                 allergens: string[];
                                 carbonFootprintGram: number;
@@ -587,6 +590,7 @@ export interface operations {
                                 description: string;
                                 price: number;
                                 pricePerUnit: number;
+                                discount?: number | null;
                                 unit: string;
                                 allergens: string[];
                                 carbonFootprintGram: number;
@@ -644,6 +648,7 @@ export interface operations {
                             description: string;
                             price: number;
                             pricePerUnit: number;
+                            discount?: number | null;
                             unit: string;
                             allergens: string[];
                             carbonFootprintGram: number;
@@ -746,6 +751,7 @@ export interface operations {
                             description: string;
                             price: number;
                             pricePerUnit: number;
+                            discount?: number | null;
                             unit: string;
                             allergens: string[];
                             carbonFootprintGram: number;
@@ -1176,26 +1182,6 @@ export interface operations {
             };
         };
     };
-    "getApiStoreAisle-types": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Success */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": string[];
-                };
-            };
-        };
-    };
     "postApiStoreProduct-in-aisle": {
         parameters: {
             query?: never;
@@ -1303,6 +1289,7 @@ export interface operations {
                             description: string;
                             price: number;
                             pricePerUnit: number;
+                            discount?: number | null;
                             unit: string;
                             allergens: string[];
                             carbonFootprintGram: number;
@@ -1319,6 +1306,26 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    "getApiResourcesAisle-types": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": ("OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER")[];
+                };
             };
         };
     };

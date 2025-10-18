@@ -4,6 +4,8 @@ import {
   getStoreOptions,
   useCreateAisle,
   useDeleteAisle,
+  useUpdateAisle,
+  getAisleTypesOptions,
 } from '@/hooks/use-stores'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,9 +18,60 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { ArrowLeft, Plus, Trash2 } from 'lucide-react'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
+  ArrowLeft,
+  Plus,
+  Trash2,
+  Move,
+  Maximize2,
+  Pencil,
+  Save,
+} from 'lucide-react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
+import { useState, useRef, useEffect } from 'react'
+
+type Tool = 'draw' | 'move' | 'resize' | 'delete'
+
+type AisleType =
+  | 'OBSTACLE'
+  | 'FREEZER'
+  | 'DRINKS'
+  | 'PANTRY'
+  | 'SWEETS'
+  | 'CHEESE'
+  | 'MEAT'
+  | 'DAIRY'
+  | 'FRIDGE'
+  | 'FRUIT'
+  | 'VEGETABLES'
+  | 'BAKERY'
+  | 'OTHER'
+
+interface Aisle {
+  id: string
+  type: AisleType
+  gridX: number
+  gridY: number
+  width: number
+  height: number
+}
+
+interface ModifiedAisle {
+  id: string
+  type: AisleType
+  gridX: number
+  gridY: number
+  width: number
+  height: number
+}
 
 export const Route = createFileRoute('/stores/$slug/aisles')({
   component: AislesPage,
@@ -36,7 +89,11 @@ export const Route = createFileRoute('/stores/$slug/aisles')({
       getAislesOptions(params.slug),
     )
 
-    return { store, aisles: aisles ?? [] }
+    const aisleTypes = await context.queryClient.ensureQueryData(
+      getAisleTypesOptions(),
+    )
+
+    return { store, aisles: aisles ?? [], aisleTypes: aisleTypes ?? [] }
   },
 
   pendingComponent: () => (
@@ -57,12 +114,49 @@ function AislesPage() {
   const { slug } = Route.useParams()
 
   const { data: store } = useSuspenseQuery(getStoreOptions(slug))
-  const { data: aisles } = useSuspenseQuery(getAislesOptions(slug))
+  const { data: aisles = [] } = useSuspenseQuery(getAislesOptions(slug))
+  const { data: aisleTypes = [] } = useSuspenseQuery(getAisleTypesOptions())
   const createAisle = useCreateAisle()
   const deleteAisle = useDeleteAisle()
+  const updateAisle = useUpdateAisle()
+
+  // Drawing state
+  const [activeTool, setActiveTool] = useState<Tool | null>(null)
+  const [selectedAisleType, setSelectedAisleType] =
+    useState<AisleType>('PANTRY')
+  const [localAisles, setLocalAisles] = useState<Aisle[]>([])
+  const [modifiedAisles, setModifiedAisles] = useState<
+    Map<string, ModifiedAisle>
+  >(new Map())
+  const [deletedAisles, setDeletedAisles] = useState<Set<string>>(new Set())
+  const [newAisles, setNewAisles] = useState<ModifiedAisle[]>([])
+
+  // Drawing interaction state
+  const [isDrawing, setIsDrawing] = useState(false)
+  const [drawStart, setDrawStart] = useState<{ x: number; y: number } | null>(
+    null,
+  )
+  const [drawEnd, setDrawEnd] = useState<{ x: number; y: number } | null>(null)
+  const [selectedAisleId, setSelectedAisleId] = useState<string | null>(null)
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
+    null,
+  )
+  const [resizeHandle, setResizeHandle] = useState<
+    'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'e' | 'w' | null
+  >(null)
+
+  const gridRef = useRef<HTMLDivElement>(null)
+
+  // Sync local aisles with server data
+  useEffect(() => {
+    setLocalAisles(aisles as Aisle[])
+  }, [aisles])
+
+  const hasModifications =
+    modifiedAisles.size > 0 || deletedAisles.size > 0 || newAisles.length > 0
 
   const handleCreateAisle = () => {
-    createAisle.mutate(slug)
+    createAisle.mutate({ slug })
   }
 
   const handleDeleteAisle = (aisleId: string) => {
@@ -70,6 +164,300 @@ function AislesPage() {
       deleteAisle.mutate({ slug, aisleId })
     }
   }
+
+  const getGridCoordinates = (
+    clientX: number,
+    clientY: number,
+  ): { x: number; y: number } | null => {
+    if (!gridRef.current) return null
+    const rect = gridRef.current.getBoundingClientRect()
+    const x = Math.floor((clientX - rect.left) / 10)
+    const y = Math.floor((clientY - rect.top) / 10)
+    return { x: Math.max(0, Math.min(63, x)), y: Math.max(0, Math.min(63, y)) }
+  }
+
+  const getResizeHandle = (
+    aisle: Aisle,
+    x: number,
+    y: number,
+  ): 'nw' | 'ne' | 'sw' | 'se' | 'n' | 's' | 'e' | 'w' | null => {
+    const threshold = 1
+    const isNear = (a: number, b: number) => Math.abs(a - b) <= threshold
+
+    const isTop = isNear(y, aisle.gridY)
+    const isBottom = isNear(y, aisle.gridY + aisle.height - 1)
+    const isLeft = isNear(x, aisle.gridX)
+    const isRight = isNear(x, aisle.gridX + aisle.width - 1)
+
+    if (isTop && isLeft) return 'nw'
+    if (isTop && isRight) return 'ne'
+    if (isBottom && isLeft) return 'sw'
+    if (isBottom && isRight) return 'se'
+    if (isTop) return 'n'
+    if (isBottom) return 's'
+    if (isLeft) return 'w'
+    if (isRight) return 'e'
+    return null
+  }
+
+  const findAisleAtPosition = (x: number, y: number): Aisle | null => {
+    const visibleAisles = localAisles.filter((a) => !deletedAisles.has(a.id))
+    return (
+      visibleAisles.find(
+        (aisle) =>
+          x >= aisle.gridX &&
+          x < aisle.gridX + aisle.width &&
+          y >= aisle.gridY &&
+          y < aisle.gridY + aisle.height,
+      ) || null
+    )
+  }
+
+  const handleGridMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!activeTool) return
+    e.preventDefault()
+
+    const coords = getGridCoordinates(e.clientX, e.clientY)
+    if (!coords) return
+
+    if (activeTool === 'draw') {
+      setIsDrawing(true)
+      setDrawStart(coords)
+      setDrawEnd(coords)
+    } else if (activeTool === 'delete') {
+      const aisle = findAisleAtPosition(coords.x, coords.y)
+      if (aisle) {
+        // Mark for deletion
+        setDeletedAisles((prev) => new Set(prev).add(aisle.id))
+        // Remove from modified if it was there
+        setModifiedAisles((prev) => {
+          const newMap = new Map(prev)
+          newMap.delete(aisle.id)
+          return newMap
+        })
+      }
+    } else if (activeTool === 'move') {
+      const aisle = findAisleAtPosition(coords.x, coords.y)
+      if (aisle) {
+        setSelectedAisleId(aisle.id)
+        setDragStart(coords)
+      }
+    } else if (activeTool === 'resize') {
+      const aisle = findAisleAtPosition(coords.x, coords.y)
+      if (aisle) {
+        const handle = getResizeHandle(aisle, coords.x, coords.y)
+        if (handle) {
+          setSelectedAisleId(aisle.id)
+          setResizeHandle(handle)
+          setDragStart(coords)
+        }
+      }
+    }
+  }
+
+  const handleGridMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const coords = getGridCoordinates(e.clientX, e.clientY)
+    if (!coords) return
+
+    if (activeTool === 'draw' && isDrawing && drawStart) {
+      setDrawEnd(coords)
+    } else if (activeTool === 'move' && selectedAisleId && dragStart) {
+      const aisle = localAisles.find((a) => a.id === selectedAisleId)
+      if (aisle) {
+        const deltaX = coords.x - dragStart.x
+        const deltaY = coords.y - dragStart.y
+        const newX = Math.max(
+          0,
+          Math.min(64 - aisle.width, aisle.gridX + deltaX),
+        )
+        const newY = Math.max(
+          0,
+          Math.min(64 - aisle.height, aisle.gridY + deltaY),
+        )
+
+        setLocalAisles((prev) =>
+          prev.map((a) =>
+            a.id === selectedAisleId ? { ...a, gridX: newX, gridY: newY } : a,
+          ),
+        )
+        setDragStart(coords)
+      }
+    } else if (
+      activeTool === 'resize' &&
+      selectedAisleId &&
+      resizeHandle &&
+      dragStart
+    ) {
+      const aisle = localAisles.find((a) => a.id === selectedAisleId)
+      if (aisle) {
+        const deltaX = coords.x - dragStart.x
+        const deltaY = coords.y - dragStart.y
+        let newX = aisle.gridX
+        let newY = aisle.gridY
+        let newWidth = aisle.width
+        let newHeight = aisle.height
+
+        if (resizeHandle.includes('w')) {
+          const maxDelta = aisle.width - 1
+          const actualDelta = Math.max(-aisle.gridX, Math.min(maxDelta, deltaX))
+          newX = aisle.gridX + actualDelta
+          newWidth = aisle.width - actualDelta
+        }
+        if (resizeHandle.includes('e')) {
+          newWidth = Math.max(
+            1,
+            Math.min(64 - aisle.gridX, aisle.width + deltaX),
+          )
+        }
+        if (resizeHandle.includes('n')) {
+          const maxDelta = aisle.height - 1
+          const actualDelta = Math.max(-aisle.gridY, Math.min(maxDelta, deltaY))
+          newY = aisle.gridY + actualDelta
+          newHeight = aisle.height - actualDelta
+        }
+        if (resizeHandle.includes('s')) {
+          newHeight = Math.max(
+            1,
+            Math.min(64 - aisle.gridY, aisle.height + deltaY),
+          )
+        }
+
+        setLocalAisles((prev) =>
+          prev.map((a) =>
+            a.id === selectedAisleId
+              ? {
+                  ...a,
+                  gridX: newX,
+                  gridY: newY,
+                  width: newWidth,
+                  height: newHeight,
+                }
+              : a,
+          ),
+        )
+        setDragStart(coords)
+      }
+    }
+  }
+
+  const handleGridMouseUp = () => {
+    if (activeTool === 'draw' && isDrawing && drawStart && drawEnd) {
+      const x = Math.min(drawStart.x, drawEnd.x)
+      const y = Math.min(drawStart.y, drawEnd.y)
+      const width = Math.abs(drawEnd.x - drawStart.x) + 1
+      const height = Math.abs(drawEnd.y - drawStart.y) + 1
+
+      const newAisle: ModifiedAisle = {
+        id: `new-${Date.now()}`,
+        type: selectedAisleType,
+        gridX: x,
+        gridY: y,
+        width,
+        height,
+      }
+
+      setNewAisles((prev) => [...prev, newAisle])
+      setLocalAisles((prev) => [...prev, newAisle as Aisle])
+    } else if (activeTool === 'move' && selectedAisleId && dragStart) {
+      const aisle = localAisles.find((a) => a.id === selectedAisleId)
+      if (aisle) {
+        const original = aisles.find((a) => a.id === selectedAisleId)
+        if (
+          original &&
+          (original.gridX !== aisle.gridX || original.gridY !== aisle.gridY)
+        ) {
+          setModifiedAisles((prev) => new Map(prev).set(selectedAisleId, aisle))
+        }
+      }
+    } else if (activeTool === 'resize' && selectedAisleId && resizeHandle) {
+      const aisle = localAisles.find((a) => a.id === selectedAisleId)
+      if (aisle) {
+        const original = aisles.find((a) => a.id === selectedAisleId)
+        if (
+          original &&
+          (original.gridX !== aisle.gridX ||
+            original.gridY !== aisle.gridY ||
+            original.width !== aisle.width ||
+            original.height !== aisle.height)
+        ) {
+          setModifiedAisles((prev) => new Map(prev).set(selectedAisleId, aisle))
+        }
+      }
+    }
+
+    setIsDrawing(false)
+    setDrawStart(null)
+    setDrawEnd(null)
+    setSelectedAisleId(null)
+    setDragStart(null)
+    setResizeHandle(null)
+  }
+
+  const handleSaveChanges = async () => {
+    try {
+      // Create new aisles
+      for (const newAisle of newAisles) {
+        await createAisle.mutateAsync({
+          slug,
+          body: {
+            type: newAisle.type,
+            gridX: newAisle.gridX,
+            gridY: newAisle.gridY,
+            width: newAisle.width,
+            height: newAisle.height,
+          },
+        })
+      }
+
+      // Update modified aisles
+      for (const [aisleId, aisle] of modifiedAisles) {
+        await updateAisle.mutateAsync({
+          slug,
+          aisleId,
+          body: {
+            type: aisle.type,
+            gridX: aisle.gridX,
+            gridY: aisle.gridY,
+            width: aisle.width,
+            height: aisle.height,
+          },
+        })
+      }
+
+      // Delete marked aisles
+      for (const aisleId of deletedAisles) {
+        await deleteAisle.mutateAsync({ slug, aisleId })
+      }
+
+      // Clear modifications
+      setModifiedAisles(new Map())
+      setDeletedAisles(new Set())
+      setNewAisles([])
+      setActiveTool(null)
+    } catch (error) {
+      console.error('Failed to save changes:', error)
+    }
+  }
+
+  const handleCancelChanges = () => {
+    setLocalAisles(aisles as Aisle[])
+    setModifiedAisles(new Map())
+    setDeletedAisles(new Set())
+    setNewAisles([])
+    setActiveTool(null)
+  }
+
+  const getPreviewRectangle = () => {
+    if (!isDrawing || !drawStart || !drawEnd) return null
+    return {
+      gridX: Math.min(drawStart.x, drawEnd.x),
+      gridY: Math.min(drawStart.y, drawEnd.y),
+      width: Math.abs(drawEnd.x - drawStart.x) + 1,
+      height: Math.abs(drawEnd.y - drawStart.y) + 1,
+    }
+  }
+
+  const preview = getPreviewRectangle()
 
   return (
     <div className="p-8">
@@ -135,45 +523,171 @@ function AislesPage() {
         </CardContent>
       </Card>
 
-      {/* Grid Visualization */}
+      {/* Grid Visualization with Drawing Tools */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Store Layout</CardTitle>
+          {hasModifications && (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={handleCancelChanges}
+                disabled={
+                  createAisle.isPending ||
+                  updateAisle.isPending ||
+                  deleteAisle.isPending
+                }
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSaveChanges}
+                disabled={
+                  createAisle.isPending ||
+                  updateAisle.isPending ||
+                  deleteAisle.isPending
+                }
+              >
+                <Save className="mr-2 h-4 w-4" />
+                Save Changes
+              </Button>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
+          {/* Tool Selection */}
+          <div className="mb-4 flex items-center gap-4 flex-wrap">
+            <div className="flex gap-2">
+              <Button
+                variant={activeTool === 'draw' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() =>
+                  setActiveTool(activeTool === 'draw' ? null : 'draw')
+                }
+              >
+                <Pencil className="mr-2 h-4 w-4" />
+                Draw
+              </Button>
+              <Button
+                variant={activeTool === 'move' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() =>
+                  setActiveTool(activeTool === 'move' ? null : 'move')
+                }
+              >
+                <Move className="mr-2 h-4 w-4" />
+                Move
+              </Button>
+              <Button
+                variant={activeTool === 'resize' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() =>
+                  setActiveTool(activeTool === 'resize' ? null : 'resize')
+                }
+              >
+                <Maximize2 className="mr-2 h-4 w-4" />
+                Resize
+              </Button>
+              <Button
+                variant={activeTool === 'delete' ? 'destructive' : 'outline'}
+                size="sm"
+                onClick={() =>
+                  setActiveTool(activeTool === 'delete' ? null : 'delete')
+                }
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete
+              </Button>
+            </div>
+
+            {activeTool === 'draw' && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Aisle Type:</span>
+                <Select
+                  value={selectedAisleType}
+                  onValueChange={(value) =>
+                    setSelectedAisleType(value as AisleType)
+                  }
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {aisleTypes.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+          </div>
+
+          {/* Grid */}
           <div className="relative bg-gray-100 p-4 rounded-lg overflow-auto">
             <div
-              className="grid bg-[#434343]"
+              ref={gridRef}
+              className="grid bg-[#434343] cursor-crosshair"
               style={{
                 gridTemplateColumns: 'repeat(64, 10px)',
                 gridTemplateRows: 'repeat(64, 10px)',
               }}
+              onMouseDown={handleGridMouseDown}
+              onMouseMove={handleGridMouseMove}
+              onMouseUp={handleGridMouseUp}
+              onMouseLeave={handleGridMouseUp}
             >
-              {aisles?.map((aisle) => (
+              {localAisles
+                .filter((a) => !deletedAisles.has(a.id))
+                .map((aisle) => (
+                  <div
+                    key={aisle.id}
+                    className={cn(
+                      'text-center relative border-2',
+                      activeTool === 'move' && 'cursor-move',
+                      activeTool === 'resize' && 'cursor-nwse-resize',
+                      activeTool === 'delete' &&
+                        'cursor-pointer hover:opacity-70',
+                      modifiedAisles.has(aisle.id) && 'border-blue-500',
+                      newAisles.some((a) => a.id === aisle.id) &&
+                        'border-green-500',
+                    )}
+                    style={{
+                      gridColumnStart: aisle.gridX + 1,
+                      gridColumnEnd: aisle.gridX + aisle.width + 1,
+                      gridRowStart: aisle.gridY + 1,
+                      gridRowEnd: aisle.gridY + aisle.height + 1,
+                      backgroundColor:
+                        aisle.type === 'OBSTACLE' ? '#2c2c2c' : '#6B6B6B',
+                      borderColor: 'transparent',
+                    }}
+                  >
+                    {aisle.type !== 'OBSTACLE' && (
+                      <span
+                        className={cn(
+                          'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-xs pointer-events-none',
+                          aisle.height > aisle.width + 1 && 'rotate-90',
+                        )}
+                      >
+                        {aisle.type}
+                      </span>
+                    )}
+                  </div>
+                ))}
+
+              {/* Draw preview */}
+              {preview && (
                 <div
-                  key={aisle.id}
-                  className="text-center relative"
+                  className="border-2 border-dashed border-blue-400 bg-blue-200/30 pointer-events-none"
                   style={{
-                    gridColumnStart: aisle.gridX + 1,
-                    gridColumnEnd: aisle.gridX + aisle.width + 1,
-                    gridRowStart: aisle.gridY + 1,
-                    gridRowEnd: aisle.gridY + aisle.height + 1,
-                    backgroundColor:
-                      aisle.type === 'OBSTACLE' ? '#2c2c2c' : '#6B6B6B',
+                    gridColumnStart: preview.gridX + 1,
+                    gridColumnEnd: preview.gridX + preview.width + 1,
+                    gridRowStart: preview.gridY + 1,
+                    gridRowEnd: preview.gridY + preview.height + 1,
                   }}
-                >
-                  {aisle.type != 'OBSTACLE' && (
-                    <span
-                      className={cn(
-                        'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
-                        aisle.height > aisle.width + 1 && 'rotate-90',
-                      )}
-                    >
-                      {aisle.type}
-                    </span>
-                  )}
-                </div>
-              ))}
+                />
+              )}
             </div>
           </div>
         </CardContent>

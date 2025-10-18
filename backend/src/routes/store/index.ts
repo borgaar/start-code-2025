@@ -12,7 +12,6 @@ import {
   getAisleRoute,
   updateAisleRoute,
   deleteAisleRoute,
-  getAisleTypesRoute,
 } from "./aisle.routes";
 import {
   addProductToAisleRoute,
@@ -33,7 +32,6 @@ export default route()
   .route("/", getAisleRoute)
   .route("/", updateAisleRoute)
   .route("/", deleteAisleRoute)
-  .route("/", getAisleTypesRoute)
   // Product-Aisle routes
   .route("/", addProductToAisleRoute)
   .route("/", removeProductFromAisleRoute)

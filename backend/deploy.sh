@@ -19,6 +19,7 @@ docker build -t $IMAGE_NAME .
 # REMOVE IF PROJECT DOES NOT USE PRISMA
 echo "-> Migrating database"
 prisma migrate deploy
+pnpm db:seed
 
 echo "-> Stopping and removing old container"
 docker rm -f $DOMAIN || true

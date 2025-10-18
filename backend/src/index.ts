@@ -5,6 +5,7 @@ import { logger } from "hono/logger";
 import { openAPIRouteHandler } from "hono-openapi";
 import { AppVariables, route } from "./lib/route";
 import productRoute from "./routes/products";
+import resourceRoutes from "./routes/resources";
 import shoppingListRoute from "./routes/shopping-lists";
 import storeRoute from "./routes/store";
 import { serveStatic } from "@hono/node-server/serve-static";
@@ -21,7 +22,8 @@ export const createApp = async (variables?: AppVariables) => {
     })
     .route("/products", productRoute)
     .route("/shopping-lists", shoppingListRoute)
-    .route("/store", storeRoute);
+    .route("/store", storeRoute)
+    .route("/resources", resourceRoutes);
 
   const app = route()
     .use(cors())

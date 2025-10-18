@@ -5,6 +5,11 @@ import {
 } from '@tanstack/react-query'
 import { client } from '@/lib/api'
 
+import type { operations } from '@/schemas/openapi.schema'
+
+type AisleTypes =
+  operations['getApiResourcesAisle-types']['responses']['200']['content']['application/json'][number]
+
 export function getStoresOptions() {
   return queryOptions({
     queryKey: ['stores'],
@@ -114,14 +119,27 @@ export function useCreateAisle() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (slug: string) => {
+    mutationFn: async ({
+      slug,
+      body,
+    }: {
+      slug: string
+      body?: {
+        type: AisleTypes
+        gridX: number
+        gridY: number
+        width: number
+        height: number
+      }
+    }) => {
       const { data, error } = await client.POST('/api/store/{slug}/aisle', {
         params: { path: { slug } },
+        body,
       })
       if (error) throw error
       return data
     },
-    onSuccess: (_, slug) => {
+    onSuccess: (_, { slug }) => {
       queryClient.invalidateQueries(getAislesOptions(slug))
     },
   })
@@ -134,14 +152,23 @@ export function useUpdateAisle() {
     mutationFn: async ({
       slug,
       aisleId,
+      body,
     }: {
       slug: string
       aisleId: string
+      body: {
+        type?: AisleTypes
+        gridX?: number
+        gridY?: number
+        width?: number
+        height?: number
+      }
     }) => {
       const { data, error } = await client.PUT(
         '/api/store/{slug}/aisle/{aisleId}',
         {
           params: { path: { slug, aisleId } },
+          body,
         },
       )
       if (error) throw error
@@ -183,7 +210,7 @@ export function getAisleTypesOptions() {
   return queryOptions({
     queryKey: ['aisle-types'],
     queryFn: async () => {
-      const { data, error } = await client.GET('/api/store/aisle-types')
+      const { data, error } = await client.GET('/api/resources/aisle-types')
       if (error) throw error
       return data
     },
