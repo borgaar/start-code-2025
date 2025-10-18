@@ -151,13 +151,47 @@ class MapCubit extends Cubit<MapState> {
   /// - Aisles behind us in the path: white
   /// - Aisles ahead of us in the path: grey
   /// - Obstacles/non-targets: black
+  /// Special case: when newStep == aisleGroups.length (the "done" step),
+  /// all target aisles turn white and the path extends to the very end
   void _navigateToStep(int newStep) {
     final s = state;
     if (s is! MapPathfindingLoaded) return;
 
-    // Validate bounds
-    if (newStep < 0 || newStep >= s.aisleGroups.length) return;
+    // Validate bounds (allow up to aisleGroups.length for the "done" step)
+    if (newStep < 0 || newStep > s.aisleGroups.length) return;
 
+    // Special case: "done" step - show all aisles as white, path to the end
+    if (newStep == s.aisleGroups.length) {
+      final updatedAisles = s.map.aisles.mapIndexed((aisleIdx, aisle) {
+        // Find this aisle's waypoint position in the path
+        final aisleWaypointIdx = s.path.indexWhere(
+          (w) => w.targetAisleIndex == aisleIdx,
+        );
+
+        // If aisle is not in the path (obstacle or non-target), keep it black
+        if (aisleWaypointIdx == -1) {
+          return aisle.copyWith(status: AisleStatus.black);
+        }
+
+        // All target aisles are white at the "done" step
+        return aisle.copyWith(status: AisleStatus.white);
+      }).toList();
+
+      final updatedMap = MapModel(aisles: updatedAisles);
+
+      emit(
+        MapPathfindingLoaded(
+          map: updatedMap,
+          aisleGroups: s.aisleGroups,
+          currentStep: newStep,
+          path: s.path,
+          currentWaypointIndex: s.path.length - 1, // End of path
+        ),
+      );
+      return;
+    }
+
+    // Regular step navigation
     // Calculate waypoint index for the current step
     final currentAisleGroup = s.aisleGroups[newStep];
     final targetAisleIdx = s.map.aisles.indexWhere(
