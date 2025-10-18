@@ -14,7 +14,20 @@ class ProductList extends StatelessWidget {
         if (state is MapLoaded) {
           return CarouselSlider(
             items: state.aisleGroups.map((aisle) => AisleCard(aisle)).toList(),
-            options: CarouselOptions(enableInfiniteScroll: false),
+            options: CarouselOptions(
+              enableInfiniteScroll: false,
+              onPageChanged: (index, reason) {
+                final s = context.read<MapCubit>().state;
+
+                if (s is! MapLoaded) return;
+
+                if (index < s.currentStep) {
+                  context.read<MapCubit>().previous();
+                } else if (index > s.currentStep) {
+                  context.read<MapCubit>().next();
+                }
+              },
+            ),
             carouselController: context
                 .read<MapCubit>()
                 .carouselSliderController,
