@@ -300,3 +300,128 @@ export const getStoreItemAisleLocation = route().get(
     return c.json({ aisle });
   }
 );
+
+export const distributeProductsRoute = route().post(
+  "/:slug/distribute-products",
+  describeRoute({
+    tags: ["store"],
+    summary: "Evenly distribute products across aisles by type",
+    responses: {
+      200: {
+        description: "Products distributed successfully",
+        content: {
+          "application/json": {
+            schema: resolver(
+              z.object({
+                message: z.string(),
+                distributedCount: z.number(),
+              })
+            ),
+          },
+        },
+      },
+      404: {
+        description: "Store not found",
+      },
+      500: {
+        description: "Failed to distribute products",
+      },
+    },
+  }),
+  async (c) => {
+    const { slug } = c.req.param();
+    const db = c.get("db");
+
+    // Verify store exists
+    const store = await db.store.findUnique({
+      where: { slug },
+    });
+
+    if (!store) {
+      return c.json({ error: "Store not found" }, 404);
+    }
+
+    try {
+      // Get all products
+      const products = await db.product.findMany();
+
+      // Get all aisles for this store
+      const aisles = await db.aisle.findMany({
+        where: { storeSlug: slug },
+      });
+
+      if (aisles.length === 0) {
+        return c.json({ error: "No aisles found in this store" }, 400);
+      }
+
+      // Clear existing product-aisle associations for this store
+      await db.productInAisle.deleteMany({
+        where: {
+          aisle: {
+            storeSlug: slug,
+          },
+        },
+      });
+
+      // Group aisles by type
+      type AisleWithProducts = { id: string; products: typeof products };
+      const aislesByType: Record<string, AisleWithProducts[]> = {};
+
+      for (const aisle of aisles) {
+        if (!aislesByType[aisle.type]) {
+          aislesByType[aisle.type] = [];
+        }
+        const aisleTypeArray = aislesByType[aisle.type];
+        if (aisleTypeArray) {
+          aisleTypeArray.push({ id: aisle.id, products: [] });
+        }
+      }
+
+      // Distribute products to aisles based on their type
+      for (const product of products) {
+        const matchingAisles = aislesByType[product.aisleType];
+
+        if (!matchingAisles || matchingAisles.length === 0) {
+          continue;
+        }
+
+        // Find the aisle with the least products to keep distribution even
+        const aisleToAppend = matchingAisles.sort(
+          (a, b) => a.products.length - b.products.length
+        )[0];
+
+        if (aisleToAppend) {
+          aisleToAppend.products.push(product);
+        }
+      }
+
+      // Create ProductInAisle entries
+      const entriesToCreate: { aisleId: string; productId: string }[] = [];
+
+      for (const aisles of Object.values(aislesByType)) {
+        for (const aisle of aisles) {
+          for (const product of aisle.products) {
+            entriesToCreate.push({
+              aisleId: aisle.id,
+              productId: product.productId,
+            });
+          }
+        }
+      }
+
+      if (entriesToCreate.length > 0) {
+        await db.productInAisle.createMany({
+          data: entriesToCreate,
+        });
+      }
+
+      return c.json({
+        message: "Products distributed successfully",
+        distributedCount: entriesToCreate.length,
+      });
+    } catch (error) {
+      console.error("Failed to distribute products:", error);
+      return c.json({ error: "Failed to distribute products" }, 500);
+    }
+  }
+);

@@ -5,6 +5,7 @@ import {
   getStoreBySlugRoute,
   updateStoreRoute,
   deleteStoreRoute,
+  distributeProductsRoute,
 } from "./store.routes";
 import {
   getAislesRoute,
@@ -27,6 +28,7 @@ export default route()
   .route("/", getStoreBySlugRoute)
   .route("/", updateStoreRoute)
   .route("/", deleteStoreRoute)
+  .route("/", distributeProductsRoute)
   // Aisle routes
   .route("/", getAislesRoute)
   .route("/", createAisleRoute)

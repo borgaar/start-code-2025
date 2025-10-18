@@ -327,3 +327,25 @@ export function getAislesWithProductsOptions(slug: string) {
     },
   })
 }
+
+export function useDistributeProducts() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (slug: string) => {
+      const { data, error } = await client.POST(
+        '/api/store/{slug}/distribute-products',
+        {
+          params: { path: { slug } },
+        },
+      )
+      if (error) throw error
+      if (!data) throw new Error('Failed to distribute products')
+      return data
+    },
+    onSuccess: (_, slug) => {
+      queryClient.invalidateQueries(getAislesWithProductsOptions(slug))
+      queryClient.invalidateQueries(getAislesOptions(slug))
+    },
+  })
+}

@@ -159,6 +159,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/store/{slug}/distribute-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Evenly distribute products across aisles by type */
+        post: operations["postApiStore:slugDistribute-products"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/store/{slug}/aisle": {
         parameters: {
             query?: never;
@@ -281,6 +298,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/llm/shopping-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Generate multiple shopping list options based on a recipe query (e.g., 3 different cake recipes) */
+        post: operations["postApiLlmShopping-list"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -319,6 +353,11 @@ export interface operations {
                         unit: string;
                         allergens: string[];
                         carbonFootprintGram: number;
+                        /**
+                         * @default OTHER
+                         * @enum {string}
+                         */
+                        aisleType: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
                         organic: boolean;
                         updatedAt: string;
                         createdAt: string;
@@ -355,6 +394,11 @@ export interface operations {
                         unit: string;
                         allergens: string[];
                         carbonFootprintGram: number;
+                        /**
+                         * @default OTHER
+                         * @enum {string}
+                         */
+                        aisleType: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
                         organic: boolean;
                         updatedAt: string;
                         createdAt: string;
@@ -475,6 +519,11 @@ export interface operations {
                                 unit: string;
                                 allergens: string[];
                                 carbonFootprintGram: number;
+                                /**
+                                 * @default OTHER
+                                 * @enum {string}
+                                 */
+                                aisleType: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
                                 organic: boolean;
                                 updatedAt: string;
                                 createdAt: string;
@@ -611,6 +660,11 @@ export interface operations {
                                 unit: string;
                                 allergens: string[];
                                 carbonFootprintGram: number;
+                                /**
+                                 * @default OTHER
+                                 * @enum {string}
+                                 */
+                                aisleType: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
                                 organic: boolean;
                                 updatedAt: string;
                                 createdAt: string;
@@ -669,6 +723,11 @@ export interface operations {
                             unit: string;
                             allergens: string[];
                             carbonFootprintGram: number;
+                            /**
+                             * @default OTHER
+                             * @enum {string}
+                             */
+                            aisleType: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
                             organic: boolean;
                             updatedAt: string;
                             createdAt: string;
@@ -772,6 +831,11 @@ export interface operations {
                             unit: string;
                             allergens: string[];
                             carbonFootprintGram: number;
+                            /**
+                             * @default OTHER
+                             * @enum {string}
+                             */
+                            aisleType: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
                             organic: boolean;
                             updatedAt: string;
                             createdAt: string;
@@ -987,6 +1051,45 @@ export interface operations {
             };
             /** @description Store not found */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    "postApiStore:slugDistribute-products": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Products distributed successfully */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        message: string;
+                        distributedCount: number;
+                    };
+                };
+            };
+            /** @description Store not found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Failed to distribute products */
+            500: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1379,6 +1482,11 @@ export interface operations {
                             unit: string;
                             allergens: string[];
                             carbonFootprintGram: number;
+                            /**
+                             * @default OTHER
+                             * @enum {string}
+                             */
+                            aisleType: "OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER";
                             organic: boolean;
                             updatedAt: string;
                             createdAt: string;
@@ -1412,6 +1520,58 @@ export interface operations {
                 content: {
                     "application/json": ("OBSTACLE" | "FREEZER" | "DRINKS" | "PANTRY" | "SWEETS" | "CHEESE" | "MEAT" | "DAIRY" | "FRIDGE" | "FRUIT" | "VEGETABLES" | "BAKERY" | "OTHER")[];
                 };
+            };
+        };
+    };
+    "postApiLlmShopping-list": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": {
+                    query: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Success */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        lists: {
+                            title: string;
+                            items: {
+                                productId: string;
+                                name: string;
+                                quantity: number;
+                                unit: string;
+                            }[];
+                        }[];
+                    } | {
+                        error: string;
+                    };
+                };
+            };
+            /** @description Invalid request body */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description LLM API error */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -10,6 +10,7 @@ import {
   getAislesWithProductsOptions,
   useAddProductToAisle,
   useRemoveProductFromAisle,
+  useDistributeProducts,
 } from '@/hooks/use-stores'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -30,6 +31,7 @@ import {
   Loader2Icon,
   PlusIcon,
   TrashIcon,
+  Shuffle,
 } from 'lucide-react'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { cn } from '@/lib/utils'
@@ -113,6 +115,7 @@ function AislesPage() {
   const deleteAisle = useDeleteAisle()
   const updateAisle = useUpdateAisle()
   const updateStore = useUpdateStore()
+  const distributeProducts = useDistributeProducts()
 
   // Drawing state
   const [activeTool, setActiveTool] = useState<Tool | null>(null)
@@ -552,6 +555,24 @@ function AislesPage() {
               >
                 <Trash2 className="mr-2 h-4 w-4" />
                 Delete
+              </Button>
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => {
+                  distributeProducts.mutate(slug)
+                }}
+                disabled={distributeProducts.isPending}
+              >
+                {distributeProducts.isPending ? (
+                  <Loader2Icon className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Shuffle className="mr-2 h-4 w-4" />
+                )}
+                Distribute Products
               </Button>
             </div>
 
