@@ -6,16 +6,18 @@ final class PathfindingAisle extends Equatable {
   final int height;
   final int width;
   final bool isTarget;
+  final String id;
 
   const PathfindingAisle({
     required this.topLeft,
     required this.height,
     required this.width,
     required this.isTarget,
+    required this.id,
   });
 
   @override
-  List<Object?> get props => [topLeft, height, width, isTarget];
+  List<Object?> get props => [topLeft, height, width, isTarget, id];
 }
 
 final class Waypoint extends Equatable {

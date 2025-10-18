@@ -42,6 +42,7 @@ Map<String, dynamic> _serializePathfindingAisle(PathfindingAisle aisle) {
     'height': aisle.height,
     'width': aisle.width,
     'isTarget': aisle.isTarget,
+    'id': aisle.id,
   };
 }
 
@@ -51,6 +52,7 @@ PathfindingAisle _deserializePathfindingAisle(Map<String, dynamic> map) {
     height: map['height'] as int,
     width: map['width'] as int,
     isTarget: map['isTarget'] as bool,
+    id: map['id'] as String,
   );
 }
 

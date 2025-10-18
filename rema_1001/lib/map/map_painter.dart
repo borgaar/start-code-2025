@@ -4,9 +4,9 @@ import 'package:rema_1001/map/pathfinding/pathfinding_aisle.dart';
 import 'package:rema_1001/map/utils.dart';
 
 final dimension = 64;
-final double aisleBorderRadius = 8;
-final softShadowOffset = Offset(4, 12);
-final backgroundBorderRadius = Radius.circular(16);
+final double aisleBorderRadiusBase = 2;
+final double backgroundBorderRadiusBase = 4;
+final softShadowOffset = Offset(8, 10);
 final backgroundColor = Color(0xff434343);
 final backgroundPaint = Paint()..color = backgroundColor;
 
@@ -83,6 +83,7 @@ final class MapPainter implements CustomPainter {
     // Scale factors to convert map coordinates to canvas size
     final scaleX = size.width / dimension;
     final scaleY = size.height / dimension;
+    final aisleBorderRadius = scaleX * aisleBorderRadiusBase;
 
     // Check if this aisle is inside another aisle with a DIFFERENT status
     map_model.Aisle? parentAisle;
@@ -147,6 +148,7 @@ final class MapPainter implements CustomPainter {
   ) {
     final scaleX = size.width / dimension;
     final scaleY = size.height / dimension;
+    final aisleBorderRadius = scaleX * aisleBorderRadiusBase;
 
     // Combine all rectangles into a single path
     Path combinedPath = Path();
@@ -158,7 +160,7 @@ final class MapPainter implements CustomPainter {
           aisle.width * scaleX,
           aisle.height * scaleY,
         ),
-        Radius.circular(9),
+        Radius.circular(aisleBorderRadius),
       );
       combinedPath = Path.combine(
         PathOperation.union,
@@ -212,6 +214,9 @@ final class MapPainter implements CustomPainter {
   }
 
   void _paintBackground(Canvas canvas, Size size) {
+    final backgroundBorderRadius = Radius.circular(
+      size.width / dimension * backgroundBorderRadiusBase,
+    );
     canvas.drawRRect(
       RRect.fromLTRBR(0, 0, size.width, size.height, backgroundBorderRadius),
       backgroundPaint,

@@ -19,17 +19,16 @@ final aisleBlinkingGlowPaint = Paint()
   ..maskFilter = MaskFilter.blur(BlurStyle.normal, 13);
 
 final defaultSoftShadowPaint = Paint()
-  ..color = const Color(0x52000000)
-  ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8);
+  ..color = const Color.fromARGB(82, 42, 42, 42);
+// ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8);
 
 Paint aislePaint(Color color) => Paint()..color = color;
 Paint aisleShadowPaint(Color color) => Paint()..color = color;
 Paint aisleGlowPaint(Color color) => Paint()
   ..color = color
   ..maskFilter = MaskFilter.blur(BlurStyle.normal, 13);
-Paint aisleSoftShadowPaint(Color color) => Paint()
-  ..color = color
-  ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8);
+Paint aisleSoftShadowPaint(Color color) => Paint()..color = color;
+// ..maskFilter = MaskFilter.blur(BlurStyle.normal, 8);
 
 typedef ColorSet = ({
   Paint aislePaint,

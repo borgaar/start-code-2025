@@ -22,6 +22,7 @@ class MapCubit extends Cubit<MapState> {
   MapState? last;
 
   void intialize() async {
+    emit(MapInitial());
     final allShoppingLists = await _shoppingListRepository.getShoppingLists();
     final shoppingListid = allShoppingLists.first.id;
     final aisles = await _aisleRepository.getAislesForStore("elgeseter");
@@ -39,6 +40,7 @@ class MapCubit extends Cubit<MapState> {
         width: a.width,
         height: a.height,
         isTarget: aisleGroups.any((group) => group.aisleId == a.id),
+        id: a.id,
       );
     }).toList();
 
@@ -46,9 +48,8 @@ class MapCubit extends Cubit<MapState> {
       aisles: aisles.mapIndexed((idx, a) {
         AisleStatus status;
 
-        if (pathfindingAisles[idx].isTarget) {
-          status = AisleStatus.white;
-        } else if (a.type == aisle_model.AisleType.OBSTACLE) {
+        if (a.type == aisle_model.AisleType.OBSTACLE ||
+            !pathfindingAisles.any((pa) => pa.id == a.id && pa.isTarget)) {
           status = AisleStatus.black;
         } else {
           status = AisleStatus.grey;

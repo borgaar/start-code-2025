@@ -62,6 +62,7 @@ final class Aisle extends Equatable {
     Paint? hardShadowPaint,
     Paint? softShadowPaint,
     Paint? glowPaint,
+    double? hardShadowHeight,
   }) {
     return Aisle.withColor(
       topLeft: topLeft ?? this.topLeft,
@@ -72,7 +73,7 @@ final class Aisle extends Equatable {
       paint: paint ?? this.paint,
       softShadowPaint: softShadowPaint ?? this.softShadowPaint,
       glowPaint: glowPaint ?? this.glowPaint,
-      hardShadowHeight: hardShadowHeight,
+      hardShadowHeight: hardShadowHeight ?? this.hardShadowHeight,
     );
   }
 
