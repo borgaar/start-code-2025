@@ -13,7 +13,13 @@ pnpm install
 2. Sett opp databasetilkoblingen i `.env`:
 
 ```
-DATABASE_URL="postgresql://BRUKER:PASSORD@VERT:PORT/DATABASE?schema=public"
+DATABASE_URL="postgresql://postgres:password@localhost:5432/rema_1001"
+```
+
+3. Start databasen:
+
+```
+docker compose up -d
 ```
 
 3. Push skjemaet til databasen:
