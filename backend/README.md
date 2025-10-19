@@ -1,101 +1,100 @@
 # Backend API
 
-A modern REST API built with Hono, Prisma ORM, PostgreSQL, Zod validation, and OpenAPI documentation.
+Et moderne REST API bygget med Hono, Prisma ORM, PostgreSQL, Zod-validering og OpenAPI-dokumentasjon.
 
-## Setup
+## Oppsett
 
-1. Install dependencies:
+1. Installer avhengigheter:
 
 ```bash
 pnpm install
 ```
 
-2. Set up your database connection in `.env`:
+2. Sett opp databasetilkoblingen i `.env`:
 
 ```
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE?schema=public"
+DATABASE_URL="postgresql://BRUKER:PASSORD@VERT:PORT/DATABASE?schema=public"
 ```
 
-3. Push the schema to your database:
+3. Push skjemaet til databasen:
 
 ```bash
 pnpm run db:push
 ```
 
-Or create a migration:
+Eller opprett en migrasjon:
 
 ```bash
 pnpm run db:migrate
 ```
 
-4. (Optional) Seed the database with sample data:
+4. (Valgfritt) Seed databasen med eksempeldata:
 
 ```bash
 pnpm run db:seed
 ```
 
-## Development
+## Utvikling
 
-Start the development server:
+Start utviklingsserveren:
 
 ```bash
-pnpm run dev
+pnpm dev
 ```
 
-The server will be available at:
+Serveren vil være tilgjengelig på:
 
 - API: http://localhost:3000
-- API Documentation (Scalar): http://localhost:3000/docs
-- OpenAPI Spec: http://localhost:3000/openapi.json
+- API-dokumentasjon (Scalar): http://localhost:3000/docs
 
-## Available Scripts
+## Tilgjengelige Skript
 
-- `pnpm run dev` - Start development server with hot reload
-- `pnpm run build` - Build for production
-- `pnpm run start` - Start production server
-- `pnpm run db:generate` - Generate Prisma Client
-- `pnpm run db:push` - Push schema changes to database (no migration)
-- `pnpm run db:migrate` - Create and run migrations
-- `pnpm run db:studio` - Open Prisma Studio (database GUI)
-- `pnpm run db:seed` - Seed the database with sample data
+- `pnpm run dev` - Start utviklingsserver med hot reload
+- `pnpm run build` - Bygg for produksjon
+- `pnpm run start` - Start produksjonsserver
+- `pnpm run db:generate` - Generer Prisma Client
+- `pnpm run db:push` - Push skjemaendringer til database (ingen migrasjon)
+- `pnpm run db:migrate` - Opprett og kjør migrasjoner
+- `pnpm run db:studio` - Åpne Prisma Studio (database-GUI)
+- `pnpm run db:seed` - Seed databasen med eksempeldata
 
-## API Documentation
+## API-dokumentasjon
 
-All endpoints are documented with OpenAPI/Swagger and include:
+Alle endepunkter er dokumentert med OpenAPI/Swagger og inkluderer:
 
-- **Zod validation** for request/response schemas
-- **Automatic type inference** for TypeScript
-- **Interactive API documentation** via Scalar
+- **Zod-validering** for forespørsels-/responsskjemaer
+- **Automatisk typeinferens** for TypeScript
+- **Interaktiv API-dokumentasjon** via Scalar
 
-Visit http://localhost:3000/docs to explore the API interactively.
+Besøk http://localhost:3000/docs for å utforske API-et interaktivt.
 
-### Available Endpoints
+### Tilgjengelige Endepunkter
 
-**Products**
+**Produkter**
 
-- `GET /products` - List all products (supports filtering and pagination)
-- `GET /products/{id}` - Get a single product by ID
-- `POST /products` - Create a new product
-- `PATCH /products/{id}` - Update a product
-- `DELETE /products/{id}` - Delete a product (soft delete)
+- `GET /products` - List alle produkter (støtter filtrering og paginering)
+- `GET /products/{id}` - Hent et enkelt produkt via ID
+- `POST /products` - Opprett et nytt produkt
+- `PATCH /products/{id}` - Oppdater et produkt
+- `DELETE /products/{id}` - Slett et produkt (soft delete)
 
-### Query Parameters
+### Query-parametere
 
-**GET /products** supports:
+**GET /products** støtter:
 
-- `category` - Filter by category
-- `isActive` - Filter by active status (true/false)
-- `limit` - Limit number of results
-- `offset` - Skip number of results
+- `category` - Filtrer etter kategori
+- `isActive` - Filtrer etter aktiv status (true/false)
+- `limit` - Begrens antall resultater
+- `offset` - Hopp over antall resultater
 
-### Example: Create a Product
+### Eksempel: Opprett et Produkt
 
 ```bash
 curl -X POST http://localhost:3000/products \
   -H "Content-Type: application/json" \
   -d '{
-    "name": "Test Product",
-    "description": "A test product",
+    "name": "Testprodukt",
+    "description": "Et testprodukt",
     "price": 29.99,
     "stock": 10,
     "sku": "TEST-001",
@@ -103,13 +102,13 @@ curl -X POST http://localhost:3000/products \
   }'
 ```
 
-### Example: List Products with Filters
+### Eksempel: List Produkter med Filtre
 
 ```bash
-curl "http://localhost:3000/products?category=Electronics&isActive=true&limit=10"
+curl "http://localhost:3000/products?category=Elektronikk&isActive=true&limit=10"
 ```
 
-### Example: Update a Product
+### Eksempel: Oppdater et Produkt
 
 ```bash
 curl -X PATCH http://localhost:3000/products/{id} \
@@ -120,26 +119,26 @@ curl -X PATCH http://localhost:3000/products/{id} \
   }'
 ```
 
-## Development Guide
+## Utviklingsguide
 
-### Creating New Endpoints
+### Opprette Nye Endepunkter
 
-1. **Define Zod schemas** in `src/schemas/`
-2. **Create OpenAPI routes** in `src/routes/`
-3. **Implement handlers** in `src/handlers/`
-4. **Register handlers** in `src/index.ts`
+1. **Definer Zod-skjemaer** i `src/schemas/`
+2. **Opprett OpenAPI-ruter** i `src/routes/`
+3. **Implementer handlere** i `src/handlers/`
+4. **Registrer handlere** i `src/index.ts`
 
-### Example: Adding a New Endpoint
+### Eksempel: Legge til et Nytt Endepunkt
 
 ```typescript
-// 1. Create schema (src/schemas/product.schema.ts)
+// 1. Opprett skjema (src/schemas/product.schema.ts)
 export const CreateProductSchema = z.object({
   name: z.string().min(1),
   price: z.number().positive(),
-  // ... more fields
+  // ... flere felter
 });
 
-// 2. Create route (src/routes/products.routes.ts)
+// 2. Opprett rute (src/routes/products.routes.ts)
 export const createProductRoute = createRoute({
   method: "post",
   path: "/products",
@@ -159,12 +158,12 @@ export const createProductRoute = createRoute({
           schema: ProductSchema,
         },
       },
-      description: "Product created",
+      description: "Produkt opprettet",
     },
   },
 });
 
-// 3. Create handler (src/handlers/products.handlers.ts)
+// 3. Opprett handler (src/handlers/products.handlers.ts)
 app.openapi(createProductRoute, async (c) => {
   const db = c.get("db");
   const body = c.req.valid("json");
@@ -174,9 +173,9 @@ app.openapi(createProductRoute, async (c) => {
 });
 ```
 
-### Accessing Database in Endpoints
+### Tilgang til Database i Endepunkter
 
-The Prisma client is available in all endpoints via the Hono context:
+Prisma-klienten er tilgjengelig i alle endepunkter via Hono-konteksten:
 
 ```typescript
 app.openapi(someRoute, async (c) => {
@@ -185,20 +184,3 @@ app.openapi(someRoute, async (c) => {
   return c.json(products);
 });
 ```
-
-## Generating Frontend Types
-
-You can generate TypeScript types for your frontend from the OpenAPI specification:
-
-1. **Download the OpenAPI spec:**
-
-```bash
-curl http://localhost:3000/openapi.json > openapi.json
-```
-
-2. **Use a code generator** like:
-   - [openapi-typescript](https://www.npmjs.com/package/openapi-typescript)
-   - [openapi-typescript-codegen](https://www.npmjs.com/package/openapi-typescript-codegen)
-   - Or use the Scalar docs to explore the API and manually create types
-
-The OpenAPI spec includes all request/response schemas validated by Zod, ensuring type safety across your full stack.
