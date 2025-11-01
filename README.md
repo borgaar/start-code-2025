@@ -1,4 +1,4 @@
-# Start CODE 2025
+# Start Code 2025
 
 A full-stack Flutter application submitted for the 48h Start Code 2025 hackathon.
 
