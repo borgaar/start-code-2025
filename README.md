@@ -10,6 +10,8 @@ Made by:
 - [Alexander Evensen](https://github.com/AleksanderEvensen)
 - [Henrik Hausberk](https://github.com/henrikhaus)
 
+# Presentasjon
+For å se en rask gjennomgang av applikasjonen, kan du se gjennom `Start Code 2025.pdf`.
 
 # App
 
